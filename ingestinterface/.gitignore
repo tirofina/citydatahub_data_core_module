@@ -1,0 +1,8 @@
+/target/
+/bin/
+/.settings/
+logs/
+.classpath
+.project
+/.idea/
+/ingest-interface.iml

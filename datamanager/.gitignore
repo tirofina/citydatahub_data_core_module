@@ -1,0 +1,9 @@
+/target/
+/bin/
+/.settings/
+logs/
+.classpath
+.project
+.springBeans
+/data-manager.iml
+/.idea/
