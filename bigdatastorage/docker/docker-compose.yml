@@ -1,0 +1,60 @@
+version: '3.4'
+
+services:
+  postgres:
+    container_name: 7x_postgres
+    build:
+      context: ./postgis
+    restart: always
+    hostname: 7x_postgres
+    environment:
+      TZ: Asia/Seoul
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: post123!
+      NEW_DB_USER: hive
+      NEW_DB_PASSWORD: hive123!
+      NEW_DB_DATABASE: hive
+    # volumes:
+    #   - data-volume:/var/lib/postgresql/data
+    ports:
+      - 54321:5432
+    # networks:
+    #   - alex-local-bridge
+    #   - local-overlay
+
+  hadoop:
+    container_name: hadoop
+    image: hadoop:latest
+    build:
+      context: ./hadoop
+    restart: always
+    hostname: hadoop
+    privileged: true
+    environment:
+      HADOOP_CONF_DIR: "/conf/hadoop"
+    volumes:
+      - ./conf:/conf
+    # command: ln -srf /conf/hadoop/* /usr/local/hadoop/etc/hadoop/ && /usr/sbin/init
+
+  thrift:
+    container_name: thrift
+    image: thrift:latest
+    build:
+      context: ./thrift
+    hostname: thrift
+    environment:
+      HADOOP_CONF_DIR: "/conf/hadoop"
+    volumes:
+      - ./conf/hadoop/core-site.xml:/usr/local/spark/conf/core-site.xml
+      - ./conf/hadoop/yarn-site.xml:/usr/local/spark/conf/yarn-site.xml
+      - ./conf/hadoop/hdfs-site.xml:/usr/local/spark/conf/hdfs-site.xml
+      - ./conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml
+    ports:
+      - 12378:10000 # for thrift-server
+    environment:
+      TZ: "Asia/Seoul"
+
+networks:
+  default:
+    external:
+      name: local-docker-bridge

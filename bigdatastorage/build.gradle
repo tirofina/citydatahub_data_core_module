@@ -1,0 +1,74 @@
+apply plugin: 'scala'
+apply plugin: 'maven'
+
+group 'io.dtonic.thrift'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url 'https://repo.hortonworks.com/content/repositories/releases/'
+    }
+
+    maven {
+        url "http://conjars.org/repo"
+    }
+}
+
+task makeTar(type: Tar) {
+    into('thrift-server/bin') {
+        from 'bin'
+    }
+    into('thrift-server/sbin') {
+        from 'sbin'
+    }
+    into('thrift-server/libs') {
+        from 'libs'
+        from jar
+    }
+
+    baseName = 'thrift-server'
+    destinationDirectory = file("$buildDir/dist")
+    extension('tar.gz')
+    compression = Compression.GZIP
+
+    doLast {
+        copy {
+            from "$buildDir/dist/thrift-server-1.0.tar.gz"
+            into "docker/thrift/thrift-server/"
+
+        }
+    }
+}
+
+dependencies {
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.apache.spark:spark-core_2.12:3.0.1'
+    testCompile 'org.apache.spark:spark-sql_2.12:3.0.1'
+    testCompile 'org.apache.spark:spark-hive_2.12:3.0.1'
+    testCompile 'org.apache.spark:spark-hive-thriftserver_2.12:3.0.1'
+
+    compile 'org.scala-lang:scala-library:2.12.10'
+    compile 'org.apache.spark:spark-core_2.12:3.0.1'
+    compile 'org.apache.spark:spark-sql_2.12:3.0.1'
+    compile 'org.apache.spark:spark-hive_2.12:3.0.1'
+    compile 'org.apache.spark:spark-hive-thriftserver_2.12:3.0.1'
+    compile 'org.wololo:jts2geojson:0.16.1'
+
+    compile 'org.apache.sedona:sedona-core-3.0_2.12:1.0.0-incubating'
+    compile 'org.apache.sedona:sedona-sql-3.0_2.12:1.0.0-incubating'
+    compile 'org.locationtech.jts:jts-core:1.18.0'
+
+    compile files('libs/geohiker-core-1.0.jar')
+    compile files('libs/geohiker-index-1.0.jar')
+    compile files('libs/geohiker-spark-1.0.jar')
+    compile files('libs/geohiker-datastore-1.0.jar')
+
+    compile (group: 'org.apache.hive', name: 'hive-hbase-handler', version: '2.3.7') {
+        exclude group: 'org.apache.hive', module: 'hive-exec'
+    }
+}

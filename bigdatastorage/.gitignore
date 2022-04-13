@@ -1,0 +1,8 @@
+.idea/*
+build/*
+.gradle/*
+geohiker-migrator/*
+lib.txt
+
+docker/thrift/thrift-server
+bin/main
