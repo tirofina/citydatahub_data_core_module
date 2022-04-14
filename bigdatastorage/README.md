@@ -16,15 +16,13 @@ BigDataStorageHandler supports the ability to store / process / analyze the requ
 
 You can choose 3 way to install by [preinstallation](./docs/2.%20installation%20guide/2.1_preinstallation/preinstallation.md)
 
-if you want install manually, follow up this documents to configure
+if you want install manually, follow up this documents to configure and run thrift server
 
 [2.2 environment variable](./docs/2.%20installation%20guide/2.2_environment%20variable/environment%20variable.md)
 
 [2.3 meta db selection](./docs/2.%20installation%20guide/2.3_meta%20db%20settings/meta%20db%20selection.md)
 
 [2.4 spark settings](./docs/2.%20installation%20guide/2.4_spark%20settings/spark%20settings.md)
-
-and run thrift server
 
 [2.5 run thrift server](./docs/2.%20installation%20guide/2.5_run%20thrift%20server/run%20thrift%20server.md)
 
