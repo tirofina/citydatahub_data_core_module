@@ -41,6 +41,9 @@ import routes from './routes/routes'
 import './registerServiceWorker'
 
 import TuiGrid from 'tui-grid'
+import i18n from './moudules/i18n'
+
+// TODO going to fix it.
 TuiGrid.setLanguage('en', { display: { noData: 'No search result.' } })
 
 Vue.component('vue-simple-context-menu', VueSimpleContextMenu);
@@ -51,7 +54,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 axios.defaults.headers.timeout = 60000;
 Vue.prototype.$http = axios;
 
-locale.use(lang);
+locale.use(lang); // TODO going to fix it.
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(LightBootstrap);
@@ -77,5 +80,6 @@ const router = new VueRouter({
 new Vue({
   el: '#app',
   render: h => h(App),
-  router
+  router,
+  i18n
 });

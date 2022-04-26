@@ -19,7 +19,7 @@
       </div>
       <div class="row pt-2" v-show="accordion">
         <div class="col-md-5 col-sm-12">
-          <p class="ml-2" style="font-size: 12px;">※ To configure each widget, double click on the right-top corner.</p>
+          <p class="ml-2" style="font-size: 12px;">※ {{ $t('message.dashboardDescription') }}</p>
         </div>
         <div class="col-md-3 col-sm-12">
           <el-select
@@ -46,12 +46,10 @@
               placement="top"
               width="200"
               v-model="messageVisible">
-              <p style="font-size: 12px;">
-                삭제하시겠습니까?
-              </p>
+              <p style="font-size: 12px;">{{ $t('message.deleteCheck') }}</p>
               <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="" @click="messageVisible = false">Cancel</el-button>
-                <el-button type="primary" size="mini" @click="deleteDashboard">OK</el-button>
+                <el-button size="mini" type="" @click="messageVisible = false">{{ $t('comm.cancel') }}</el-button>
+                <el-button type="primary" size="mini" @click="deleteDashboard">{{ $t('comm.ok') }}</el-button>
               </div>
               <el-button
                 slot="reference"
@@ -59,7 +57,7 @@
                 size="small"
                 type="info"
               >
-                Delete Dashboard
+                {{ $t('dashboard.deleteDashboard') }}
               </el-button>
             </el-popover>
             <el-button
@@ -67,14 +65,14 @@
               size="small" type="info"
               @click="updateDashboard"
             >
-              Save Dashboard
+              {{ $t('dashboard.saveDashboard') }}
             </el-button>
             <el-button
               class="mr-2"
               size="small" type="info"
               @click="addDashboard"
             >
-              Add Dashboard
+              {{ $t('dashboard.addDashboard') }}
             </el-button>
           </div>
         </div>
@@ -89,9 +87,9 @@
         </div>
         <div class="col-md-3 col-sm-12">
           <div class="row flex-row-reverse mt-2">
-            <el-button type="info" @click="layoutSave" size="small">Save Layout</el-button>
+            <el-button type="info" @click="layoutSave" size="small">{{ $t('dashboard.saveLayout') }}</el-button>
             <el-button class="mr-2" size="small" type="primary" @click="showChartPopup"> +
-              Add Widget
+              {{ $t('dashboard.addWidget') }}
             </el-button>
           </div>
         </div>
@@ -383,7 +381,7 @@ export default {
       });
       widgetApi.update(chartSize)
         .then(data => {
-          this.$alert('Saved.');
+          this.$alert(this.$i18n.t('message.saved'));
         });
     },
     activeTitleEdit() {
@@ -458,7 +456,7 @@ export default {
     },
     addDashboard() {
       const dashboard = {
-        dashboardName: 'Provide widget title here.'
+        dashboardName: this.$i18n.t('message.defaultWidgetTitle')
       }
       dashboardApi.create(dashboard)
         .then(data => {
@@ -472,7 +470,7 @@ export default {
       const {dashboardId} = this.selectedDashboard;
       dashboardApi.delete(dashboardId)
         .then(() => {
-          this.$alert('Deleted.');
+          this.$alert(this.$i18n.t('message.deleted'));
           this.dashboardList = this.dashboardList.filter(item => item.dashboardId !== dashboardId);
           if (this.dashboardList.length > 0) {
             this.selectedDashboard = this.dashboardList[0];
@@ -489,7 +487,7 @@ export default {
     updateDashboard() {
       dashboardApi.modify(this.selectedDashboard)
         .then(() => {
-          this.$alert('Saved.');
+          this.$alert(this.$i18n.t('message.saved'));
         })
     },
     // widget
