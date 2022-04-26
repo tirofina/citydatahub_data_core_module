@@ -114,9 +114,9 @@ import ElementTree from '../components/ElementTree';
 import DynamicSearch from '../components/DynamicSearch';
 import JsonViewer from 'vue-json-viewer';
 import axios from "axios";
+import i18n from '@/moudules/i18n';
 
-// TODO 언어 적용
-TuiGrid.setLanguage('en');
+TuiGrid.setLanguage(i18n.locale);
 TuiGrid.applyTheme('striped');
 
 export default {

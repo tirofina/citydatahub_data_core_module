@@ -43,8 +43,7 @@ import './registerServiceWorker'
 import TuiGrid from 'tui-grid'
 import i18n from './moudules/i18n'
 
-// TODO going to fix it.
-TuiGrid.setLanguage('en', { display: { noData: 'No search result.' } })
+TuiGrid.setLanguage(i18n.locale, { display: { noData: i18n.t('message.noSearchResult') } });
 
 Vue.component('vue-simple-context-menu', VueSimpleContextMenu);
 
@@ -54,7 +53,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 axios.defaults.headers.timeout = 60000;
 Vue.prototype.$http = axios;
 
-locale.use(lang); // TODO going to fix it.
+locale.use(i18n.locale);
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(LightBootstrap);

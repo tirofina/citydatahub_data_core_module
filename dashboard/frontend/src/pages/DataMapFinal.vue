@@ -1,63 +1,224 @@
 <template>
-  <div style="padding: 20px;">
-    <div style="text-align: center; font-weight: bold;">
-      <label style="font-size: 12px;">
-        {{chartTitle}}
-      </label>
-    </div>
-    <gmap-map
-      id="map"
-      :center="center"
-      :zoom="10"
-      :options="options"
-      ref="geoMap"
-      :draggable="true"
-      @dragend="updateCoordinates"
-    >
-      <gmap-cluster :gridSize="10">
-        <gmap-marker
-          v-for="(m, index) in markers"
-          :key="m.position.id"
-          :position="m.position"
-          :clickable="true"
-          :draggable="false"
-          :icon="m.icon"
-          :zIndex="m.zIndex"
-          :animation="m.animation"
-          @click="onMarkerClick(m)"
-        >
-          <gmap-info-window v-if="m.displayValue" :opened="isInfoWindow" :position="m.position">
-            <label>{{ m.displayValue }}</label>
-          </gmap-info-window>
-        </gmap-marker>
-      </gmap-cluster>
-    </gmap-map>
-    <div class="col-xl-4" style="display: none;">
-      <div class="text-right mt-2 mb-2">
-        <el-button size="small" type="primary" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
-        <el-button size="small" type="primary" :disabled="isHistoryBtn" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">{{ $t('search.mapSearchLatest') }}</h4>
+              <!-- v2.0 dashboard add -->
+              <div class="mt-12 mb-12 text-right">
+                <el-select
+                  v-model="latestValue"
+                  filterable
+                  :placeholder="$t('message.selectMap')"
+                  size="small"
+                  style="margin-right: 10px;"
+                  @change="getLatest"
+                >
+                  <el-option
+                    v-for="item in latestList"
+                    :key="item.mapSearchConditionId"
+                    :label="item.mapSearchConditionName"
+                    :value="item.mapSearchConditionId">
+                  </el-option>
+                </el-select>
+                <el-button type="primary" icon="el-icon-edit" size="small" :disabled="!latestValue" @click="createMap">{{ $t('search.newMap') }}</el-button>
+                <el-button type="info" icon="el-icon-check" size="small" @click="saveMap">{{ $t('comm.save') }}</el-button>
+                <el-button type="info" icon="el-icon-delete" size="small" :disabled="isRemoveBtn" @click="removeMap">{{ $t('comm.delete') }}</el-button>
+              </div>
+              <!-- v2.0 dashboard add -->
+            </div>
+
+            <div class="card-body">
+              <div class="mt-4 mb-2">
+                <div class="row">
+                  <div class="col-8">
+                    <el-tag
+                      :key="tag"
+                      v-for="(tag, index) in dynamicTags"
+                      closable
+                      class="mt-2"
+                      :disable-transitions="false"
+                      @click="handleInputConfirm(tag)"
+                      @close="handleTagClose(tag)"
+                      effect="dark"
+                      :color="tagTypes[index]"
+                      style="border: none;"
+                    >
+                      {{ tag }}
+                    </el-tag>
+                  </div>
+                  <div class="col text-right">
+                    <el-button size="small" class="button-new-tag mt-1" style="margin-right: 0;" @click="onShowPopup">+ Data Model(s)</el-button>
+                    <el-button size="small" type="info" style="margin-right: 1px;" @click="getEntitiesIsMap">{{ $t('comm.search') }}</el-button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- v2.0 dashboard add -->
+              <div class="row mb-2">
+                <div class="col-xl-8">
+                  <h4 style="margin: 0;" v-if="!isChangeName" @dblclick="changeName">{{latestName}}</h4>
+                  <el-input
+                    v-if="isChangeName"
+                    type="text"
+                    :placeholder="$t('message.enterTitle')"
+                    v-model="latestName"
+                    maxlength="32"
+                    show-word-limit
+                    size="small"
+                    @blur="focusOut"
+                  >
+                  </el-input>
+                </div>
+              </div>
+              <!-- v2.0 dashboard add -->
+
+              <div class="row">
+                <div class="col-xl-8">
+                  <gmap-map
+                    id="map"
+                    :center="center"
+                    :zoom="10"
+                    :options="options"
+                    ref="geoMap"
+                    :draggable="true"
+                    @dragend="updateCoordinates"
+                  >
+                    <gmap-cluster :gridSize="10">
+                      <gmap-marker
+                        v-for="(m, index) in markers"
+                        :key="m.position.id"
+                        :position="m.position"
+                        :clickable="true"
+                        :draggable="false"
+                        :icon="m.icon"
+                        :zIndex="m.zIndex"
+                        :animation="m.animation"
+                        @click="onMarkerClick(m)"
+                      >
+                        <gmap-info-window v-if="m.displayValue" :opened="isInfoWindow" :position="m.position">
+                          <label>{{ m.displayValue }}</label>
+                        </gmap-info-window>
+                      </gmap-marker>
+                    </gmap-cluster>
+                  </gmap-map>
+                </div>
+                <div class="col-xl-4">
+                  <div class="text-right mt-2 mb-2">
+                    <el-button size="small" type="info" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
+                    <el-button size="small" type="info" :disabled="isHistoryBtn" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
+                  </div>
+                  <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
+                  <grid
+                    :data="gridData"
+                    :columns="[{ header: $i18n.t('search.entityID'), name: 'id', align: 'center' }]"
+                    :rowHeaders="rowHeaders"
+                    @check="onChecked"
+                    @checkAll="onChecked"
+                    @uncheck="onUnChecked"
+                    @uncheckAll="onUnChecked"
+                    :scrollX="false"
+                    :bodyHeight="500"
+                    @click="onGridClick"
+                    ref="tuiGrid1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
-      <grid
-        :data="gridData"
-        :columns="[{ header: 'Entity ID', name: 'id', align: 'center' }]"
-        :rowHeaders="rowHeaders"
-        @check="onChecked"
-        @checkAll="onChecked"
-        @uncheck="onUnChecked"
-        @uncheckAll="onUnChecked"
-        :scrollX="false"
-        :bodyHeight="500"
-        @click="onGridClick"
-        ref="tuiGrid1"
-      />
     </div>
+    <SearchConfiguration
+      :visible="dialogVisible"
+      @close-event="handleClose"
+      @tab-click="tabClick"
+      activeName="first"
+    >
+      <template v-slot:selectBox>
+        <el-select
+          v-model="selected"
+          placeholder="Select"
+          size="small"
+          @change="onDataModelChange"
+          :disabled="isSelectDisabled"
+        >
+          <el-option
+            v-for="item in dataModels"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value"
+            :disabled="item.disabled"
+          >
+          </el-option>
+        </el-select>
+      </template>
+      <template v-slot:inputBox>
+        <label class="mr-sm-2 ml-4">{{ $t('search.keywords') }}</label>
+        <b-form-input
+          id="inline-form-input-name"
+          class="mb-2 mr-sm-2 mb-sm-0"
+          :placeholder="$i18n.t('search.provideKeyword')"
+          v-model="searchValue"
+          :disabled="isDisabledSearch"
+        ></b-form-input>
+        <el-checkbox v-model="searchChecked" @change="onSearchChecked"></el-checkbox>
+      </template>
+      <template v-slot:tree>
+        <ElementTree :treeData="treeData" @on-tree-event="onTreeEvent" :checkList="dynamicQuery" nodeKey="query">
+        </ElementTree>
+      </template>
+      <template v-slot:addQuery>
+        <b-form inline class="mb-4">
+          <label class="mr-sm-2">ID</label>
+          <b-form-input
+            id="inline-form-input-name"
+            class="mb-2 mr-sm-2 mb-sm-0"
+            v-model="searchId"
+            disabled
+          ></b-form-input>
+          <div class="ml-1">
+            <el-button size="small" type="info" @click="addDynamicSearch">{{ $t('comm.add') }}</el-button>
+            <el-button size="small" type="primary" @click="handleDynamicSearchSave">{{ $t('comm.save') }}</el-button>
+          </div>
+        </b-form>
+        <DynamicSearch v-for="(map, index) in addList" :formData="map" :index="index" @remove="searchRemove" />
+      </template>
+      <template v-slot:buttonGroup>
+        <el-popover
+          placement="top"
+          width="200"
+          v-model="visible3">
+          <p style="font-size: 12px;">
+            {{ $t('message.resetCheck') }}
+          </p>
+          <div style="text-align: right; margin: 0">
+            <el-button size="mini" type="" @click="visible3 = false">{{ $t('comm.cancel') }}</el-button>
+            <el-button type="primary" size="mini" @click="initClose">{{ $t('comm.ok') }}</el-button>
+          </div>
+          <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('comm.reset') }}</el-button>
+        </el-popover>
+        <el-button class="ml-1" type="primary" @click="handleSave" size="small">{{ $t('comm.save') }}</el-button>
+      </template>
+      <template v-slot:radios>
+        <ElementTree
+          nodeKey="attrs"
+          :treeData="treeData"
+          :radioBox="true"
+          :radioValue="attributeValue"
+          @on-attr-event="onAttrEvent"
+        >
+        </ElementTree>
+      </template>
+    </SearchConfiguration>
+
     <el-dialog
       title="Model Attribute"
       :visible.sync="dialogVisible2"
-      width="80%"
-      :before-close="handleClose"
-    >
+      width="30%"
+      :before-close="handleClose">
       <div class="mb-3">
         <b-form inline>
           <label class="mr-sm-2">{{ $t('comm.id') }}</label>
@@ -70,7 +231,7 @@
         </b-form>
       </div>
       <div class="card">
-        <div class="card-body" style="height: 10vmax; overflow-y: auto;">
+        <div class="card-body" style="height: 20vmax; overflow-y: auto;">
           <JsonViewer
             :value="detailData"
             :expand-depth=5
@@ -86,23 +247,15 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
+
 /**
- * Dashboard Widget Latest Map Type Page
- * Components used to register dashboard widgets
- * @component
- * - Grid,
- * - SearchConfiguration,
- * - ElementTree,
- * - DynamicSearch,
- * - JsonViewer,
- * - GmapCluster
- * @props latestId, chartTitle, elementId
- * @state data () { ... }
+ * Latest Map Page.
+ * @components Grid, SearchConfiguration, ElementTree, DynamicSearch
+ * JsonViewer, GmapMap, GmapMarker, GmapCluster
  */
 import { latestApi } from '@/moudules/apis';
-import {gmapApi as google, loadGmapApi} from 'vue2-google-maps';
+import { loadGmapApi, gmapApi as google } from 'vue2-google-maps';
 import GmapMap from 'vue2-google-maps/src/components/map';
 import GmapCluster from 'vue2-google-maps/src/components/cluster';
 import GmapMarker from 'vue2-google-maps/src/components/marker';
@@ -113,19 +266,14 @@ import TuiGrid from 'tui-grid';
 import ElementTree from '../components/ElementTree';
 import DynamicSearch from '../components/DynamicSearch';
 import JsonViewer from 'vue-json-viewer';
-import axios from "axios";
 
-// TODO 언어 적용
-TuiGrid.setLanguage('en');
+import axios from 'axios';
+
+TuiGrid.setLanguage('ko');
 TuiGrid.applyTheme('striped');
 
 export default {
-  name: 'DashboardLatestMap',
-  props: {
-    latestId: String,
-    chartTitle: String,
-    elementId: String
-  },
+  name: 'DataMapFinal',
   components: {
     Grid,
     SearchConfiguration,
@@ -148,6 +296,11 @@ export default {
         })
       });
   },
+  // watch: {
+  //   google(api) {
+  //     this.googleMap = api;
+  //   }
+  // },
   data () {
     return {
       gridSize: 0,
@@ -212,24 +365,30 @@ export default {
       latestName: this.$i18n.t('message.enterTitle'),
       searchCondition: [],
       subscriptionCondition: [],
+      isChangeName: false,
       isRemoveBtn: true
     }
   },
   methods: {
-    // map title input focus out event
     focusOut() {
+      this.isChangeName = false;
       if (!this.latestName) {
-        this.latestName = this.$i18n.t('message.enterTitle');
+        this.latestName = this.$i18n.t('message.enterTitle')
       }
     },
-    // websocket connection handler
+    changeName() {
+      this.isChangeName = true;
+    },
+    // websocket connection
     socketConnect() {
       if (!this.websocket) {
+        // TODO process.env - subtract it as an environmental variable.
+        // const serverURL = 'ws://localhost:38081/events'
         const serverURL = `ws://${ window.location.host }/events`;
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
-          // console.log(event);
+          console.log(event);
           this.onOpen();
         };
 
@@ -238,12 +397,11 @@ export default {
         };
 
         this.websocket.onclose = (event) => {
-          // console.log(event);
+          console.log(event);
           console.log('websocket close');
         };
       }
     },
-    // websocket open event function
     onOpen() {
       const entityIds = [];
       this.subscribeList.map(item => {
@@ -252,8 +410,6 @@ export default {
       const data = { subscriptionId: this.subscriptionId, entityIds: entityIds };
       this.websocket.send(JSON.stringify(data));
     },
-    // websocket message event function
-    // from the server
     onMessage(event) {
       if (this.timeout) {
         clearTimeout(this.timeout);
@@ -278,7 +434,7 @@ export default {
         });
       });
 
-      this.markers = []; // init map marker
+      this.markers = []; // Initialize the marker to refresh it.
       markers.map(item => {
         this.markers.push({
           position: item.position,
@@ -299,7 +455,6 @@ export default {
         this.markers = temp;
       }, 9000);
     },
-    // websocket disconnect event function
     disconnect() {
       if (this.websocket){
         this.websocket.close();
@@ -313,27 +468,28 @@ export default {
         map.setZoom(10);
       });
     },
-    // get the latest list
+    // Call the list of registered latests.
     getLatestList() {
       latestApi.fetch('latest')
         .then(data => {
           this.latestList = data;
         });
     },
-    // get the latest detail
+    // Call the registered latest details.
     getLatest(value) {
       this.subscriptionId = null;
       this.isRemoveBtn = false;
+      this.isChangeName = false;
       this.searchCondition = [];
       this.subscriptionCondition = [];
       this.dynamicTags = [];
       this.displayAttribute = {};
       this.subscribeList = [];
 
-      this.initMap();
-      this.markers = [];
-      this.disconnect();
-      this.gridData = [];
+      this.initMap();     // init map
+      this.markers = [];  // init marker
+      this.disconnect();  // stop websocket
+      this.gridData = []; // init entity id list
       this.$refs.tuiGrid1.invoke('resetData', this.gridData);
 
       latestApi.detail(value)
@@ -347,14 +503,12 @@ export default {
             this.dynamicTags.push(item.dataModelId);
             this.displayAttribute[item.dataModelId] = item.displayAttribute;
           });
-
-          const newHPx = document.querySelector(`#${this.elementId}`).parentNode.clientHeight;
-          this.$el.querySelector(`#${this.elementId} .vue-map`).style.height = `${newHPx - 70}px`;
-          // 세팅 후 검색
+          // setting and search
           this.getEntitiesIsMap();
         });
     },
-    // latest add button click event
+    // Latest add button click event.
+    // Initialization item, stop websocket.
     createMap() {
       this.isRemoveBtn = true;
       this.latestName = this.$i18n.t('message.enterTitle');
@@ -365,13 +519,13 @@ export default {
       this.displayAttribute = {};
       this.subscribeList = [];
 
-      this.initMap();     // 맵 초기화
-      this.markers = [];  // 마커 초기화
-      this.disconnect();  // 웹소켓 중지
-      this.gridData = []; // 엔티티 아이디 목록 초기화
+      this.initMap();     // init map
+      this.markers = [];  // init marker
+      this.disconnect();  // stop websocket
+      this.gridData = []; // init entity id list
       this.$refs.tuiGrid1.invoke('resetData', this.gridData);
     },
-    // Search for search conditions
+
     setTypeParams(type) {
       const typeParams = [];
       this.dynamicTags.forEach(value => {
@@ -409,13 +563,14 @@ export default {
       }
       return typeParams;
     },
-    // latest save(create, modify)
+    // latest add(register/modify)
     saveMap() {
       this.$confirm(this.$i18n.t('message.saveCheck'), '', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'info'
       }).then(() => {
+        // Extract search condition information to save.
         this.setTypeParams('saveMap');
         const params = {
           mapSearchConditionType: 'latest',
@@ -435,7 +590,7 @@ export default {
           });
       }).catch(() => {});
     },
-    // latest delete event
+    // delete latest
     removeMap() {
       this.$confirm(this.$i18n.t('message.deleteCheck'), '', {
         confirmButtonText: 'OK',
@@ -444,13 +599,20 @@ export default {
       }).then(() => {
         latestApi.delete(this.latestValue)
           .then(data => {
-            // 목록 호출 뒤 항목 모두 초기화
+            // Initialize all items after calling the list.
             this.getLatestList();
             this.createMap();
           });
       }).catch(() => {});
     },
-    // dialog popup close event
+    handleTagClose(tag) {
+      this.dataModels.forEach(item => {
+        if (item.value === tag) {
+          return item.disabled = false;
+        }
+      });
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    },
     handleClose() {
       this.dialogVisible = false;
       this.dialogVisible2 = false;
@@ -461,10 +623,10 @@ export default {
       this.treeData = null;
       this.treeRow = null;
       this.treeNode = null;
+      this.attributeValue = null;
     },
-    // dialog popup save event
     handleSave() {
-      // Selected data cannot be added
+      // Selected data cannot be added.
       const result = this.dataModels.filter(s => this.dynamicTags.indexOf(s.value) > -1);
       result.forEach(s => s.disabled = true);
 
@@ -481,9 +643,9 @@ export default {
         this.dynamicTags.push(this.selected);
       }
 
-      // 검색어 저장
+      // Save the search word.
       this.searchList[this.selected] = this.searchValue;
-      // 노출 속성 저장
+      // Save exposure attributes.
       this.displayAttribute[this.selected] = this.attributeValue;
 
       this.treeId = null;
@@ -498,12 +660,98 @@ export default {
       this.dialogVisible = false;
       this.isSelectDisabled = false;
     },
-    // grid click event
+    initClose() {
+      this.addList = [];
+      this.dynamicQuery = {};
+      this.visible3 = false;
+      this.displayAttribute[this.attributeValue] = null;
+      this.attributeValue = null;
+    },
+    searchRemove(id, index) {
+      const tempTree = [ ...this.treeData ];
+      this.addList.splice(index, 1);
+      if (Object.keys(this.dynamicQuery).length > 0) {
+        delete this.dynamicQuery[id];
+      }
+      this.treeData = tempTree;
+    },
+    handleDynamicSearchSave() {
+      const tempTree = [ ...this.treeData ];
+      this.treeData = [];
+      this.addList.map(item => {
+        if (item.temp === 'AND') {
+          item.condition = ';';
+        } else {
+          item.condition = '|';
+        }
+        this.dynamicQuery[this.treeId] = {};
+      });
+      this.addList.map(item => {
+        Object.keys(this.dynamicQuery).map(key => {
+          if (item.tempId === key) {
+            this.dynamicQuery[key] = this.addList;
+          }
+        });
+      });
+      // Set it up to find information when you modify it.
+      this.selectedData[this.selected] = this.dynamicQuery;
+      this.treeData = tempTree;
+      this.isSelectDisabled = true;
+    },
+    onTreeEvent(data, node) {
+      if (this.searchChecked) {
+        this.$alert(this.$i18n.t('message.notSupportDetailSearch'));
+        return null;
+      }
+      this.searchId = data.id;
+      this.treeId = data.fullId;
+      this.treeRow = data;
+      this.treeNode = node;
+
+      this.addList = [];
+      Object.keys(this.dynamicQuery).some(key => {
+        if (key === data.fullId) {
+          this.addList = this.dynamicQuery[key]
+        }
+      });
+    },
+    onAttrEvent(displayAttr) {
+      this.attributeValue = displayAttr;
+    },
+    onShowPopup() {
+      // Selected data cannot be added.
+      const result = this.dataModels.filter(s => this.dynamicTags.indexOf(s.value) > -1);
+      result.forEach(s => s.disabled = true);
+
+      this.selected = null;
+      this.searchValue = null;
+      this.dialogVisible = true;
+      this.addList = [];
+      this.dynamicQuery = {};
+      this.isDisabledSearch = true;
+      this.searchChecked = false;
+    },
+    handleInputConfirm(val) {
+      this.onDataModelChange(val);
+      if (this.selectedData[val]) {
+        this.dynamicQuery = this.selectedData[val];
+      }
+      this.attributeValue = this.displayAttribute[val];
+      this.searchValue = this.searchList[val];
+
+      this.selected = val;
+      this.dialogVisible = true;
+      this.isSelectDisabled = true;
+    },
+    onSearchChecked(value) {
+      this.isDisabledSearch = !value;
+    },
     onGridClick(event) {
       if (event.targetType !== 'cell') {
         return null;
       }
-      // zoom 재설정
+
+      // Zoom reset.
       const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
       const locationKey = items['geoproperty_ui'];
       this.$refs.geoMap.$mapPromise.then((map) => {
@@ -520,6 +768,7 @@ export default {
         const zoom = map.getZoom();
         map.setZoom(zoom > 18 ? 18 : zoom);
       });
+
       this.params = { id: items.id, type: items.type };
     },
     goHistoryView() {
@@ -532,6 +781,19 @@ export default {
     updateCoordinates(location) {
       console.log(location);
     },
+    updateEdited(event) {
+      const ne = event.getNorthEast();
+      const sw = event.getSouthWest();
+      this.bounds = {
+        north: ne.lat(),
+        east: ne.lng(),
+        south: sw.lat(),
+        west: sw.lng()
+      };
+    },
+    tabClick(tab, event, activeName) {
+      console.log(activeName);
+    },
     onMarkerClick(map) {
       const REMOVE_KEYS = ['uniqueKey', 'rowKey', 'rowSpanMap', 'sortKey', 'uniqueKey', '_attributes', '_disabledPriority', '_relationListItemMap'];
       const resultMapList = [];
@@ -542,12 +804,36 @@ export default {
       this.detailData = resultMapData;
       this.detailId = map.mapInfo.id;
       this.dialogVisible2 = true;
-      setTimeout(() => {
-        document.querySelector('.v-modal').style.display = 'none';
-      }, 10);
+    },
+    onMarkerOver(event) {
+      this.infoWindowPosition = {
+        lat: event.getCenter().lat(),
+        lng: event.getCenter().lng(),
+      };
+      let labels = null;
+      this.markers.map(item => {
+        labels += item.displayValue + ', ';
+      });
+      this.infoWindowLabel = labels.slice(0, -2);
+      this.isInfoWindow = true;
+    },
+    onMarkerOut(event) {
+      this.infoWindowPosition = null;
+      this.infoWindowLabel = null;
+      this.isInfoWindow = false;
+    },
+    onDataModelChange(value) {
+      this.$http.get(`/datamodels/attrstree?id=${ value }`)
+        .then(response => {
+          const status = response.status;
+          if (status === 204) {
+            return null;
+          }
+          this.treeData = response.data;
+        });
     },
     onChecked(event) {
-      // 모두 체크
+      // all check
       if (event.rowKey >= 0) {
         this.subscribeList.push(this.$refs.tuiGrid1.invoke('getRow', event.rowKey));
         if (this.subscriptionId) {
@@ -594,8 +880,8 @@ export default {
             window.google.maps.drawing.OverlayType.RECTANGLE
           ]
         },
-        confirm: () => this.$alert(this.$i18n.t('message.changeSearchScope'), '', {
-          confirmButtonText: this.$i18n.t('comm.ok'),
+        confirm: () => this.$alert(this.$i18n.t('message.changeSearchArea'), '', {
+          confirmButtonText: 'OK',
           type: 'info'
         }).then(() => {
         }).catch((event) => {
@@ -612,14 +898,43 @@ export default {
         if (that.lastShape !== null) {
           that.lastShape.setMap(null);
         }
+        // this.confirm();
+        // if (that.lastShape !== undefined) {
+        //   that.lastShape.setMap(null);
+        // }
+        // if (this.shiftDraw === false) {
+        //   drawingManager.setDrawingMode(null);
+        // }
         that.lastShape = e.overlay;
         that.lastShape.type = e.type;
         const shape = that.lastShape.getBounds();
         const ne = shape.getNorthEast();
         const sw = shape.getSouthWest();
         that.coordinates = [[ne.lng(), sw.lat()], [sw.lng(), sw.lat()], [sw.lng(), ne.lat()], [ne.lng(), ne.lat()], [ne.lng(), sw.lat()]];
+        // [south,east],[south,west],[north,west],[north,east],[south,east]
       });
       this.shiftDraw = false;
+    },
+    addDynamicSearch() {
+      if (!this.searchId) {
+        return null;
+      }
+      if (this.addList.length > 9) {
+        this.$alert(this.$i18n.t('message.enterMaxNum', [10]), '', {
+          confirmButtonText: 'OK'
+        });
+        return null;
+      }
+      this.addList.push({
+        attr: this.treeRow.fullId,
+        tempId: this.treeId,
+        fullId: this.treeRow.fullId,
+        valueType: this.treeRow.valueType,
+        condition: null,
+        temp: null,
+        operator: null,
+        value: null
+      });
     },
     goSubscriptions(isAlert) {
       this.$http.post('/subscriptions', this.subscribeList)
@@ -637,6 +952,7 @@ export default {
         });
     },
     deleteSubscriptions(isAlert) {
+      console.log(this.subscriptionId);
       this.$http.delete(`/subscriptions/${ this.subscriptionId }`)
         .then(response => {
           const status = response.status;
@@ -652,12 +968,23 @@ export default {
           }
         });
     },
+    getDataModelList() {
+      this.$http.get('/datamodelIds')
+        .then((response) => {
+          const items = response.data;
+          let result = [{ value: null, text: this.$i18n.t('message.selectOption'), disabled: true }];
+          items.map(item => {
+            return result.push({ value: item, text: item, disabled: false });
+          });
+          this.dataModels = result;
+        });
+    },
     getEntitiesIsMap() {
       if (this.dynamicTags.length === 0) {
         return null;
       }
 
-      // 새로 검색일 경우 구독 해제 처리
+      // If it's a new search, process unsubscribe.
       if (this.subscriptionId && this.subscribeList.length > 0) {
         this.subscribeList = [];
         this.deleteSubscriptions();
@@ -692,10 +1019,10 @@ export default {
             });
           });
 
-          // 마커 정보 초기화
+          // init marker info
           this.markers = [];
           const data = [];
-          // 마커 정보 세팅
+          // marker info setting
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
               iconData.map((item2, index) => {
@@ -718,7 +1045,7 @@ export default {
                 displayValue: resultItem.displayValue,
                 icon: resultItem.icon
               });
-              // 원천 데이터에서 아이콘 제거
+              // Remove icons from source data.
               delete resultItem.icon;
               delete resultItem.displayValue;
               data.push(resultItem);
@@ -737,12 +1064,15 @@ export default {
             map.panToBounds(bounds);
             const zoom = map.getZoom();
             map.setZoom(zoom > 12 ? 12 : zoom);
+
+            // const zoom = this.$refs.geoMap.$mapObject.getZoom();
+            // this.$refs.geoMap.$mapObject.setZoom(zoom > 12 ? 12 : zoom);
           });
           this.gridData = data;
           this.$refs.tuiGrid1.invoke('resetData', this.gridData);
 
 
-          // 저장된 정보의 rowKey 를 찾아서 체크박스를 세팅 해줌
+          // Find the rowKey of the stored information and set up the check box.
           const gridList = [ ...this.$refs.tuiGrid1.invoke('getData') ];
           const subscription = this.subscriptionCondition;
           subscription.forEach(s => {
@@ -750,7 +1080,7 @@ export default {
               .find(r => this.$refs.tuiGrid1.invoke('check', r.rowKey));
           });
 
-          // 저장되어 있는 경우 자동으로 구독을 설정함
+          // If it's saved, I'll automatically set up a subscription.
           if (subscription.length > 0) {
             this.goSubscriptions(false);
           }
@@ -763,7 +1093,9 @@ export default {
     }
   },
   mounted() {
-    this.getLatest(this.latestId);
+    this.getLatestList();
+
+    this.getDataModelList();
     setTimeout(() => {
       this.loadControls();
     }, 1000);
@@ -779,12 +1111,6 @@ export default {
 #map {
   min-height: calc(100vh - 323px);
 }
-
-.vue-map-container,
-.vue-map-container .vue-map {
-  width: 100%;
-}
-
 .el-tag {
   margin-right: 10px;
   cursor: pointer;
