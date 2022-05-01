@@ -46,7 +46,11 @@ public class WidgetSchedulerService {
 	public void remove(String scheduledId) {
 		log.info("Remove schedule - {}", scheduledId);
 		
-		scheduledTasks.get(scheduledId).cancel(true);
-		scheduledTasks.remove(scheduledId);
+		ScheduledFuture<?> task = scheduledTasks.get(scheduledId);
+		
+		if(task != null) {
+			task.cancel(true);
+			scheduledTasks.remove(scheduledId);
+		}
 	}
 }
