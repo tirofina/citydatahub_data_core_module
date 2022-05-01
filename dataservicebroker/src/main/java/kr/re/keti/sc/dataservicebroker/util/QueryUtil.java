@@ -816,5 +816,16 @@ public class QueryUtil {
         return false;
     }
 
+    public static boolean validateGeoQuery(QueryVO queryVO) {
+        if(!ValidateUtil.isEmptyData(queryVO.getGeorel())
+            || !ValidateUtil.isEmptyData(queryVO.getGeometry())
+            || !ValidateUtil.isEmptyData(queryVO.getCoordinates())) {
+
+            if(!includeGeoQuery(queryVO)) {
+                throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geo-query params. geo-query requires 3 parameters ('georel', 'geometry', 'coordinates')");
+            }
+        }
+        return true;
+    }
 
 }

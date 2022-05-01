@@ -950,12 +950,12 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
         dbConditionVO.setSelectCondition(selectCondition);
 
         //2. geo-query param 처리
-        if (queryVO.getGeorel() != null) {
+        if (QueryUtil.validateGeoQuery(queryVO) && QueryUtil.includeGeoQuery(queryVO)) {
             dbConditionVO.setGeoCondition(convertGeoQuery(generateGeoQuery(dataModelCacheVO, queryVO)));
         }
 
         //3. 상세쿼리(q-query) param 처리
-        if (queryVO.getQ() != null) {
+        if (QueryUtil.includeQQuery(queryVO)) {
             queryVO = QueryUtil.generateQuery(dataModelCacheVO, queryVO);
             dbConditionVO.setQueryCondition(queryVO.getQuery());
         }
