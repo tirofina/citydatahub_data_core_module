@@ -29,4 +29,5 @@ public class WidgetChartHistoryDataVO {
 	private String attributeId;
 	private List<CommonEntityVO> data;
 	private List<String> entityIds;
+	private List<String> legendvalues;
 }

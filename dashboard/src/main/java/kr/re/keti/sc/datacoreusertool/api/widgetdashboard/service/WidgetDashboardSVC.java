@@ -43,6 +43,7 @@ import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardResp
 import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardUIResponseVO;
 import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardUIVO;
 import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardVO;
+import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetSessionVO;
 import kr.re.keti.sc.datacoreusertool.common.code.Constants;
 import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode;
 import kr.re.keti.sc.datacoreusertool.common.vo.ClientExceptionPayloadVO;
@@ -87,6 +88,7 @@ public class WidgetDashboardSVC {
 	@Autowired
 	private MapSVC mapSVC;
 	
+	final static String LEGEND = "legend";
 
 	/**
 	 * Create widget
@@ -538,6 +540,17 @@ public class WidgetDashboardSVC {
 		String chartType = widgetDashboardVO.getChartType();
 		String dataType = widgetDashboardVO.getDataType();
 		
+		// Set widget & session info
+		WidgetSessionVO widgetSessionVO = new WidgetSessionVO();
+		widgetSessionVO.setChartType(chartType);
+		widgetSessionVO.setDataType(dataType);
+		widgetSessionVO.setSessionId(sessionId);
+		widgetSessionVO.setUserId(userId);
+		widgetSessionVO.setWidgetId(widgetId);
+		if(!ValidateUtil.isEmptyData(widgetDashboardVO.getExtention1()) && LEGEND.equals(widgetDashboardVO.getExtention1())) {
+			widgetSessionVO.setLegend(widgetDashboardVO.getExtention2());
+		}
+		
 		if(widgetDashboardVO.getUpdateInterval() != null && widgetDashboardVO.getUpdateInterval() > 0) {
 			updateType = WidgetDashboardCode.UpdateType.PERIODIC.name();
 		} else if(widgetDashboardVO.getRealtimeUpdateEnabled() != null && widgetDashboardVO.getRealtimeUpdateEnabled()) {
@@ -557,13 +570,15 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 2. retrieve latest data & send to websocket(widget)
-				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, true, sessionId, chartType, dataType);
+				widgetSessionVO.setMultiEntities(true);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 				
 				// Create a periodical schedule
 				if(updateType != null && updateType.equals(WidgetDashboardCode.UpdateType.PERIODIC.name())) {
 					int period = widgetDashboardVO.getUpdateInterval();
 					if(period > 0) {
-						createLastAttributeTaskSchedule(entityRetrieveVO, widgetId, userId, chartType, dataType, period, true);
+						widgetSessionVO.setPeriod(period);
+						createLastAttributeTaskSchedule(entityRetrieveVO, widgetSessionVO);
 					}
 				}
 			} else {
@@ -579,7 +594,7 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 2. retrieve historical data & send to websocket(widget)
-				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, sessionId, chartType, dataType);
+				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 			}
 			else if(WidgetDashboardCode.DataType.LAST.getCode().equals(dataType)) {
 				// 1. check required values
@@ -588,7 +603,8 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 2. retrieve latest data & send to websocket(widget)
-				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, true, sessionId, chartType, dataType);
+				widgetSessionVO.setMultiEntities(true);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 			} else {
 				log.warn("Not supported chart({}) data type({})", chartType, dataType);
 			}
@@ -608,7 +624,7 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 2. retrieve historical data & send to websocket(widget)
-				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, sessionId, chartType, dataType);
+				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 				
 				// 3. Create a subscription
 				if(updateType != null && updateType.equals(WidgetDashboardCode.UpdateType.REALTIME.name())) {
@@ -628,7 +644,8 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 2. retrieve latest data & send to websocket(widget)
-				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, false, sessionId, chartType, dataType);
+				widgetSessionVO.setMultiEntities(false);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 				
 				// 3. Create a subscription
 				if(updateType != null && updateType.equals(WidgetDashboardCode.UpdateType.REALTIME.name())) {
@@ -660,7 +677,7 @@ public class WidgetDashboardSVC {
 				}
 				
 				// 3. retrieve latest data & send to websocket(widget)
-				retreiveLastMapAttributeAndSendToWidgetSession(entityRetrieveVOs, widgetId, userId, sessionId, chartType, dataType);
+				retreiveLastMapAttributeAndSendToWidgetSession(entityRetrieveVOs, widgetSessionVO);
 				
 				// 4. Create a subscription
 				if(!ValidateUtil.isEmptyData(widgetDashboardVO.getMapSearchConditionVO().getSubscriptionCondition())) {
@@ -808,8 +825,7 @@ public class WidgetDashboardSVC {
 	 * @param chartType			Chart type
 	 * @param dataType			Data type
 	 */
-	private void retreiveHistoryAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, String widgetId, String userId, 
-			String sessionId, String chartType, String dataType) {
+	private void retreiveHistoryAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		WidgetChartHistoryDataVO widgetChartHistoryDataVO = new WidgetChartHistoryDataVO();
 		
 		String originalAttributeId = null;
@@ -826,7 +842,18 @@ public class WidgetDashboardSVC {
 			}
 		}
 		
-		ResponseEntity<CommonEntityListResponseVO> result = dataServiceBrokerSVC.getEntitiesHistory(entityRetrieveVO, null, userId);
+		ResponseEntity<CommonEntityListResponseVO> result = 
+				dataServiceBrokerSVC.getEntitiesHistory(entityRetrieveVO, null, widgetSessionVO.getUserId());
+		
+		
+		CommonEntityListResponseVO legends = null;
+		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
+			EntityRetrieveVO legendRetrieveVO = createLegendRetrieveVO(entityRetrieveVO, widgetSessionVO.getLegend());
+					
+			ResponseEntity<CommonEntityListResponseVO> legendResult = 
+					dataServiceBrokerSVC.getEntities(false, legendRetrieveVO, null, originalAttributeId);
+			legends = legendResult.getBody();
+		}
 		
 		if(result == null || result.getBody() == null) {
 			return;
@@ -838,18 +865,52 @@ public class WidgetDashboardSVC {
 			return;
 		}
 		
+		List<CommonEntityVO> legendCommonEntity = null;
+		if(legends != null) {
+			legendCommonEntity = legends.getCommonEntityVOs();
+		}
+		
 		widgetChartHistoryDataVO.setTotalCount(result.getBody().getTotalCount());
 		widgetChartHistoryDataVO.setData(commonEntityVOs);
-		widgetChartHistoryDataVO.setWidgetId(widgetId);
-		widgetChartHistoryDataVO.setChartType(chartType);
-		widgetChartHistoryDataVO.setDataType(dataType);
+		widgetChartHistoryDataVO.setWidgetId(widgetSessionVO.getWidgetId());
+		widgetChartHistoryDataVO.setChartType(widgetSessionVO.getChartType());
+		widgetChartHistoryDataVO.setDataType(widgetSessionVO.getDataType());
 		widgetChartHistoryDataVO.setAttributeId(originalAttributeId);
 		
-		String message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO);
+		String message = null;
+		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
+			message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO, legendCommonEntity, widgetSessionVO.getLegend());
+		} 
+		else {
+			message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO, null, null);
+		}
 		
-		sendToWidgetEntitySession(userId, widgetId, message, sessionId);
+		
+		sendToWidgetEntitySession(widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId(), message, widgetSessionVO.getSessionId());
 	}
 	
+	/**
+	 * Create entityRetrieveVO for legend
+	 * @param entityRetrieveVO	Entity retrieve VO
+	 * @param legend			Legend attribute
+	 * @return					EntityRetrieveVO
+	 */
+	private EntityRetrieveVO createLegendRetrieveVO(EntityRetrieveVO entityRetrieveVO, String legend) {
+		EntityRetrieveVO legendRetrieveVO = new EntityRetrieveVO();
+		List<String> attrs = new ArrayList<String>();
+		attrs.add(legend);
+		
+		legendRetrieveVO.setAttrs(attrs);
+		legendRetrieveVO.setDataModelId(entityRetrieveVO.getDataModelId());
+		legendRetrieveVO.setId(entityRetrieveVO.getId());
+		legendRetrieveVO.setOptions(entityRetrieveVO.getOptions());
+		legendRetrieveVO.setQ(entityRetrieveVO.getQ());
+		legendRetrieveVO.setType(entityRetrieveVO.getType());
+		legendRetrieveVO.setTypeUri(entityRetrieveVO.getTypeUri());
+		
+		return legendRetrieveVO;
+	}
+
 	/**
 	 * Retrieve latest map data
 	 * @param entityRetrieveVOs		List of EntityRetrieveVO
@@ -859,18 +920,18 @@ public class WidgetDashboardSVC {
 	 * @param chartType				Chart type
 	 * @param dataType				Data type
 	 */
-	private void retreiveLastMapAttributeAndSendToWidgetSession(List<EntityRetrieveVO> entityRetrieveVOs, String widgetId, String userId, 
-			String sessionId, String chartType, String dataType) {
+	private void retreiveLastMapAttributeAndSendToWidgetSession(List<EntityRetrieveVO> entityRetrieveVOs, WidgetSessionVO widgetSessionVO) {
 		
 		WidgetChartMapDataVO widgetChartMapDataVO = new WidgetChartMapDataVO();
-		widgetChartMapDataVO.setWidgetId(widgetId);
-		widgetChartMapDataVO.setChartType(chartType);
-		widgetChartMapDataVO.setDataType(dataType);
+		widgetChartMapDataVO.setWidgetId(widgetSessionVO.getWidgetId());
+		widgetChartMapDataVO.setChartType(widgetSessionVO.getChartType());
+		widgetChartMapDataVO.setDataType(widgetSessionVO.getDataType());
 		
-		ResponseEntity<List<CommonEntityListResponseVO>> results = dataServiceBrokerSVC.getEntitiesbyMultiModel(entityRetrieveVOs, null, userId);
+		ResponseEntity<List<CommonEntityListResponseVO>> results = 
+				dataServiceBrokerSVC.getEntitiesbyMultiModel(entityRetrieveVOs, null, widgetSessionVO.getUserId());
 		
 		if(ValidateUtil.isEmptyData(results) || ValidateUtil.isEmptyData(results.getBody())) {
-			log.debug("No data was retrieved. userId: {}, widgetId: {}", userId, widgetId);
+			log.debug("No data was retrieved. userId: {}, widgetId: {}", widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId());
 			return;
 		}
 		
@@ -878,7 +939,7 @@ public class WidgetDashboardSVC {
 		
 		String message = CommonEntityListResponseVOtoMessage(widgetChartMapDataVO);
 		
-		sendToWidgetEntitySession(userId, widgetId, message, sessionId);
+		sendToWidgetEntitySession(widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId(), message, widgetSessionVO.getSessionId());
 	}
 
 	/**
@@ -891,13 +952,12 @@ public class WidgetDashboardSVC {
 	 * @param chartType			Chart type
 	 * @param dataType			Data type
 	 */
-	private void retreiveLastAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, String widgetId, String userId, 
-			boolean isMultiEntities, String sessionId, String chartType, String dataType) {
+	private void retreiveLastAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		
 		WidgetChartDataVO widgetChartDataVO = new WidgetChartDataVO();
-		widgetChartDataVO.setWidgetId(widgetId);
-		widgetChartDataVO.setChartType(chartType);
-		widgetChartDataVO.setDataType(dataType);
+		widgetChartDataVO.setWidgetId(widgetSessionVO.getWidgetId());
+		widgetChartDataVO.setChartType(widgetSessionVO.getChartType());
+		widgetChartDataVO.setDataType(widgetSessionVO.getDataType());
 		
 		String originalAttributeId = null;
 		
@@ -913,11 +973,12 @@ public class WidgetDashboardSVC {
 			}
 		}
 		
-		if(isMultiEntities) {
-			ResponseEntity<CommonEntityListResponseVO> results = dataServiceBrokerSVC.getEntities(false, entityRetrieveVO, null, userId);
+		if(widgetSessionVO.isMultiEntities()) {
+			ResponseEntity<CommonEntityListResponseVO> results = 
+					dataServiceBrokerSVC.getEntities(false, entityRetrieveVO, null, widgetSessionVO.getUserId());
 			
 			if(ValidateUtil.isEmptyData(results) || ValidateUtil.isEmptyData(results.getBody())) {
-				log.debug("No data was retrieved. userId: {}, widgetId: {}", userId, widgetId);
+				log.debug("No data was retrieved. userId: {}, widgetId: {}", widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId());
 				return;
 			}
 			
@@ -931,11 +992,12 @@ public class WidgetDashboardSVC {
 			}
 		} 
 		else {
-			ResponseEntity<CommonEntityVO> result = dataServiceBrokerSVC.getEntityById(entityRetrieveVO.getId(), entityRetrieveVO, null, userId);
+			ResponseEntity<CommonEntityVO> result = 
+					dataServiceBrokerSVC.getEntityById(entityRetrieveVO.getId(), entityRetrieveVO, null, widgetSessionVO.getUserId());
 			List<CommonEntityVO> commonEntityVOs = new ArrayList<CommonEntityVO>();
 			
 			if(result == null) {
-				log.debug("No data was retrieved. userId: {}, widgetId: {}", userId, widgetId);
+				log.debug("No data was retrieved. userId: {}, widgetId: {}", widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId());
 				return;
 			}
 			
@@ -945,14 +1007,34 @@ public class WidgetDashboardSVC {
 			widgetChartDataVO.setAttributeId(originalAttributeId);
 		}
 		
+		CommonEntityListResponseVO legends = null;
+		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
+			EntityRetrieveVO legendRetrieveVO = createLegendRetrieveVO(entityRetrieveVO, widgetSessionVO.getLegend());
+					
+			ResponseEntity<CommonEntityListResponseVO> legendResult = 
+					dataServiceBrokerSVC.getEntities(false, legendRetrieveVO, null, originalAttributeId);
+			legends = legendResult.getBody();
+		}
+		
+		List<CommonEntityVO> legendCommonEntity = null;
+		if(legends != null) {
+			legendCommonEntity = legends.getCommonEntityVOs();
+		}
+		
 		// Set to original attrs.
 		attrs.clear();
 		attrs.add(originalAttributeId);
 		entityRetrieveVO.setAttrs(attrs);
 		
-		String message = commonEntityResponseVOtoMessage(widgetChartDataVO);
+		String message = null;
+		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
+			message = commonEntityResponseVOtoMessage(widgetChartDataVO, legendCommonEntity, widgetSessionVO.getLegend());
+		} 
+		else {
+			message = commonEntityResponseVOtoMessage(widgetChartDataVO, null, null);
+		}
 		
-		sendToWidgetEntitySession(userId, widgetId, message, sessionId);
+		sendToWidgetEntitySession(widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId(), message, widgetSessionVO.getSessionId());
 	}
 
 	/**
@@ -965,17 +1047,16 @@ public class WidgetDashboardSVC {
 	 * @param period			Period
 	 * @param isMultiEntities	Multiple entities or not
 	 */
-	private void createLastAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, String widgetId, String userId, String chartType, String dataType, 
-			int period, boolean isMultiEntities) {
+	private void createLastAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		Runnable runnalbe = new Runnable() {
 			@Override
 			public void run() {
-				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, isMultiEntities, null, chartType, dataType);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 			}
 		};
 		
-		String scheduledId = userId + ":" + widgetId;
-		widgetSchedulerService.register(runnalbe, scheduledId, period * 1000);
+		String scheduledId = widgetSessionVO.getUserId() + ":" + widgetSessionVO.getWidgetId();
+		widgetSchedulerService.register(runnalbe, scheduledId, widgetSessionVO.getPeriod() * 1000);
 	}
 	
 	/**
@@ -988,17 +1069,16 @@ public class WidgetDashboardSVC {
 	 * @param period			Period
 	 * @param isMultiEntities	Multiple entities or not
 	 */
-	private void createHistoryAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, String widgetId, String userId, String chartType, String dataType, 
-			int period, boolean isMultiEntities) {
+	private void createHistoryAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		Runnable runnalbe = new Runnable() {
 			@Override
 			public void run() {
-				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetId, userId, null, chartType, dataType);
+				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
 			}
 		};
 		
-		String scheduledId = userId + ":" + widgetId;
-		widgetSchedulerService.register(runnalbe, scheduledId, period * 1000);
+		String scheduledId = widgetSessionVO.getUserId() + ":" + widgetSessionVO.getWidgetId();
+		widgetSchedulerService.register(runnalbe, scheduledId, widgetSessionVO.getPeriod() * 1000);
 	}
 	
 	/**
@@ -1065,7 +1145,8 @@ public class WidgetDashboardSVC {
 	 * @param widgetChartDataVO	WidgetChartDataVO
 	 * @return 					commonEntityResponse message
 	 */
-	private String commonEntityResponseVOtoMessage(WidgetChartDataVO widgetChartDataVO) {
+	private String commonEntityResponseVOtoMessage(WidgetChartDataVO widgetChartDataVO,
+			List<CommonEntityVO> legendCommonEntity, String legend) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	    objectMapper.setDateFormat(new SimpleDateFormat(Constants.CONTENT_DATE_FORMAT));
@@ -1087,6 +1168,12 @@ public class WidgetDashboardSVC {
 	    // add Entity Id
 	    widgetChartDataVO.setEntityIds(entityIds);
 	    
+	    // add Legend value
+	    if(legendCommonEntity != null && legend != null) {
+	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, legend);
+		    widgetChartDataVO.setLegendvalues(legendValues);
+	    }
+	    
 	    String message = null;
 		try {
 			message = objectMapper.writeValueAsString(widgetChartDataVO);
@@ -1101,9 +1188,12 @@ public class WidgetDashboardSVC {
 	/**
 	 * Convert WidgetChartHistoryDataVO to String message
 	 * @param widgetChartHistoryDataVO	WidgetChartHistoryDataVO
+	 * @param legendCommonEntity 
+	 * @param legend 
 	 * @return							WidgetChartHistoryData message 
 	 */
-	private String commonEntityResponseVOtoMessage(WidgetChartHistoryDataVO widgetChartHistoryDataVO) {
+	private String commonEntityResponseVOtoMessage(WidgetChartHistoryDataVO widgetChartHistoryDataVO, 
+			List<CommonEntityVO> legendCommonEntity, String legend) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	    objectMapper.setDateFormat(new SimpleDateFormat(Constants.CONTENT_DATE_FORMAT));
@@ -1125,6 +1215,12 @@ public class WidgetDashboardSVC {
 	    
 	    // add Entity Id
 	    widgetChartHistoryDataVO.setEntityIds(entityIds);
+	    
+	    // add Legend value
+	    if(legendCommonEntity != null && legend != null) {
+	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, legend);
+		    widgetChartHistoryDataVO.setLegendvalues(legendValues);
+	    }
 	     
 	    String message = null;
 		try {
@@ -1366,5 +1462,43 @@ public class WidgetDashboardSVC {
 		attributeId = tempAttributeId;
 		
 		return attributeId.split(",");
+	}
+	
+	/**
+	 * Extract the legends
+	 * @param entityIds				Entity ID List
+	 * @param legendCommonEntity	LegendCommonEntity
+	 * @param legend				Legend
+	 * @return						Legend values
+	 */
+	private List<String> extractLegends(List<String> entityIds, List<CommonEntityVO> legendCommonEntity, String legend) {
+		Map<String, String> legends = new HashMap<String, String>();
+		List<String> legendValues = new ArrayList<String>();
+		
+		if(legendCommonEntity != null) {
+	    	String[] attrs = splitAttributeId(legend);
+	    	for(CommonEntityVO commonEntityVO : legendCommonEntity) {
+	    		
+	    		Object object = (HashMap<String, Object>) commonEntityVO.get(attrs[0]);
+	    		HashMap<String, Object> map = null;
+	    		
+	    		if(attrs.length > 1) {
+	    			for(int i = 1; i < attrs.length; i++) {
+	    				if(object instanceof HashMap) {
+	    					map = (HashMap<String, Object>) object;
+	    					map = (HashMap<String, Object>) map.get("value");
+	    				}
+	    				object = map.get(attrs[i]);
+	    			}
+	    		}
+	    		legends.put(commonEntityVO.getId(), (String) object);
+	    	}
+	    }
+	    
+	    for(String entityId : entityIds) {
+	    	legendValues.add(legends.get(entityId));
+	    }
+	    
+		return legendValues;
 	}
 }
