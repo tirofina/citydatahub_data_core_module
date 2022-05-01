@@ -792,4 +792,29 @@ public class QueryUtil {
     	}
     	return null;
     }
+
+    public static boolean includeAttrsQuery(QueryVO queryVO) {
+        if(!ValidateUtil.isEmptyData(queryVO.getAttrs())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean includeQQuery(QueryVO queryVO) {
+        if(!ValidateUtil.isEmptyData(queryVO.getQ())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean includeGeoQuery(QueryVO queryVO) {
+        if(!ValidateUtil.isEmptyData(queryVO.getGeorel())
+                && !ValidateUtil.isEmptyData(queryVO.getGeometry())
+                && !ValidateUtil.isEmptyData(queryVO.getCoordinates())) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

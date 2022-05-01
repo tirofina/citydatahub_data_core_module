@@ -1208,10 +1208,14 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
 
         List<String> timeColumnNameList = new ArrayList<>();
         for (String key : dbColumnInfoVOMap.keySet()) {
-
-            if (key.endsWith(PropertyKey.OBSERVED_AT.getCode())) {
+            if (key.endsWith(PropertyKey.OBSERVED_AT.getCode().toLowerCase())) {
                 timeColumnNameList.add(key);
             }
+        }
+
+        // observedAt 대상 컬럼이 없을 경우 entity 수정시간 기반으로 검색
+        if(timeColumnNameList.isEmpty()) {
+            timeColumnNameList.add(DefaultDbColumnName.MODIFIED_AT.getCode());
         }
 
         return timeColumnNameList;
@@ -1222,7 +1226,7 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
      * @param queryVO
      * @return
      */
-    private QueryVO generateGeoQuery(DataModelCacheVO entitySchemaCacheVO, QueryVO queryVO) {
+    private QueryVO generateGeoQuery(DataModelCacheVO dataModelCacheVO, QueryVO queryVO) {
         /*
             georel = nearRel / withinRel / containsRel / overlapsRel / intersectsRel / equalsRel / disjointRel
             nearRel = nearOp andOp distance equal PositiveNumber distance = "maxDistance" / "minDistance"
@@ -1236,7 +1240,7 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
             ; near;max(min)Distance==x (in meters)
          */
 
-        if (queryVO.getGeorel() != null && queryVO.getCoordinates() != null && queryVO.getGeometry() != null) {
+        if (QueryUtil.includeGeoQuery(queryVO)) {
 
             try {
                 String georelFullTxt = queryVO.getGeorel();
@@ -1253,44 +1257,32 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
                     } else if (distanceColName.equals(GeometryType.MAX_DISTANCE.getCode())) {
                         queryVO.setMaxDistance(distance);
                     } else {
-
                         log.warn("invalid geo-query parameter");
                         throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geo-query parameter");
                     }
-
                 }
 
                 GeometryType geometryType = GeometryType.parseType(georelName);
                 if (geometryType == null) {
                     log.warn("invalid geo-query parameter");
-                    throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geo-query parameter");
+                    throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geo-query parameter. geometryType=" + geometryType);
                 }
             } catch (Exception e) {
                 throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geo-query parameter");
             }
 
-
-
-
-
-
-            if (log.isDebugEnabled()) {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("queryVO =").append(queryVO.toString());
-                log.debug(stringBuilder.toString());
-            }
-
-
             int srid = Integer.parseInt(defaultEPSG);
             String locationCol;
 
             if (queryVO.getGeoproperty() != null) {
-
                 locationCol = queryVO.getGeoproperty();
                 locationCol = locationCol.replace(".", "_") + "_" + srid;
-
             } else {
-                locationCol = getDefaultLocationColName(entitySchemaCacheVO);
+                locationCol = getDefaultLocationColName(dataModelCacheVO);
+            }
+
+            if(!dataModelCacheVO.getDataModelStorageMetadataVO().getDbColumnInfoVOMap().containsKey(locationCol.toLowerCase())) {
+                throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "invalid geoProperty.");
             }
 
             PGgeometry pGgeometry = makePostgisType(queryVO.getGeometry(), queryVO.getCoordinates(), srid);
@@ -2003,8 +1995,8 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
         }
 
         String endTimeAt = null;
-        if (queryVO.getEndtimeAt() != null) {
-            endTimeAt = ConvertTimeParamUtil.dateTimeToLocalDateTime(queryVO.getEndtimeAt());
+        if (queryVO.getEndTimeAt() != null) {
+            endTimeAt = ConvertTimeParamUtil.dateTimeToLocalDateTime(queryVO.getEndTimeAt());
         }
 
         ConvertTimeParamUtil.checkTimeRelParams(timerel, timeAt, endTimeAt);
@@ -2021,23 +2013,21 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
             } else {
                 List<String> entityTimeProperies = getEntityTimeColumnNameList(queryVO);
 
-                if (entityTimeProperies != null) {
-                    List<String> resultQueryList = new ArrayList<>();
+                List<String> resultQueryList = new ArrayList<>();
 
-                    for (String item : entityTimeProperies) {
-                        if (timerel.equalsIgnoreCase(TemporalOperator.BETWEEN_REL.getCode())) {
-                            resultQueryList.add(makeFragmentBetweenTimeQuery(timerel, item, timeAt, endTimeAt));
-                        } else {
-                            resultQueryList.add(makeFragmentTimeQuery(timerel, item, timeAt));
-                        }
+                for (String item : entityTimeProperies) {
+                    if (timerel.equalsIgnoreCase(TemporalOperator.BETWEEN_REL.getCode())) {
+                        resultQueryList.add(makeFragmentBetweenTimeQuery(timerel, item, timeAt, endTimeAt));
+                    } else {
+                        resultQueryList.add(makeFragmentTimeQuery(timerel, item, timeAt));
                     }
+                }
 
-                    if (resultQueryList.size() > 1) {
-                        String resultQuery = String.join(" OR ", resultQueryList);
-                        queryVO.setTimeQuery("(" + resultQuery + ")");
-                    } else if (resultQueryList.size() == 1) {
-                        queryVO.setTimeQuery(resultQueryList.get(0));
-                    }
+                if (resultQueryList.size() > 1) {
+                    String resultQuery = String.join(" OR ", resultQueryList);
+                    queryVO.setTimeQuery("(" + resultQuery + ")");
+                } else if (resultQueryList.size() == 1) {
+                    queryVO.setTimeQuery(resultQueryList.get(0));
                 }
             }
         }

@@ -176,52 +176,126 @@ public class DataModelManager {
         return null;
     }
 
-
     /**
-     * @param links 데이터 모델 type이 없을 시, link로 부터 타입 정보 가져옴
+     * entity 검색조건에 해당하는 dataModel 정보 조회
+     * @param links http link header (context uri 정보)
+     * @param queryVO query entity 정보
      * @return
      */
     public List<DataModelCacheVO> getTargetDataModelByQueryUri(List<String> links, QueryVO queryVO) {
 
-        List<DataModelCacheVO> dataModelCacheVOs = new ArrayList<>();
+        List<DataModelCacheVO> resultDataModels = new ArrayList<>();
 
-//        List<String> fullUriAttrs = convertAttrNameToFullUri(links, queryVO.getAttrs());
-//        // attrs
-//        if (!ValidateUtil.isEmptyData(fullUriAttrs)) {
-//            for (DataModelCacheVO dataModelCacheVO : dataModelCache.values()) {
-//                for (Attribute attribute : dataModelCacheVO.getAttributes()) {
-//                    for (String attrFullUri : fullUriAttrs) {
-//                        if (attrFullUri.equals(attribute.getAttributeUri())) {
-//                            dataModelCacheVOs.add(dataModelCacheVO);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        // q-query와 geo-qery 대상 모델 조회
+        List<DataModelCacheVO> queryTargetDataModels = queryGeoAndQQueryTargetModel(links, queryVO);
 
-        if (!ValidateUtil.isEmptyData(queryVO.getQ())) {
+        // attrs 검색조건이 있는 경우
+        boolean includeAttrsQuery = QueryUtil.includeAttrsQuery(queryVO);
+        if(includeAttrsQuery) {
+            // 검색조건 attrs 대상 모델 조회
+            List<DataModelCacheVO> attrsDataModels = new ArrayList<>();
+            List<String> queryAttrNameList = queryVO.getAttrs();
+            List<String> fullUriAttrs = convertAttrNameToFullUri(links, queryAttrNameList);
 
+            for (DataModelCacheVO dataModelCacheVO : dataModelCache.values()) {
+                // attrs를 보유하고 있는 모든 attribute가 있는 datamodel리스트 추출
+                if(includeAttrInDataModel(dataModelCacheVO.getDataModelVO(), fullUriAttrs)) {
+                    attrsDataModels.add(dataModelCacheVO);
+                }
+            }
+
+            // attrs 검색조건을 충족하지 못하는 모델은 제외
+            for(DataModelCacheVO attrsDataModel : attrsDataModels) {
+                if(queryTargetDataModels.contains(attrsDataModel)) {
+                    resultDataModels.add(attrsDataModel);
+                }
+            }
+        // attrs 검색조건이 없는 경우
+        } else {
+            resultDataModels = queryTargetDataModels;
+        }
+
+        return resultDataModels;
+    }
+
+    private List<DataModelCacheVO> queryGeoAndQQueryTargetModel(List<String> links, QueryVO queryVO) {
+
+        List<DataModelCacheVO> resultDataModels = new ArrayList<>();
+
+        boolean includeQQuery = QueryUtil.includeQQuery(queryVO);
+        boolean includeGeoQuery = QueryUtil.includeGeoQuery(queryVO);
+
+        // q-query 대상 모델 조회
+        List<DataModelCacheVO> qQueryDataModels = new ArrayList<>();
+        if(includeQQuery) {
             List<String> queryAttrNameList = QueryUtil.extractQueryFieldNames(queryVO);
-
             List<String> fullUriAttrs = convertAttrNameToFullUri(links, queryAttrNameList);
 
             for (DataModelCacheVO dataModelCacheVO : dataModelCache.values()) {
                 // q에 해당하는 모든 attribute가 있는 datamodel리스트 추출
-                for (Attribute attribute : dataModelCacheVO.getDataModelVO().getAttributes()) {
-                    for (String fullUriAttr : fullUriAttrs) {
-                        if (fullUriAttr.equals(attribute.getAttributeUri())) {
-                        	dataModelCacheVOs.add(dataModelCacheVO);
-                        	continue;
-                        }
-                    }
+                if(includeAttrInDataModel(dataModelCacheVO.getDataModelVO(), fullUriAttrs)) {
+                    qQueryDataModels.add(dataModelCacheVO);
+                }
+            }
+        }
+
+        // geo-query 대상 모델 조회
+        List<DataModelCacheVO> geoQueryDataModels = new ArrayList<>();
+        if(includeGeoQuery) {
+            String geoPropertyName = queryVO.getGeoproperty() == null ? Constants.LOCATION_ATTR_DEFAULT_NAME : queryVO.getGeoproperty();
+            List<String> fullUriAttrs = convertAttrNameToFullUri(links, Arrays.asList(geoPropertyName));
+
+            for (DataModelCacheVO dataModelCacheVO : dataModelCache.values()) {
+                // geoProperty가 있는 datamodel리스트 추출
+                if(includeAttrInDataModel(dataModelCacheVO.getDataModelVO(), fullUriAttrs)) {
+                    geoQueryDataModels.add(dataModelCacheVO);
+                }
+            }
+        }
+
+        // q-query와 geo-query조건 모두 만족해야하는 경우
+        if(includeQQuery && includeGeoQuery) {
+            // 검색조건에 공통으로 보유한 모델만 반환
+            for (DataModelCacheVO qQueryDataModel : qQueryDataModels) {
+                if(geoQueryDataModels.contains(qQueryDataModel)) {
+                    resultDataModels.add(qQueryDataModel);
                 }
             }
 
+        // q-query 조건 만족해야하는 경우
+        } else if(includeQQuery && !includeGeoQuery) {
+            resultDataModels = qQueryDataModels;
+
+        // geo-query 조건 만족해야하는 경우
+        } else if(!includeQQuery && includeGeoQuery) {
+            resultDataModels = geoQueryDataModels;
+
+        // 전체 모델 조회
         } else {
-        	dataModelCacheVOs.addAll(dataModelCache.values());
+            resultDataModels.addAll(dataModelCache.values());
+        }
+        return resultDataModels;
+    }
+
+    private boolean includeAttrInDataModel(DataModelVO dataModelVO, List<String> fullUriAttrs) {
+
+        if(dataModelVO == null || ValidateUtil.isEmptyData(fullUriAttrs)) {
+            return false;
         }
 
-        return dataModelCacheVOs;
+        for (String fullUriAttr : fullUriAttrs) {
+            boolean isMatch = false;
+            for (Attribute attribute : dataModelVO.getAttributes()) {
+                if (fullUriAttr.equals(attribute.getAttributeUri())) {
+                    isMatch = true;
+                    break;
+                }
+            }
+            if(!isMatch) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
