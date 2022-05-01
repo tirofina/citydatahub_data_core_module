@@ -658,8 +658,8 @@ public class CsourceRegistrationDAO implements CsourceRegistrationDAOInterface {
         }
 
         String endTime = null;
-        if (queryVO.getEndtimeAt() != null) {
-            endTime = ConvertTimeParamUtil.dateTimeToLocalDateTime(queryVO.getEndtimeAt());
+        if (queryVO.getEndTimeAt() != null) {
+            endTime = ConvertTimeParamUtil.dateTimeToLocalDateTime(queryVO.getEndTimeAt());
         }
 
         ConvertTimeParamUtil.checkTimeRelParams(timerel, time, endTime);
