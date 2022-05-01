@@ -5,6 +5,7 @@ import java.util.List;
 
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelCacheVO;
 import lombok.Data;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Data
 public class QueryVO implements Serializable {
@@ -30,7 +31,7 @@ public class QueryVO implements Serializable {
     private String type;
     private String q;
     private String timeAt;
-    private String endtimeAt;
+    private String endTimeAt;
     private String options;
     private String idPattern;
 
@@ -67,9 +68,22 @@ public class QueryVO implements Serializable {
     private Boolean isAdminUser;
 
     private List<String> links;
-    
+
     private List<String> cSourceRegistrationIds;
     private List<String> alreadyTraversedCSourceIds;
+
+    @ModelAttribute("endtimeAt")
+    public void setEndtimeAt(String endtimeAt) {
+        // endtimeAt 명칭 하위호환을 위한 메소드
+        if(this.endTimeAt == null) {
+            this.endTimeAt = endtimeAt;
+        }
+    }
+
+    @ModelAttribute("endTimeAt")
+    public void setEndTimeAt(String endTimeAt) {
+        this.endTimeAt = endTimeAt;
+    }
 
     @Override
     public String toString() {
@@ -80,7 +94,7 @@ public class QueryVO implements Serializable {
                 ", type='" + type + '\'' +
                 ", q='" + q + '\'' +
                 ", timeAt='" + timeAt + '\'' +
-                ", endtimeAt='" + endtimeAt + '\'' +
+                ", endTimeAt='" + endTimeAt + '\'' +
                 ", options='" + options + '\'' +
                 ", idPattern='" + idPattern + '\'' +
                 ", searchIdList=" + searchIdList +
