@@ -141,6 +141,7 @@ public class SubscriptionController {
         log.info("create Subscription request. contentType={}, link={}, subscriptionVO={}", contentType, link, subscriptionVO);
 
         // 1. 구독 type 추가 (* ContextSourceRegistration와 구분)
+        validateTypeParameter(subscriptionVO.getType());
         subscriptionVO.setType(DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode());
 
         Integer result = null;
@@ -153,7 +154,7 @@ public class SubscriptionController {
         } catch (org.springframework.dao.DuplicateKeyException e) {
             throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.ALREADY_EXISTS, "Already Exists. subscriptionID=" + subscriptionVO.getId(), e);
         } catch (NgsiLdNoExistTypeException e) {
-            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "should include valid type", e);
+            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, e.getMessage(), e);
         } catch (NgsiLdContextNotAvailableException e) {
         	throw e;
         }
@@ -172,6 +173,12 @@ public class SubscriptionController {
         }
     }
 
+    private void validateTypeParameter(String type) {
+        if(!DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode().equals(type)) {
+            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                    "should equal type=" + DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode());
+        }
+    }
 
     /**
      * 구독 삭제  (Delete Subscription)
@@ -211,7 +218,7 @@ public class SubscriptionController {
                                    @RequestBody SubscriptionVO subscriptionVO,
                                    @PathVariable("subscriptionId") String subscriptionId) throws Exception {
 
-        log.info("create Subscription request. contentType={}, link={}, subscriptionVO={}, subscriptionId={}",
+        log.info("update Subscription request. contentType={}, link={}, subscriptionVO={}, subscriptionId={}",
                 contentType, link, subscriptionVO, subscriptionId);
 
         // 1. 구독 type 추가 (* ContextSourceRegistration와 구분)

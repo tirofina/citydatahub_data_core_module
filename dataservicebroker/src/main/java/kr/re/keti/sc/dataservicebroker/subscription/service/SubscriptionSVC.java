@@ -22,6 +22,7 @@ import kr.re.keti.sc.dataservicebroker.util.StringUtil;
 import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,15 +45,21 @@ public class SubscriptionSVC {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Value("${entity.validation.id-pattern.enabled:true}")
+    private Boolean validateIdPatternEnabled;
+
     /**
      * 구독 입력값 validation 체크
      *
      * @param subscriptionVO
      * @param isCreateMode
      */
-    private void processInputValidationCheck(SubscriptionVO subscriptionVO, Boolean isCreateMode) {
+    private void validateCreateAndUpdateParameter(SubscriptionVO subscriptionVO, Boolean isCreateMode) {
 
-        //생성 시에만 사용되는 유효성 체크 부분
+        //생성 시에만 사용되는 유효성 체크
+
+        // id format 체크
+        validateSubscriptionIdFormat(subscriptionVO.getId());
 
         //status, Read-only. Provided by the system when querying the details of a subscription
         if (subscriptionVO.getStatus() != null) {
@@ -94,7 +101,8 @@ public class SubscriptionSVC {
 
         if (!DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode().equals(subscriptionVO.getType())
             && !DataServiceBrokerCode.JsonLdType.CSOURCE_REGISTRATION_SUBSCRIPTION.getCode().equals(subscriptionVO.getType())) {
-            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "should equal type=" + DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode());
+            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                    "should equal type=" + DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode());
         }
 
         Date now = new Date();
@@ -108,7 +116,7 @@ public class SubscriptionSVC {
         if(datasetIds != null && datasetIds.size() > 0) {
         	for(String datasetId : datasetIds) {
         		if(dataModelManager.getDatasetCache(datasetId) == null) {
-        			throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATASET, "Not Exist Dataset. datasetId=" + datasetId);
+        			throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATASET, "Not Exists Dataset. datasetId=" + datasetId);
         		}
         	}
         }
@@ -230,7 +238,7 @@ public class SubscriptionSVC {
         }
 
         // 2. 파라미터 유효성 체크
-        processInputValidationCheck(subscriptionVO, true);
+        validateCreateAndUpdateParameter(subscriptionVO, true);
 
         // 3. csource 정보 생성
         SubscriptionBaseDaoVO subscriptionBaseDaoVO = subscriptionVoToBaseDaoVO(subscriptionVO);
@@ -256,6 +264,10 @@ public class SubscriptionSVC {
      * @throws JsonProcessingException
      */
     public SubscriptionVO retrieveSubscription(String subscriptionId) throws JsonProcessingException {
+
+        // id format 체크
+        validateSubscriptionIdFormat(subscriptionId);
+
         SubscriptionVO subscriptionVO = subscriptionDAO.retrieveSubscription(subscriptionId);
 
         return subscriptionVO;
@@ -300,6 +312,10 @@ public class SubscriptionSVC {
 
     @Transactional(value = "dataSourceTransactionManager")
     public Integer deleteSubscription(String subscriptionId) {
+
+        // id format 체크
+        validateSubscriptionIdFormat(subscriptionId);
+
         Integer deleteSubscriptionEntitiesResult = subscriptionDAO.deleteSubscriptionEntities(subscriptionId);
         Integer deleteSubscriptionBaseResult = subscriptionDAO.deleteSubscriptionBase(subscriptionId);
         return deleteSubscriptionBaseResult;
@@ -308,7 +324,7 @@ public class SubscriptionSVC {
     @Transactional(value = "dataSourceTransactionManager")
     public Integer updateSubscription(String subscriptionId, SubscriptionVO subscriptionVO) throws Exception {
 
-        processInputValidationCheck(subscriptionVO, false);
+        validateCreateAndUpdateParameter(subscriptionVO, false);
 
         SubscriptionVO retrieveVO = retrieveSubscription(subscriptionId);
 
@@ -595,6 +611,14 @@ public class SubscriptionSVC {
                             "Invalid Parameter. Not exists notificationAttributeName in context. notificationAttributeName=" + notificationAttributeName);
                 }
             }
+        }
+    }
+
+    private void validateSubscriptionIdFormat(String subscriptionId) {
+        // urn 패턴 여부 체크
+        if(validateIdPatternEnabled && !ValidateUtil.isValidUrn(subscriptionId)) {
+            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                    "Subscription id is not in URN format. subscriptionId=" + subscriptionId);
         }
     }
 }

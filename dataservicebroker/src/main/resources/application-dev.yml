@@ -109,6 +109,10 @@ entity:
     retrive.full.yn: N
     # Entity 삭제 시 이력까지 삭제할 지 여부
     delete.yn: Y
+  validation:
+    # entityId 가 urn 패턴이 맞는 지 유효성 검증 여부
+    id-pattern:
+      enabled: true
 
 # v2 추가 부분
 geometry:

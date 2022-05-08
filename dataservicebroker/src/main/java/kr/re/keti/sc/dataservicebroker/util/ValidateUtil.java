@@ -604,4 +604,17 @@ public class ValidateUtil {
     	}
     	return true;
     }
+
+	public static boolean isValidUrn(String urn) {
+		if(isEmptyData(urn)) {
+			return false;
+		}
+
+		if(!urn.startsWith("urn:")
+				|| urn.split(":").length < 3) {
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -77,6 +77,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
     protected ObjectMapper objectMapper;
     @Value("${entity.default.context-uri}")
     private String defaultContextUri;
+    @Value("${entity.validation.id-pattern.enabled:true}")
+    private Boolean validateIdPatternEnabled;
 
     /**
      * Entity 데이터 Operation 별 벌크 처리
@@ -164,6 +166,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     entityFullVO.setType(ingestMessageVO.getEntityType());
                 }
                 entityFullVO.setDatasetId(entityProcessVO.getDatasetId());
+                entityProcessVO.setEntityId(entityFullVO.getId());
 
                 // contentType이 application/json인 경우
                 if(!ValidateUtil.isEmptyData(ingestMessageVO.getContentType())) {
@@ -197,10 +200,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     entityFullVO.getContext().add(0, defaultContextUri);
                 }
 
-                if (ValidateUtil.isEmptyData(entityFullVO.getId())) {
-                    throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
-                            "Not found entityId. operation=" + ingestMessageVO.getOperation().getCode() + ", to=" + ingestMessageVO.getTo() + ", contentType=" + ingestMessageVO.getContentType());
-                }
+                validateEntityId(entityFullVO.getId());
 
                 EntityDataModelVO retrieveEntityDataModelVO = entityDataModelSVC.getEntityDataModelVOById(entityFullVO.getId());
                 if (opertaion == Operation.CREATE_ENTITY) {
@@ -250,7 +250,6 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 DynamicEntityDaoVO entityDaoVO = fullVOToDaoVO(entityFullVO, dataModelCacheVO, opertaion);
                 entityDaoVO.setAttrId(attrId);
 
-                entityProcessVO.setEntityId(entityFullVO.getId());
                 entityProcessVO.setEntityFullVO(entityFullVO);
                 entityProcessVO.setEntityDaoVO(entityDaoVO);
                 entityProcessVO.setDataModelCacheVO(dataModelCacheVO);
@@ -277,6 +276,18 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
         }
 
         return entityProcessVOList;
+    }
+
+    private void validateEntityId(String entityId) {
+        if (ValidateUtil.isEmptyData(entityId)) {
+            throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                    "Invalid Request Content. Not found 'id'");
+        }
+
+        if (validateIdPatternEnabled && !ValidateUtil.isValidUrn(entityId)) {
+            throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                    "Invalid Request Content. entityId is not in URN format. id=" + entityId);
+        }
     }
 
     /**
@@ -1254,11 +1265,6 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
      * @throws NgsiLdBadRequestException
      */
     private void checkValidate(DynamicEntityFullVO dynamicEntityFullVO, DynamicEntityDaoVO dynamicEntityDaoVO, Operation operation, DataModelCacheVO dataModelCacheVO) throws NgsiLdBadRequestException {
-
-        // 필수값 체크 (id)
-        if (ValidateUtil.isEmptyData(dynamicEntityFullVO.getId())) {
-            throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "Invalid Request Content. Not found 'id'");
-        }
 
         if (operation == Operation.CREATE_ENTITY
                 || operation == Operation.REPLACE_ENTITY_ATTRIBUTES

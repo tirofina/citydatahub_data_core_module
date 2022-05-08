@@ -623,7 +623,7 @@ public class EntityController {
                 request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
-        // 2. 리소스 생성 요청
+        // 2. 리소스 삭제
         List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> processResultVO = bulkProcess(ingestMessageVOs);
 
         // 3. 배치 오퍼레이션 결과 처리
@@ -1001,13 +1001,7 @@ public class EntityController {
 
         if (entityProcessVOs != null) {
             for (EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO> entityProcessVO : entityProcessVOs) {
-                String entityId = null;
-                if (entityProcessVO.getEntityFullVO() != null) {
-                    entityId = entityProcessVO.getEntityFullVO().getId();
-                } else {
-                    DynamicEntityFullVO dynamicEntityFullVO = objectMapper.readValue(entityProcessVO.getContent(), DynamicEntityFullVO.class);
-                    entityId = dynamicEntityFullVO.getId();
-                }
+                String entityId = entityProcessVO.getEntityId();
 
                 if (entityProcessVO.getProcessResultVO().isProcessResult()) {
                     entityIds.add(entityId);

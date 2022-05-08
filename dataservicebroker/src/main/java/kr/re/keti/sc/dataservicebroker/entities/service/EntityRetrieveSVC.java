@@ -72,6 +72,8 @@ public class EntityRetrieveSVC {
 	
 	@Value("${entity.default.storage:rdb}")
 	private BigDataStorageType defaultStorageType;
+	@Value("${entity.validation.id-pattern.enabled:true}")
+	private Boolean validateIdPatternEnabled;
 
 	public CommonEntityVO getEntityById(QueryVO queryVO, String queryString, String accept, String link) {
 
@@ -256,6 +258,7 @@ public class EntityRetrieveSVC {
 			String[] idList = id.split(",");
 			queryVO.setSearchIdList(Arrays.asList(idList));
 		}
+		validateEntityId(queryVO);
 
 		// 2. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
@@ -289,6 +292,8 @@ public class EntityRetrieveSVC {
 	}
 
 	public CommonEntityVO queryEntityByIdStandalone(QueryVO queryVO, String accept) {
+
+		validateEntityId(queryVO);
 
 		// 1. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
@@ -324,6 +329,7 @@ public class EntityRetrieveSVC {
 			String[] idList = id.split(",");
 			queryVO.setSearchIdList(Arrays.asList(idList));
 		}
+		validateEntityId(queryVO);
 
 		// 2. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
@@ -355,6 +361,7 @@ public class EntityRetrieveSVC {
 			String[] idList = id.split(",");
 			queryVO.setSearchIdList(Arrays.asList(idList));
 		}
+		validateEntityId(queryVO);
 
 		// 2. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
@@ -377,6 +384,26 @@ public class EntityRetrieveSVC {
 		}
 
 		return totalCount;
+	}
+
+	private void validateEntityId(QueryVO queryVO) {
+		if(validateIdPatternEnabled) {
+			if(queryVO.getId() != null) {
+				if (!ValidateUtil.isValidUrn(queryVO.getId())) {
+					throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+							"Invalid request parameter. entityId is not in URN format. id=" + queryVO.getId());
+				}
+			}
+
+			if(queryVO.getSearchIdList() != null) {
+				for (String entityId : queryVO.getSearchIdList()) {
+					if (!ValidateUtil.isValidUrn(entityId)) {
+						throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+								"Invalid request parameter. entityId is not in URN format. id=" + entityId);
+					}
+				}
+			}
+		}
 	}
 
 	public List<CommonEntityVO> getTemporalEntity(QueryVO queryVO, String queryString, String accept, String link) {
@@ -474,6 +501,7 @@ public class EntityRetrieveSVC {
 			String[] idList = id.split(",");
 			queryVO.setSearchIdList(Arrays.asList(idList));
 		}
+		validateEntityId(queryVO);
 
 		// 3. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
@@ -498,6 +526,9 @@ public class EntityRetrieveSVC {
 	}
 
 	public CommonEntityVO queryTemporalEntityByIdStandalone(QueryVO queryVO, String accept) {
+
+		validateEntityId(queryVO);
+
 		// 1. 조회할 storageType 설정
 		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
 		if (dataStorageType == null) {
@@ -522,34 +553,6 @@ public class EntityRetrieveSVC {
 			resultList = new CommonEntityVO();
 		}
 		return resultList;
-	}
-
-	public Integer queryTemporalEntityCountByIdStandalone(QueryVO queryVO) {
-		// 3. 조회할 storageType 설정
-		BigDataStorageType dataStorageType = BigDataStorageType.parseType(queryVO.getDataStorageType());
-		if (dataStorageType == null) {
-			dataStorageType = defaultStorageType;
-		}
-
-		// 4. 리소스 조회
-		int totalCount = 0;
-		if (BigDataStorageType.RDB == dataStorageType) {
-			CommonEntityVO commonEntityVO = rdbEntitySVC.selectTemporalById(queryVO, queryVO.getType());
-			if (commonEntityVO != null) {
-				totalCount = 1;
-			}
-		} else if (BigDataStorageType.HIVE == dataStorageType) {
-			totalCount = hiveEntitySVC.selectTemporalCount(queryVO);
-
-		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
-		} else {
-			CommonEntityVO commonEntityVO = rdbEntitySVC.selectTemporalById(queryVO, queryVO.getType());
-			if (commonEntityVO != null) {
-				totalCount = 1;
-			}
-		}
-		return totalCount;
 	}
 
 	public Integer getTemporalEntityCount(QueryVO queryVO, String queryString, String link) {
