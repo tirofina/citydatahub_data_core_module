@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.service.JsonldContextSVC;
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.vo.JsonldContextBaseVO;
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.vo.JsonldContextCacheVO;
@@ -929,13 +930,13 @@ public class DataModelManager {
 
         	// attribute name이 short 형태인 경우
         	if(contextMap == null) {
-        		throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "Invalid attrs. name=" + attributeName + ", link=" + links);
+        		throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "Invalid attrs. name=" + attributeName + ", link=" + links);
         	}
 
         	if(contextMap.containsKey(attributeName)) {
         		fullUriAttrs.add(contextMap.get(attributeName));
         	} else {
-        		throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "Invalid attrs. name=" + attributeName + ", link=" + links);
+        		throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "Invalid attrs. name=" + attributeName + ", link=" + links);
         	}
         }
         
