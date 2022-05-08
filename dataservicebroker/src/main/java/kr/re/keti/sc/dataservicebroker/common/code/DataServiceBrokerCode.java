@@ -996,8 +996,41 @@ public class DataServiceBrokerCode {
             return null;
         }
     }
+
+    public static enum AclRuleOperationType {
+
+        @JsonProperty("create")
+        CREATE("create"),
+        @JsonProperty("update")
+        UPDATE("update"),
+        @JsonProperty("delete")
+        DELETE("delete"),
+        @JsonProperty("retrieve")
+        RETRIEVE("retrieve");
+
+        private String code;
+
+        @JsonCreator
+        private AclRuleOperationType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @JsonValue
+        public static AclRuleOperationType parseType(String code) {
+            for (AclRuleOperationType aclRuleOperation : values()) {
+                if (aclRuleOperation.getCode().equals(code)) {
+                    return aclRuleOperation;
+                }
+            }
+            return null;
+        }
+    }
     
-public static enum ServiceExecutionStatus {
+    public static enum ServiceExecutionStatus {
         
         @JsonProperty("success")
         SUCCESS("success"),
