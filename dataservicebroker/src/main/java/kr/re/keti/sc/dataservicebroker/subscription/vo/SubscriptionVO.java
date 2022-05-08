@@ -14,6 +14,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.SubscriptionCode;
 import kr.re.keti.sc.dataservicebroker.common.code.SubscriptionCode.Timerel;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
 import lombok.Data;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,15 +35,22 @@ public class SubscriptionVO {
 
     private Boolean isActive;
     private NotificationParams notification;
-    @JsonFormat(pattern = Constants.CONTENT_DATE_FORMAT)
     private Date expires;
+    private Date expiresAt;
     private Integer throttling;
     private TemporalQuery temporalQ;
     private SubscriptionCode.Status status;
 
     @JsonProperty("@context")
     private List<String> context;
-    
+
+    @ModelAttribute("expiresAt")
+    public void setExpiresAt(Date expiresAt) {
+        // expires -> expiresAt으로 spec 변경 대응
+        // 실제 내부 로직은 expires 로 동작함
+        this.expires = expiresAt;
+    }
+
     public void setStatus(String status) {
 
         SubscriptionCode.Status statusObj = SubscriptionCode.Status.parseType(status);

@@ -188,11 +188,11 @@ public class SubscriptionDAO implements SubscriptionDAOInterface {
             }
             notificationParams.setEndpoint(endpoint);
 
-            subscriptionVO.setExpires(subscriptionBaseDaoVO.getExpire());
+            subscriptionVO.setExpiresAt(subscriptionBaseDaoVO.getExpire());
             subscriptionVO.setThrottling(subscriptionBaseDaoVO.getThrottling());
 
-            String statusStr = subscriptionBaseDaoVO.getStatus();
-            SubscriptionCode.Status status = SubscriptionCode.Status.parseType(statusStr);
+            subscriptionVO.setIsActive(subscriptionBaseDaoVO.getIsActive());
+            SubscriptionCode.Status status = generateStatus(subscriptionBaseDaoVO.getIsActive(), subscriptionBaseDaoVO.getExpire());
             subscriptionVO.setStatus(status);
 
             List<SubscriptionEntitiesDaoVO> subscriptionEntitiesDaoVOs = subscriptionBaseDaoVO.getSubscriptionEntitiesDaoVOs();
@@ -212,10 +212,22 @@ public class SubscriptionDAO implements SubscriptionDAOInterface {
             subscriptionVO.setGeoQ(stringToGeoQuery(geoQ));
 
             subscriptionVOs.add(subscriptionVO);
-
         }
 
         return subscriptionVOs;
+    }
+
+    private SubscriptionCode.Status generateStatus(Boolean isActive, Date expiresAt) {
+
+        if(isActive != null && !isActive) {
+            return SubscriptionCode.Status.PAUSED;
+        }
+
+        if(expiresAt != null && expiresAt.before(new Date())) {
+            return SubscriptionCode.Status.EXPIRED;
+        }
+
+        return SubscriptionCode.Status.ACTIVE;
     }
 
 

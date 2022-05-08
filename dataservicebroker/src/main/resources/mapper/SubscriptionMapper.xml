@@ -140,9 +140,7 @@
         <if test="csf != null">
             ,CSF
         </if>
-        <if test="isActive != null">
-            ,IS_ACTIVE
-        </if>
+        ,IS_ACTIVE
         <if test="notificationAttributes != null">
             ,NOTIFICATION_ATTRIBUTES
         </if>
@@ -238,9 +236,7 @@
         <if test="csf != null">
             ,#{csf}
         </if>
-        <if test="isActive != null">
-            ,#{isActive}
-        </if>
+        ,#{isActive}
         <if test="notificationAttributes != null">
             ,#{notificationAttributes, typeHandler=kr.re.keti.sc.dataservicebroker.common.datamapperhandler.StringArrayListTypeHandler}::VARCHAR(256)[]
         </if>
@@ -381,9 +377,7 @@
             <if test="csf != null">
                 CSF = #{csf},
             </if>
-            <if test="isActive != null">
-                IS_ACTIVE= #{isActive},
-            </if>
+            IS_ACTIVE= #{isActive},
             <if test="notificationAttributes != null">
                 NOTIFICATION_ATTRIBUTES = #{notificationAttributes, typeHandler=kr.re.keti.sc.dataservicebroker.common.datamapperhandler.StringArrayListTypeHandler}::VARCHAR(256)[],
             </if>
@@ -508,7 +502,7 @@
 		</if>
         <if test="isActive != null">
             <if test="isActive == true">
-                AND BASE.IS_ACTIVE = 'true'
+                AND ( BASE.IS_ACTIVE = 'true' OR BASE.IS_ACTIVE IS NULL )
             </if>
             <if test="isActive == false">
                 AND BASE.IS_ACTIVE = 'false'

@@ -91,12 +91,6 @@ public class SubscriptionSVC {
 //                    throw new BadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "should not include WatchedAttributes");
 //                }
 //            }
-
-//            if (subscriptionVO.getIsActive() == null || subscriptionVO.getIsActive() == true) {
-//                subscriptionVO.setStatus(SubscriptionCode.Status.ACTIVE);
-//            } else {
-//                subscriptionVO.setStatus(SubscriptionCode.Status.PAUSED);
-//            }
         }
 
         if (!DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode().equals(subscriptionVO.getType())
@@ -416,11 +410,6 @@ public class SubscriptionSVC {
             subscriptionBaseDaoVO.setGeoQ(geoQ);
         }
         subscriptionBaseDaoVO.setCsf(subscriptionVO.getCsf());
-        if (subscriptionVO.getIsActive() == null || subscriptionVO.getIsActive() == true) {
-            subscriptionBaseDaoVO.setIsActive(true);
-        } else {
-            subscriptionBaseDaoVO.setIsActive(false);
-        }
 
         if (notificationParams != null) {
             if (notificationParams.getAttributes() != null) {
@@ -462,11 +451,9 @@ public class SubscriptionSVC {
 
 
         }
+        subscriptionBaseDaoVO.setIsActive(subscriptionVO.getIsActive());
         subscriptionBaseDaoVO.setExpire(subscriptionVO.getExpires());
         subscriptionBaseDaoVO.setThrottling(subscriptionVO.getThrottling());
-        if (subscriptionVO.getStatus() != null) {
-            subscriptionBaseDaoVO.setStatus(subscriptionVO.getStatus().getCode());
-        }
 
         SubscriptionVO.TemporalQuery temporalQ = subscriptionVO.getTemporalQ();
         if (temporalQ != null) {
@@ -504,9 +491,13 @@ public class SubscriptionSVC {
             DataModelCacheVO dataModelCacheVO = null;
             if (subscriptionType == DataServiceBrokerCode.JsonLdType.SUBSCRIPTION) {
 
+                if (ValidateUtil.isEmptyData(type)) {
+                    throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATAMODEL, "Not exists entities.type.");
+                }
+
                 dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(subscriptionVO.getContext(), type);
                 if (dataModelCacheVO == null) {
-                    throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATAMODEL, "Not Exist EntityInfo type. type=" + type);
+                    throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATAMODEL, "Invalid entities.type. type=" + type);
                 }
 
             } else if (subscriptionType == DataServiceBrokerCode.JsonLdType.CSOURCE_REGISTRATION_SUBSCRIPTION) {
@@ -523,7 +514,8 @@ public class SubscriptionSVC {
 //                        + " entityId=" + entityInfo.getIdPattern());
 
             } else {
-                throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityType. entityType=" + type);
+                throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                        "Invalid subscription type. type=" + subscriptionVO.getType());
 
             }
 
