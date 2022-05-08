@@ -100,6 +100,7 @@ entity:
   default.storage: rdb
   # datasetFlow 정보가 없는 경우 Entity 이력 저장 유형 (none, partial, full, all)
   default.history.store.type: full
+  default.context-uri: https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld
   retrieve: 
     default.limit: 10000
     include.datasetid: N

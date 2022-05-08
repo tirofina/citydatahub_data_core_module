@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.re.keti.sc.dataservicebroker.common.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,15 +50,6 @@ import kr.re.keti.sc.dataservicebroker.common.exception.ErrorPayload;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
 import kr.re.keti.sc.dataservicebroker.common.service.security.AASSVC;
-import kr.re.keti.sc.dataservicebroker.common.vo.BatchEntityErrorVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.BatchIngestMessageVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.BatchOperationResultVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.CommonEntityVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.EntityCountVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.EntityProcessVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.IngestMessageVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.ProcessResultVO;
-import kr.re.keti.sc.dataservicebroker.common.vo.QueryVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.entities.DynamicEntityDaoVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.entities.DynamicEntityFullVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
@@ -142,8 +134,8 @@ public class EntityController {
         Integer totalCount = entityRetrieveSVC.getEntityCount(queryVO, request.getQueryString(), link);
 
         EntityCountVO entityCountVO = new EntityCountVO();
-		entityCountVO.setTotalCount(totalCount);
-		entityCountVO.setType(queryVO.getType());
+        entityCountVO.setTotalCount(totalCount);
+        entityCountVO.setType(queryVO.getType());
 
         // 3. 설정에 property 조건에 따라 response body를 로그로 남김
         String jsonResult = objectMapper.writeValueAsString(entityCountVO);
@@ -216,11 +208,11 @@ public class EntityController {
     @GetMapping("/entities/{id:.+}")
     public @ResponseBody
     void getEntityById(HttpServletRequest request,
-    				   HttpServletResponse response,
-    				   @RequestHeader(HttpHeaders.ACCEPT) String accept,
-    				   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-    				   @PathVariable String id,
-    				   @ModelAttribute QueryVO queryVO) throws Exception {
+                       HttpServletResponse response,
+                       @RequestHeader(HttpHeaders.ACCEPT) String accept,
+                       @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                       @PathVariable String id,
+                       @ModelAttribute QueryVO queryVO) throws Exception {
 
         StringBuilder requestParams = new StringBuilder();
         requestParams.append("accept=").append(accept).append(", params(queryVO)=").append(queryVO.toString());
@@ -246,7 +238,7 @@ public class EntityController {
         if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
             log.info("response body : " + jsonResult);
         }
-        
+
         // 4. 응답
         HttpHeadersUtil.addContextLinkHeader(response, accept, queryVO.getContext());
         response.getWriter().print(jsonResult);
@@ -261,10 +253,10 @@ public class EntityController {
      */
     @PostMapping("/entities")
     public void create( HttpServletRequest request,
-    					HttpServletResponse response,
-    					@RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-    					@RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    					@RequestBody String requestBody) throws Exception {
+                        HttpServletResponse response,
+                        @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                        @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
+                        @RequestBody String requestBody) throws Exception {
 
         log.info("Create Entity Reqeust link={}, contentType={}, body={}",link, contentType, requestBody);
 
@@ -297,18 +289,18 @@ public class EntityController {
      */
     @RequestMapping(value = "/entities/{id:.+}/attrs", method = {RequestMethod.POST})
     public void appendEntityAttributes( HttpServletRequest request,
-    									HttpServletResponse response,
-    									@PathVariable String id,
-    									@RequestBody String requestBody,
-    									@RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                        HttpServletResponse response,
+                                        @PathVariable String id,
+                                        @RequestBody String requestBody,
+                                        @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                         @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    									@RequestParam(value = "options", required = false) String options) throws Exception {
+                                        @RequestParam(value = "options", required = false) String options) throws Exception {
 
         log.info("AppendEntityAttributes Reqeust id={}, link={}, contentType={}, options={}, body={}",
                 id, link, contentType, options, requestBody);
 
         List<IngestMessageVO> requestMessageVOList = null;
-        
+
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
 
         // 1. entity 업데이트를 위한 객체 생성
@@ -341,12 +333,12 @@ public class EntityController {
      * @param requestBody 사용자 요청 body
      */
     @RequestMapping(value = "/entities/{id:.+}/attrs", method = {RequestMethod.PATCH})
-    public void updateEntityAttributes( HttpServletRequest request, 
-    									HttpServletResponse response,
+    public void updateEntityAttributes( HttpServletRequest request,
+                                        HttpServletResponse response,
                                         @PathVariable String id,
                                         @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                         @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    									@RequestBody String requestBody) throws Exception {
+                                        @RequestBody String requestBody) throws Exception {
 
         log.info("UpdateEntityAttributes Reqeust id={}, link={}, contentType={}, body={}",
                 id, link, contentType, requestBody);
@@ -422,8 +414,8 @@ public class EntityController {
         log.info("Delete entity Reqeust id={}", id);
 
         // 1. entity 삭제를 위한 객체 생성
-        List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, null, 
-        		DataServiceBrokerCode.Operation.DELETE_ENTITY, request.getRequestURI(), id, null, null);
+        List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, null,
+                DataServiceBrokerCode.Operation.DELETE_ENTITY, request.getRequestURI(), id, null, null);
 
         // 2. 리소스 삭제 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -449,11 +441,11 @@ public class EntityController {
      */
     @DeleteMapping("/entities/{id:.+}/attrs/{attrId:.+}")
     public void deleteAttr( HttpServletRequest request,
-    						HttpServletResponse response,
-    						@RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                            HttpServletResponse response,
+                            @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                             @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    						@PathVariable String id,
-    						@PathVariable String attrId) throws Exception {
+                            @PathVariable String id,
+                            @PathVariable String attrId) throws Exception {
 
         log.info("DeleteAttr Reqeust id={}, attrId={}, link={}, contentType={}",
                 id, attrId, link, contentType);
@@ -487,10 +479,10 @@ public class EntityController {
      */
     @PostMapping("/entityOperations/create")
     public void batchEntityCreation(HttpServletRequest request,
-    								HttpServletResponse response,
-    								@RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                    HttpServletResponse response,
+                                    @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                     @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    								@RequestBody String requestBody) throws Exception {
+                                    @RequestBody String requestBody) throws Exception {
 
         log.info("BatchEntityCreation Reqeust link={}, contentType={}, body={}", link, contentType, requestBody);
 
@@ -498,7 +490,9 @@ public class EntityController {
 
         // 1. entity 생성을 위한 객체 생성
         BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList,
-        		DataServiceBrokerCode.Operation.CREATE_ENTITY, request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                DataServiceBrokerCode.Operation.CREATE_ENTITY, request.getRequestURI(),
+                null, HttpHeadersUtil.extractLinkUris(link), contentType);
+
         List<IngestMessageVO> ingestMessageVO = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
 
@@ -506,17 +500,17 @@ public class EntityController {
         List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> processResultVO = bulkProcess(ingestMessageVO);
 
         // 3. 배치 오퍼레이션 결과 처리
-        BatchOperationResultVO batchOperationResultVO = processBatchOperationResult(processResultVO, batchEntityErrorVO);
+        BatchOperationResponseVO batchOperationResponseVO = batchCreateOperationResponse(processResultVO, batchEntityErrorVO);
 
         // 4. 설정에 property 조건에 따라 response body를 로그로 남김
         if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
-            log.info("response body : " + objectMapper.writeValueAsString(batchOperationResultVO));
+            log.info("BatchEntityCreation Response. StatusCode={}, body={}",
+                    batchOperationResponseVO.getStatusCode().value(), batchOperationResponseVO.getResponseBody());
         }
 
         // 5. 처리 결과 전달
-        commonBatchOpertionResponse(response, DataServiceBrokerCode.Operation.CREATE_ENTITY, batchOperationResultVO);
+        commonBatchOpertionResponse(response, batchOperationResponseVO);
     }
-
 
     /**
      * Batch 리소스 upsert (Batch Entity Creation or Update (Upsert))
@@ -526,17 +520,17 @@ public class EntityController {
      */
     @PostMapping("/entityOperations/upsert")
     public void batchEntityUpsert(HttpServletRequest request,
-    							  HttpServletResponse response,
-    							  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                  HttpServletResponse response,
+                                  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                   @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    							  @RequestBody String requestBody) throws Exception {
+                                  @RequestBody String requestBody) throws Exception {
 
         log.info("BatchEntityUpsert Reqeust link={}, contentType={}, body={}", link, contentType, requestBody);
 
         List<HashMap<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
         // 1. entity 생성을 위한 객체 생성
-        BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList, 
-        		Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES, request.getRequestURI(),
+        BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList,
+                Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES, request.getRequestURI(),
                 null, HttpHeadersUtil.extractLinkUris(link), contentType);
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
@@ -545,16 +539,17 @@ public class EntityController {
         List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> processResultVO = bulkProcess(ingestMessageVOs);
 
         // 3. 배치 오퍼레이션 결과 처리
-        BatchOperationResultVO batchOperationResultVO = processBatchOperationResult(processResultVO, batchEntityErrorVO);
+        BatchOperationResponseVO batchOperationResponseVO = batchUpsertOperationResponse(processResultVO, batchEntityErrorVO);
 
         // 4. 설정에 property 조건에 따라 response body를 로그로 남김
-        if (UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
-            log.info("response body : " + objectMapper.writeValueAsString(batchOperationResultVO));
+        if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
+            log.info("BatchEntityUpsert Response. StatusCode={}, body={}",
+                    batchOperationResponseVO.getStatusCode().value(), batchOperationResponseVO.getResponseBody());
         }
-        // 5. 처리 결과 전달
-        commonBatchOpertionResponse(response, Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES, batchOperationResultVO);
-    }
 
+        // 5. 처리 결과 전달
+        commonBatchOpertionResponse(response, batchOperationResponseVO);
+    }
 
     /**
      * Batch 리소스 Update (Batch Entity Update)
@@ -564,11 +559,11 @@ public class EntityController {
      */
     @PostMapping("/entityOperations/update")
     public void batchEntityUpdate(HttpServletRequest request,
-    							  HttpServletResponse response,
-    							  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                  HttpServletResponse response,
+                                  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                   @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    							  @RequestBody String requestBody,
-    							  @RequestParam(value = "options", required = false) String options) throws IOException {
+                                  @RequestBody String requestBody,
+                                  @RequestParam(value = "options", required = false) String options) throws IOException {
 
         log.info("BatchEntityUpdate Reqeust link={}, contentType={}, options={}, body={}", link, contentType, options, requestBody);
 
@@ -581,10 +576,10 @@ public class EntityController {
         if (options != null && options.equals(OperationOption.NO_OVERWRITE.getCode())) {
             // "noOverwrite". Indicates that no attribute overwrite shall be performed.
             batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList, Operation.APPEND_ENTITY_ATTRIBUTES,
-            		request.getRequestURI(), Arrays.asList(OperationOption.NO_OVERWRITE), HttpHeadersUtil.extractLinkUris(link), contentType);
+                    request.getRequestURI(), Arrays.asList(OperationOption.NO_OVERWRITE), HttpHeadersUtil.extractLinkUris(link), contentType);
         } else {
             batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList, Operation.APPEND_ENTITY_ATTRIBUTES,
-            		request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                    request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
         }
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
@@ -593,15 +588,16 @@ public class EntityController {
         List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> processResultVO = bulkProcess(ingestMessageVOs);
 
         // 3. 배치 오퍼레이션 결과 처리
-        BatchOperationResultVO batchOperationResultVO = processBatchOperationResult(processResultVO, batchEntityErrorVO);
+        BatchOperationResponseVO batchOperationResponseVO = batchUpdateAndDeleteOperationResponse(processResultVO, batchEntityErrorVO);
 
         // 4. 설정에 property 조건에 따라 response body를 로그로 남김
-        if (UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
-            log.info("response body : " + objectMapper.writeValueAsString(batchOperationResultVO));
+        if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
+            log.info("BatchEntityUpdate Response. StatusCode={}, body={}",
+                    batchOperationResponseVO.getStatusCode().value(), batchOperationResponseVO.getResponseBody());
         }
 
         // 5. 처리 결과 전달
-        commonBatchOpertionResponse(response, Operation.APPEND_ENTITY_ATTRIBUTES, batchOperationResultVO);
+        commonBatchOpertionResponse(response, batchOperationResponseVO);
 
     }
 
@@ -614,39 +610,40 @@ public class EntityController {
      */
     @PostMapping("/entityOperations/delete")
     public void batchEntityDelete(HttpServletRequest request,
-    							  HttpServletResponse response,
-    							  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                  HttpServletResponse response,
+                                  @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                   @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
-    							  @RequestBody List<String> ids) throws Exception {
+                                  @RequestBody List<String> ids) throws Exception {
 
         log.info("BatchEntityDelete Reqeust link={}, contentType={}, ids={}", link, contentType, ids);
 
         BatchIngestMessageVO batchIngestMessageVO = null;
         // 1. entity 생성을 위한 객체 생성
         batchIngestMessageVO = makeBatchRequestMessageVO(request, ids, Operation.DELETE_ENTITY,
-        		request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
         // 2. 리소스 생성 요청
         List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> processResultVO = bulkProcess(ingestMessageVOs);
 
         // 3. 배치 오퍼레이션 결과 처리
-        BatchOperationResultVO batchOperationResultVO = processBatchOperationResult(processResultVO, batchEntityErrorVO);
+        BatchOperationResponseVO batchOperationResponseVO = batchUpdateAndDeleteOperationResponse(processResultVO, batchEntityErrorVO);
 
         // 4. 설정에 property 조건에 따라 response body를 로그로 남김
-        if (UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
-            log.info("response body : " + objectMapper.writeValueAsString(batchOperationResultVO));
+        if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
+            log.info("BatchEntityDelete Response. StatusCode={}, body={}",
+                    batchOperationResponseVO.getStatusCode().value(), batchOperationResponseVO.getResponseBody());
         }
 
         // 5. 처리 결과 전달
-        commonBatchOpertionResponse(response, Operation.DELETE_ENTITY, batchOperationResultVO);
+        commonBatchOpertionResponse(response, batchOperationResponseVO);
 
     }
 
-    
+
     /**
      * Retrieve Available Entity Types or Details of Available Entity Types
-     * 
+     *
      * @param request
      * @param response
      * @param accept
@@ -657,10 +654,10 @@ public class EntityController {
     @GetMapping(value = "/types")
     public @ResponseBody
     void getEntityTypes(HttpServletRequest request,
-                   HttpServletResponse response,
-                   @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
-                   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-                   @RequestParam(value = "details", required = false) boolean details) throws Exception {
+                        HttpServletResponse response,
+                        @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
+                        @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                        @RequestParam(value = "details", required = false) boolean details) throws Exception {
 
         StringBuilder requestParams = new StringBuilder();
         requestParams.append("accept=").append(accept)
@@ -674,34 +671,34 @@ public class EntityController {
 
         // 1. 가용한 Entity types 상세 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
-        
+
         if (dataModelList == null) {
             throw new NgsiLdResourceNotFoundException(ErrorCode.NOT_EXIST_ENTITY, "There is no an existing Entity.");
         }
-        
+
         List<DataModelCacheVO> existsEntityModelList = new ArrayList<>();
         for(DataModelCacheVO dataModelCacheVO : dataModelList) {
-        	QueryVO queryVO = new QueryVO();
-        	queryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
-        	Integer totalCount = entityRetrieveSVC.getEntityCount(queryVO, null, null);
-        	if(totalCount != null && totalCount > 0) {
-        		existsEntityModelList.add(dataModelCacheVO);
-        	}
+            QueryVO queryVO = new QueryVO();
+            queryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
+            Integer totalCount = entityRetrieveSVC.getEntityCount(queryVO, null, null);
+            if(totalCount != null && totalCount > 0) {
+                existsEntityModelList.add(dataModelCacheVO);
+            }
         }
-        
+
         String jsonResult = null;
         int resultSize = 1;
-        
+
         // Retrieve Details of Available Entity Types
         if(details) {
-        	List<AvailableEntityTypeDetail> entityTypeDetailList = dataModelListToEntityTypeDetails(existsEntityModelList, links);
-        	resultSize = entityTypeDetailList.size();
-        	jsonResult = objectMapper.writeValueAsString(entityTypeDetailList);
+            List<AvailableEntityTypeDetail> entityTypeDetailList = dataModelListToEntityTypeDetails(existsEntityModelList, links);
+            resultSize = entityTypeDetailList.size();
+            jsonResult = objectMapper.writeValueAsString(entityTypeDetailList);
         }
         // Retrieve Available Entity Types
         else {
-        	AvailableEntityType entityType = dataModelListToEntityType(existsEntityModelList, links);
-        	jsonResult = objectMapper.writeValueAsString(entityType);
+            AvailableEntityType entityType = dataModelListToEntityType(existsEntityModelList, links);
+            jsonResult = objectMapper.writeValueAsString(entityType);
         }
 
         // 2. 설정에 property 조건에 따라 response body를 로그로 남김
@@ -714,10 +711,10 @@ public class EntityController {
         response.getWriter().print(jsonResult);
     }
 
-    
-	/**
+
+    /**
      * Retrieve Available Entity Type Information
-     * 
+     *
      * @param request
      * @param response
      * @param accept
@@ -728,10 +725,10 @@ public class EntityController {
     @GetMapping(value = "/types/{type}")
     public @ResponseBody
     void getEntityType(HttpServletRequest request,
-                   HttpServletResponse response,
-                   @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
-                   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-                   @PathVariable String type) throws Exception {
+                       HttpServletResponse response,
+                       @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
+                       @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                       @PathVariable String type) throws Exception {
 
         log.info("retrieve types request. accept={}, link={}, type={}", accept, link, type);
 
@@ -740,13 +737,13 @@ public class EntityController {
 
         // 1. 가용한 Entity type 정보 조회
         DataModelCacheVO dataModel = dataModelManager.getDataModelVOCacheByContext(links, type);
-        
+
         if (dataModel == null) {
             throw new NgsiLdResourceNotFoundException(ErrorCode.NOT_EXIST_ENTITY, "There is no an existing Entity which type.");
         }
-        
+
         AvailableEntityTypeInformation entityTypeInfo = dataModelToEntityTypeInformation(dataModel);
-        
+
         String jsonResult = objectMapper.writeValueAsString(entityTypeInfo);
 
         // 2. 설정에 property 조건에 따라 response body를 로그로 남김
@@ -758,11 +755,11 @@ public class EntityController {
         HttpHeadersUtil.addContextLinkHeader(response, accept, links);
         response.getWriter().print(jsonResult);
     }
-    
-    
+
+
     /**
      * Retrieve Available Attributes or Retrieve Details of Available Attributes
-     * 
+     *
      * @param request
      * @param response
      * @param accept
@@ -773,10 +770,10 @@ public class EntityController {
     @GetMapping(value = "/attributes")
     public @ResponseBody
     void getAttribute(HttpServletRequest request,
-                   HttpServletResponse response,
-                   @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
-                   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-                   @RequestParam(value = "details", required = false) boolean details) throws Exception {
+                      HttpServletResponse response,
+                      @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
+                      @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                      @RequestParam(value = "details", required = false) boolean details) throws Exception {
 
         log.info("query attributes request. accept={}, link={}, details={}", accept, link, details);
 
@@ -785,24 +782,24 @@ public class EntityController {
 
         // 1. 가용한 Entity 전체 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
-        
+
         if (dataModelList == null) {
             throw new NgsiLdResourceNotFoundException(ErrorCode.NOT_EXIST_ENTITY, "There is no an existing Entity.");
         }
 
         String jsonResult = null;
         int resultSize = 1;
-        
+
         // Retrieve Details of Available Entity Types
         if(details) {
-        	List<AvailableAttributeDetail> attributeDetailList = dataModelListToAttributeDetails(dataModelList, links);
-        	resultSize = attributeDetailList.size();
-        	jsonResult = objectMapper.writeValueAsString(attributeDetailList);
+            List<AvailableAttributeDetail> attributeDetailList = dataModelListToAttributeDetails(dataModelList, links);
+            resultSize = attributeDetailList.size();
+            jsonResult = objectMapper.writeValueAsString(attributeDetailList);
         }
         // Retrieve Available Entity Types
         else {
-        	AvailableAttribute attribute = dataModelListToAttribute(dataModelList, links);
-        	jsonResult = objectMapper.writeValueAsString(attribute);
+            AvailableAttribute attribute = dataModelListToAttribute(dataModelList, links);
+            jsonResult = objectMapper.writeValueAsString(attribute);
         }
 
         // 2. 설정에 property 조건에 따라 response body를 로그로 남김
@@ -816,10 +813,10 @@ public class EntityController {
 
     }
 
-    
+
     /**
      * Retrieve Available Attribute Information
-     * 
+     *
      * @param request
      * @param response
      * @param accept
@@ -829,10 +826,10 @@ public class EntityController {
     @GetMapping(value = "/attributes/{attrId}")
     public @ResponseBody
     void getAttributeInformation(HttpServletRequest request,
-                   HttpServletResponse response,
-                   @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
-                   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
-                   @PathVariable String attrId) throws Exception {
+                                 HttpServletResponse response,
+                                 @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
+                                 @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
+                                 @PathVariable String attrId) throws Exception {
 
         log.info("retrieve attributes request. accept={}, link={}, attrId={}", accept, link, attrId);
 
@@ -841,17 +838,17 @@ public class EntityController {
 
         // 1. 가용한 Entity 전체 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
-        
+
         if (dataModelList == null) {
             throw new NgsiLdResourceNotFoundException(ErrorCode.NOT_EXIST_ENTITY, "There is no an existing Entity.");
         }
-        
+
         AvailableAttributeInformation attributeInformation = dataModelToAttributeInformation(dataModelList, attrId, links);
-        
+
         if (attributeInformation == null) {
             throw new NgsiLdResourceNotFoundException(ErrorCode.NOT_EXIST_ENTITY, "There is no an existing Attribute which name of attribute.");
         }
-        
+
         String jsonResult = objectMapper.writeValueAsString(attributeInformation);
 
         // 2. 설정에 property 조건에 따라 response body를 로그로 남김
@@ -863,16 +860,140 @@ public class EntityController {
         HttpHeadersUtil.addContextLinkHeader(response, accept, links);
         response.getWriter().print(jsonResult);
     }
-    
+
 
     /**
-     * 배치 오퍼레이션 결과 후처리
-     *
-     * @param entityProcessVOs
-     * @return
+     * /entityOperations/create 응답데이터 생성
+     * @param entityProcessVOs entityOperations 요청 및 결과 객체
+     * @param parsingErrors entityOperations 파싱오류 목록
+     * @return HTTP응답코드 및 body 데이터
+     * @throws JsonProcessingException Body 생성 시 Json파싱에러
      */
-    private BatchOperationResultVO processBatchOperationResult(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs, List<BatchEntityErrorVO> parsingErrors
-    ) throws JsonProcessingException {
+    private BatchOperationResponseVO batchCreateOperationResponse(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs,
+                                                                  List<BatchEntityErrorVO> parsingErrors) throws JsonProcessingException {
+
+        BatchOperationResponseVO batchOperationResponseVO = new BatchOperationResponseVO();
+
+        // 전체 성공인 경우
+        if(isComplateSuccess(entityProcessVOs, parsingErrors)) {
+            List<String> result = new ArrayList<>();
+            for (EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO> entityProcessVO : entityProcessVOs) {
+                result.add(entityProcessVO.getEntityId());
+            }
+            batchOperationResponseVO.setStatusCode(HttpStatus.CREATED);
+            batchOperationResponseVO.setResponseBody(objectMapper.writeValueAsString(result));
+
+            // 전체 성공이 아닌 경우
+        } else {
+            batchOperationResponseVO.setStatusCode(HttpStatus.MULTI_STATUS);
+            batchOperationResponseVO.setResponseBody(generateMultiStatusResponse(entityProcessVOs, parsingErrors));
+        }
+
+        return batchOperationResponseVO;
+    }
+
+    /**
+     * /entityOperations/update 또는 /entityOperations/delete 응답데이터 생성
+     * @param entityProcessVOs entityOperations 요청 및 결과 객체
+     * @param parsingErrors entityOperations 파싱오류 목록
+     * @return HTTP응답코드 및 body 데이터
+     * @throws JsonProcessingException Body 생성 시 Json파싱에러
+     */
+    private BatchOperationResponseVO batchUpdateAndDeleteOperationResponse(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs,
+                                                                           List<BatchEntityErrorVO> parsingErrors) throws JsonProcessingException {
+
+        BatchOperationResponseVO batchOperationResponseVO = new BatchOperationResponseVO();
+
+        // 전체 성공인 경우
+        if(isComplateSuccess(entityProcessVOs, parsingErrors)) {
+            batchOperationResponseVO.setStatusCode(HttpStatus.NO_CONTENT);
+
+            // 전체 성공이 아닌 경우
+        } else {
+            batchOperationResponseVO.setStatusCode(HttpStatus.MULTI_STATUS);
+            batchOperationResponseVO.setResponseBody(generateMultiStatusResponse(entityProcessVOs, parsingErrors));
+        }
+
+        return batchOperationResponseVO;
+    }
+
+
+    /**
+     * /entityOperations/upsert 응답데이터 생성
+     * @param entityProcessVOs entityOperations 요청 및 결과 객체
+     * @param parsingErrors entityOperations 파싱오류 목록
+     * @return HTTP응답코드 및 body 데이터
+     * @throws JsonProcessingException Body 생성 시 Json파싱에러
+     */
+    private BatchOperationResponseVO batchUpsertOperationResponse(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs,
+                                                                  List<BatchEntityErrorVO> parsingErrors) throws JsonProcessingException {
+
+        BatchOperationResponseVO batchOperationResponseVO = new BatchOperationResponseVO();
+
+        // 전체 성공인 경우
+        if(isComplateSuccess(entityProcessVOs, parsingErrors)) {
+            boolean isIncludeCreate = false;
+            List<String> result = new ArrayList<>();
+            for (EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO> entityProcessVO : entityProcessVOs) {
+                if(entityProcessVO.getProcessResultVO().getProcessOperation() == Operation.CREATE_ENTITY) {
+                    isIncludeCreate = true;
+                    result.add(entityProcessVO.getEntityId());
+                }
+            }
+            // create 가 포함된 경우 statusCode=201과 함께 생성된 entityId를 반환
+            if(isIncludeCreate) {
+                batchOperationResponseVO.setStatusCode(HttpStatus.CREATED);
+                batchOperationResponseVO.setResponseBody(objectMapper.writeValueAsString(result));
+                // create 가 포함되지 않은 경우 body 없이 statusCode=204만 반환
+            } else {
+                batchOperationResponseVO.setStatusCode(HttpStatus.NO_CONTENT);
+            }
+
+            // 전체 성공이 아닌 경우
+        } else {
+            batchOperationResponseVO.setStatusCode(HttpStatus.MULTI_STATUS);
+            batchOperationResponseVO.setResponseBody(generateMultiStatusResponse(entityProcessVOs, parsingErrors));
+        }
+
+        return batchOperationResponseVO;
+    }
+
+    /**
+     * batch 요청 전체 성공 여부 판단
+     * @param entityProcessVOs entityOperations 요청 및 결과 객체
+     * @param parsingErrors entityOperations 파싱오류 목록
+     * @return 요청 전체 성공 여부
+     */
+    private boolean isComplateSuccess(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs,
+                                      List<BatchEntityErrorVO> parsingErrors) {
+
+        if(entityProcessVOs == null && parsingErrors == null) {
+            return false;
+        }
+
+        if(parsingErrors != null && parsingErrors.size() > 0) {
+            return false;
+        }
+
+        if (entityProcessVOs != null) {
+            for(EntityProcessVO entityProcessVO : entityProcessVOs) {
+                if(!entityProcessVO.getProcessResultVO().isProcessResult()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * entityOperations 요청의 MultiStatus 응답데이터 생성
+     * @param entityProcessVOs entityOperations 요청 및 결과 객체
+     * @param parsingErrors entityOperations 파싱오류 목록
+     * @return entityOperation 요청의 HTTP response body 데이터
+     * @throws JsonProcessingException Body 생성 시 Json파싱에러
+     */
+    private String generateMultiStatusResponse(List<EntityProcessVO<DynamicEntityFullVO, DynamicEntityDaoVO>> entityProcessVOs,
+                                               List<BatchEntityErrorVO> parsingErrors) throws JsonProcessingException {
 
         BatchOperationResultVO batchOperationResultVO = new BatchOperationResultVO();
         List<String> entityIds = new ArrayList<>();
@@ -902,19 +1023,17 @@ public class EntityController {
             }
         }
 
-
         if (parsingErrors != null && parsingErrors.size() > 0) {
             errors.addAll(parsingErrors);
         }
 
         if(entityIds != null && entityIds.size() > 0) {
-        	batchOperationResultVO.setSuccess(entityIds);
+            batchOperationResultVO.setSuccess(entityIds);
         }
         if(errors != null && errors.size() > 0) {
-        	batchOperationResultVO.setErrors(errors);
+            batchOperationResultVO.setErrors(errors);
         }
-
-        return batchOperationResultVO;
+        return objectMapper.writeValueAsString(batchOperationResultVO);
     }
 
     /**
@@ -967,11 +1086,11 @@ public class EntityController {
      * @return
      */
     private List<IngestMessageVO> makeRequestMessageVO( HttpServletRequest request,
-    													String requestBody,
-    													Operation operation,
-    													String requestUri,
-    													String id,
-    													List<String> links,
+                                                        String requestBody,
+                                                        Operation operation,
+                                                        String requestUri,
+                                                        String id,
+                                                        List<String> links,
                                                         String contentType) {
         return makeRequestMessageVO(request, requestBody, operation, requestUri, id, null, links, contentType);
     }
@@ -985,12 +1104,12 @@ public class EntityController {
      * @return
      */
     private List<IngestMessageVO> makeRequestMessageVO(HttpServletRequest request,
-    												   String requestBody, 
-    												   Operation operation, 
-    												   String requestUri, 
-    												   String id,
-    												   List<OperationOption> operationOptions,
-    												   List<String> links,
+                                                       String requestBody,
+                                                       Operation operation,
+                                                       String requestUri,
+                                                       String id,
+                                                       List<OperationOption> operationOptions,
+                                                       List<String> links,
                                                        String contentType) {
 
 
@@ -1021,13 +1140,13 @@ public class EntityController {
      * @param operation
      * @return
      */
-    private BatchIngestMessageVO makeBatchRequestMessageVO(HttpServletRequest request, 
-    												  List jsonList,
-    												  Operation operation,
-    												  String requestUri,
-    												  List<OperationOption> operationOptions,
-    												  List<String> links,
-                                                      String contentType) throws JsonProcessingException {
+    private BatchIngestMessageVO makeBatchRequestMessageVO(HttpServletRequest request,
+                                                           List jsonList,
+                                                           Operation operation,
+                                                           String requestUri,
+                                                           List<OperationOption> operationOptions,
+                                                           List<String> links,
+                                                           String contentType) throws JsonProcessingException {
 
 
         List<IngestMessageVO> requestMessageVOList = new ArrayList<>();
@@ -1110,63 +1229,68 @@ public class EntityController {
     /**
      * batch operation 결과 공통 처리
      */
-    private void commonBatchOpertionResponse(HttpServletResponse response, Operation operation, BatchOperationResultVO batchOperationResultVO) throws IOException {
+    private void commonBatchOpertionResponse(HttpServletResponse response, BatchOperationResponseVO batchOperationResponseVO) throws IOException {
 
         // 처리 결과 전달
         response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(Constants.CHARSET_ENCODING);
-        HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-        if (batchOperationResultVO != null) {
-            List<String> success = batchOperationResultVO.getSuccess();
-            List<BatchEntityErrorVO> errors = batchOperationResultVO.getErrors();
-
-            boolean includeSuccess = false;
-            boolean includeError = false;
-            if(success != null && success.size() > 0) {
-                includeSuccess = true;
-            }
-            if(errors != null && errors.size() > 0) {
-                includeError = true;
-            }
-
-            if (includeSuccess && includeError) {
-                // 성공 & 실패
-                statusCode = HttpStatus.MULTI_STATUS;
-
-            } else if (includeSuccess && !includeError) {
-                //모두 성공
-                statusCode = HttpStatus.OK;
-
-            } else if (!includeSuccess && includeError) {
-                //모두 실패
-                statusCode = HttpStatus.MULTI_STATUS;
-            } else {
-                statusCode = HttpStatus.NOT_FOUND;
-            }
-
-            if (operation == Operation.CREATE_ENTITY) {
-                if (statusCode == HttpStatus.OK) {
-                    statusCode = HttpStatus.CREATED;
-                }
-            } else if (operation == Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES) {
-                if (statusCode == HttpStatus.OK) {
-                    statusCode = HttpStatus.NO_CONTENT;
-                }
-            } else if (operation == Operation.APPEND_ENTITY_ATTRIBUTES) {
-                if (statusCode == HttpStatus.OK) {
-                    statusCode = HttpStatus.NO_CONTENT;
-                }
-            } else if (operation == Operation.DELETE_ENTITY) {
-                if (statusCode == HttpStatus.OK) {
-                    statusCode = HttpStatus.NO_CONTENT;
-                }
-            }
-        } else {
-            statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+        response.setStatus(batchOperationResponseVO.getStatusCode().value());
+        if(batchOperationResponseVO.getResponseBody() != null) {
+            response.getWriter().print(batchOperationResponseVO.getResponseBody());
         }
 
-        response.setStatus(statusCode.value());
-        response.getWriter().print(objectMapper.writeValueAsString(batchOperationResultVO));
+//        HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+//        if (batchOperationResultVO != null) {
+//            List<String> success = batchOperationResultVO.getSuccess();
+//            List<BatchEntityErrorVO> errors = batchOperationResultVO.getErrors();
+//
+//            boolean includeSuccess = false;
+//            boolean includeError = false;
+//            if(success != null && success.size() > 0) {
+//                includeSuccess = true;
+//            }
+//            if(errors != null && errors.size() > 0) {
+//                includeError = true;
+//            }
+//
+//            if (includeSuccess && includeError) {
+//                // 성공 & 실패
+//                statusCode = HttpStatus.MULTI_STATUS;
+//
+//            } else if (includeSuccess && !includeError) {
+//                //모두 성공
+//                statusCode = HttpStatus.OK;
+//
+//            } else if (!includeSuccess && includeError) {
+//                //모두 실패
+//                statusCode = HttpStatus.MULTI_STATUS;
+//            } else {
+//                statusCode = HttpStatus.NOT_FOUND;
+//            }
+//
+//            if (operation == Operation.CREATE_ENTITY) {
+//                if (statusCode == HttpStatus.OK) {
+//                    statusCode = HttpStatus.CREATED;
+//                }
+//            } else if (operation == Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES) {
+//                if (statusCode == HttpStatus.OK) {
+//                    statusCode = HttpStatus.NO_CONTENT;
+//                }
+//            } else if (operation == Operation.APPEND_ENTITY_ATTRIBUTES) {
+//                if (statusCode == HttpStatus.OK) {
+//                    statusCode = HttpStatus.NO_CONTENT;
+//                }
+//            } else if (operation == Operation.DELETE_ENTITY) {
+//                if (statusCode == HttpStatus.OK) {
+//                    statusCode = HttpStatus.NO_CONTENT;
+//                }
+//            }
+//        } else {
+//            statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+//        }
+//
+//        response.setStatus(statusCode.value());
+//        response.getWriter().print(objectMapper.writeValueAsString(batchOperationResultVO));
     }
 
 
@@ -1187,11 +1311,11 @@ public class EntityController {
         }
 
         if (!ValidateUtil.isEmptyData(entityDataModelVO)) {
-        	String dataModelId = entityDataModelVO.getDataModelId();
-        	DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheById(dataModelId);
-        	if(dataModelCacheVO != null) {
-        		entityType = dataModelCacheVO.getDataModelVO().getTypeUri();
-        	}
+            String dataModelId = entityDataModelVO.getDataModelId();
+            DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheById(dataModelId);
+            if(dataModelCacheVO != null) {
+                entityType = dataModelCacheVO.getDataModelVO().getTypeUri();
+            }
         }
 
         return entityType;
@@ -1220,246 +1344,246 @@ public class EntityController {
 
     /**
      * DataModel 로 부터 Entity type 정보 추출
-     * 
+     *
      * @param dataModel
      * @return
      */
     private AvailableEntityTypeInformation dataModelToEntityTypeInformation(DataModelCacheVO dataModel) {
-		AvailableEntityTypeInformation entityTypeInfo = new AvailableEntityTypeInformation();
-		DataModelVO dataModelVO = dataModel.getDataModelVO();
-		
-		entityTypeInfo.setId(dataModelVO.getTypeUri());
-		entityTypeInfo.setType(EntityAttributeResultType.ENTITY_TYPE_INFO.getCode());
-		entityTypeInfo.setTypeName(dataModelVO.getType());
-		entityTypeInfo.setEntityCount(0); // TODO: entity 건수 조회 할 수 있도록
-		
-		if(dataModelVO.getAttributes() != null) {
-			List<AvailableAttributeDetail> attributeDetails = new ArrayList<AvailableAttributeDetail>();
-			
-			for(Attribute attribute : dataModelVO.getAttributes()) {
-				AvailableAttributeDetail attributeDetail = new AvailableAttributeDetail();
-				List<String> attributeTypes = new ArrayList<String>();
-				
-				attributeDetail.setId(attribute.getAttributeUri());
-				attributeDetail.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
-				attributeDetail.setAttributeName(attribute.getName());
-				attributeTypes.add(attribute.getAttributeType().getCode());
-				attributeDetail.setAttributeTypes(attributeTypes);
-				attributeDetails.add(attributeDetail);
-			}
-			
-			entityTypeInfo.setAttributeDetails(attributeDetails);
-		}
-		
-		
-		return entityTypeInfo;
-	}
-	
+        AvailableEntityTypeInformation entityTypeInfo = new AvailableEntityTypeInformation();
+        DataModelVO dataModelVO = dataModel.getDataModelVO();
+
+        entityTypeInfo.setId(dataModelVO.getTypeUri());
+        entityTypeInfo.setType(EntityAttributeResultType.ENTITY_TYPE_INFO.getCode());
+        entityTypeInfo.setTypeName(dataModelVO.getType());
+        entityTypeInfo.setEntityCount(0); // TODO: entity 건수 조회 할 수 있도록
+
+        if(dataModelVO.getAttributes() != null) {
+            List<AvailableAttributeDetail> attributeDetails = new ArrayList<AvailableAttributeDetail>();
+
+            for(Attribute attribute : dataModelVO.getAttributes()) {
+                AvailableAttributeDetail attributeDetail = new AvailableAttributeDetail();
+                List<String> attributeTypes = new ArrayList<String>();
+
+                attributeDetail.setId(attribute.getAttributeUri());
+                attributeDetail.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
+                attributeDetail.setAttributeName(attribute.getName());
+                attributeTypes.add(attribute.getAttributeType().getCode());
+                attributeDetail.setAttributeTypes(attributeTypes);
+                attributeDetails.add(attributeDetail);
+            }
+
+            entityTypeInfo.setAttributeDetails(attributeDetails);
+        }
+
+
+        return entityTypeInfo;
+    }
+
     /**
      * DataModel List 로 부터 Entity Type 추출
-     * 
+     *
      * @param dataModelList
      * @param links
      * @return
      */
-	private AvailableEntityType dataModelListToEntityType(List<DataModelCacheVO> dataModelList, List<String> links) {
-		AvailableEntityType entityType = new AvailableEntityType();
-		Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
-		
-		// URI that is unique within the system scope
-		entityType.setId("urn:ngsi-ld:" + EntityAttributeResultType.ENTITY_TYPE_LIST.getCode() + ":" + "37418953");	// 값 고정
-		entityType.setType(EntityAttributeResultType.ENTITY_TYPE_LIST.getCode());
-		
-		List<String> typeList = new ArrayList<String>();
-		for(DataModelCacheVO dataModelCacheVO : dataModelList) {
-			DataModelVO dataModel = dataModelCacheVO.getDataModelVO();
-			// context 에 있을 경우 short name, 없을 경우 full uri
-			if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
-				typeList.add(dataModel.getType());
-			} else {
-				typeList.add(dataModel.getTypeUri());
-			}
-		}
-		
-		// typeList 오름차순 정렬
-		Collections.sort(typeList);
-		entityType.setTypeList(typeList);
-		
-		return entityType;
-	}
-	
-	/**
-	 * DataModel List 로 부터 Entity Type 상세 추출
-	 * 
-	 * @param dataModelList
-	 * @param links
-	 * @return
-	 */
-	private List<AvailableEntityTypeDetail> dataModelListToEntityTypeDetails(List<DataModelCacheVO> dataModelList, List<String> links) {
-		List<AvailableEntityTypeDetail> entityTypeDetailList = new ArrayList<AvailableEntityTypeDetail>();
-		Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
-		
-		for(DataModelCacheVO dataModelCacheVO : dataModelList) {
-			AvailableEntityTypeDetail entityTypeDetail = new AvailableEntityTypeDetail();
-			DataModelVO dataModel = dataModelCacheVO.getDataModelVO();
-			List<String> attributeNames = new ArrayList<String>();
-			
-			entityTypeDetail.setId(dataModel.getTypeUri());
-			entityTypeDetail.setType(EntityAttributeResultType.ENTITY_TYPE.getCode());
-			// context 에 있을 경우 short name, 없을 경우 full uri
-			if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
-				entityTypeDetail.setTypeName(dataModel.getType());
-			} else {
-				entityTypeDetail.setTypeName(dataModel.getTypeUri());
-			}
-			
-			for(Attribute attribute : dataModel.getAttributes()) {
-				// context 에 있을 경우 short name, 없을 경우 full uri
-				if(contextMap != null && contextMap.containsKey(attribute.getName())) {
-					attributeNames.add(attribute.getName());
-				} else {
-					attributeNames.add(attribute.getAttributeUri());
-				}
-			}
-			entityTypeDetail.setAttributeNames(attributeNames);
-			
-			entityTypeDetailList.add(entityTypeDetail);
-		}
-		
-		return entityTypeDetailList;
-	}
-	
-	/**
-	 * DataModel List 로 부터 Attribute 추출
-	 * 
-	 * @param dataModelList
-	 * @param links
-	 * @return
-	 */
+    private AvailableEntityType dataModelListToEntityType(List<DataModelCacheVO> dataModelList, List<String> links) {
+        AvailableEntityType entityType = new AvailableEntityType();
+        Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
+
+        // URI that is unique within the system scope
+        entityType.setId("urn:ngsi-ld:" + EntityAttributeResultType.ENTITY_TYPE_LIST.getCode() + ":" + "37418953");	// 값 고정
+        entityType.setType(EntityAttributeResultType.ENTITY_TYPE_LIST.getCode());
+
+        List<String> typeList = new ArrayList<String>();
+        for(DataModelCacheVO dataModelCacheVO : dataModelList) {
+            DataModelVO dataModel = dataModelCacheVO.getDataModelVO();
+            // context 에 있을 경우 short name, 없을 경우 full uri
+            if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
+                typeList.add(dataModel.getType());
+            } else {
+                typeList.add(dataModel.getTypeUri());
+            }
+        }
+
+        // typeList 오름차순 정렬
+        Collections.sort(typeList);
+        entityType.setTypeList(typeList);
+
+        return entityType;
+    }
+
+    /**
+     * DataModel List 로 부터 Entity Type 상세 추출
+     *
+     * @param dataModelList
+     * @param links
+     * @return
+     */
+    private List<AvailableEntityTypeDetail> dataModelListToEntityTypeDetails(List<DataModelCacheVO> dataModelList, List<String> links) {
+        List<AvailableEntityTypeDetail> entityTypeDetailList = new ArrayList<AvailableEntityTypeDetail>();
+        Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
+
+        for(DataModelCacheVO dataModelCacheVO : dataModelList) {
+            AvailableEntityTypeDetail entityTypeDetail = new AvailableEntityTypeDetail();
+            DataModelVO dataModel = dataModelCacheVO.getDataModelVO();
+            List<String> attributeNames = new ArrayList<String>();
+
+            entityTypeDetail.setId(dataModel.getTypeUri());
+            entityTypeDetail.setType(EntityAttributeResultType.ENTITY_TYPE.getCode());
+            // context 에 있을 경우 short name, 없을 경우 full uri
+            if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
+                entityTypeDetail.setTypeName(dataModel.getType());
+            } else {
+                entityTypeDetail.setTypeName(dataModel.getTypeUri());
+            }
+
+            for(Attribute attribute : dataModel.getAttributes()) {
+                // context 에 있을 경우 short name, 없을 경우 full uri
+                if(contextMap != null && contextMap.containsKey(attribute.getName())) {
+                    attributeNames.add(attribute.getName());
+                } else {
+                    attributeNames.add(attribute.getAttributeUri());
+                }
+            }
+            entityTypeDetail.setAttributeNames(attributeNames);
+
+            entityTypeDetailList.add(entityTypeDetail);
+        }
+
+        return entityTypeDetailList;
+    }
+
+    /**
+     * DataModel List 로 부터 Attribute 추출
+     *
+     * @param dataModelList
+     * @param links
+     * @return
+     */
     private AvailableAttribute dataModelListToAttribute(List<DataModelCacheVO> dataModelList, List<String> links) {
-    	AvailableAttribute attribute = new AvailableAttribute();
-    	Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
-    	Map<String, String> attributeMap = new HashMap<String, String>();
-    	
-    	attribute.setId("urn:ngsi-ld:" + EntityAttributeResultType.ATTRIBUTE_LIST.getCode() + ":" + "58208329"); // 값 고정
-    	attribute.setType(EntityAttributeResultType.ATTRIBUTE_LIST.getCode());
-    	
-    	for(DataModelCacheVO dataModelCache : dataModelList) {
-    		DataModelVO dataModel = dataModelCache.getDataModelVO();
-    		// map 을 통한 중복 필터링
-    		for(Attribute attr : dataModel.getAttributes()) {
-    			if(contextMap != null && contextMap.containsKey(attr.getName())) {
-    				attributeMap.put(attr.getName(), "");
-    			} else {
-    				attributeMap.put(attr.getAttributeUri(), "");
-    			}
-    		}
-    	}
-    	
-    	List<String> attributeList = new ArrayList<String>();
-    	for(String attr : attributeMap.keySet()) {
-    		attributeList.add(attr);
-    	}
-    	
-    	attribute.setAttributeList(attributeList);
-		
-		return attribute;
-	}
+        AvailableAttribute attribute = new AvailableAttribute();
+        Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
+        Map<String, String> attributeMap = new HashMap<String, String>();
+
+        attribute.setId("urn:ngsi-ld:" + EntityAttributeResultType.ATTRIBUTE_LIST.getCode() + ":" + "58208329"); // 값 고정
+        attribute.setType(EntityAttributeResultType.ATTRIBUTE_LIST.getCode());
+
+        for(DataModelCacheVO dataModelCache : dataModelList) {
+            DataModelVO dataModel = dataModelCache.getDataModelVO();
+            // map 을 통한 중복 필터링
+            for(Attribute attr : dataModel.getAttributes()) {
+                if(contextMap != null && contextMap.containsKey(attr.getName())) {
+                    attributeMap.put(attr.getName(), "");
+                } else {
+                    attributeMap.put(attr.getAttributeUri(), "");
+                }
+            }
+        }
+
+        List<String> attributeList = new ArrayList<String>();
+        for(String attr : attributeMap.keySet()) {
+            attributeList.add(attr);
+        }
+
+        attribute.setAttributeList(attributeList);
+
+        return attribute;
+    }
 
     /**
      * DataModel List 로 부터 Attribute 상세 추출
-     * 
+     *
      * @param dataModelList
      * @param links
      * @return
      */
-	private List<AvailableAttributeDetail> dataModelListToAttributeDetails(List<DataModelCacheVO> dataModelList,
-			List<String> links) {
-		List<AvailableAttributeDetail> attributeDetail = new ArrayList<AvailableAttributeDetail>();
-		Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
-		Map<String, AvailableAttributeDetail> attributeDetailMap = new HashMap<String, AvailableAttributeDetail>();
-		
-		for(DataModelCacheVO dataModelCache : dataModelList) {
-			DataModelVO dataModel = dataModelCache.getDataModelVO();
-			// map 을 통한 중복 필터링
-    		for(Attribute attr : dataModel.getAttributes()) {
-    			AvailableAttributeDetail attrDetail = null;
-    			
-    			if(attributeDetailMap.containsKey(attr.getAttributeUri())) {
-    				attrDetail = attributeDetailMap.get(attr.getAttributeUri());
-    			} else {
-    				attrDetail = new AvailableAttributeDetail();
-    				attrDetail.setId(attr.getAttributeUri());
-        			attrDetail.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
-        			attrDetail.setAttributeName(attr.getName());
-        			attrDetail.setTypeNames(new ArrayList<String>());
-    			}
-    			
-    			if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
-    				attrDetail.getTypeNames().add(dataModel.getType());
-    			} else {
-    				attrDetail.getTypeNames().add(dataModel.getTypeUri());
-    			}
-    			
-    			attributeDetailMap.put(attrDetail.getId(), attrDetail);
-    		}
-		}
-		
-		for(String key : attributeDetailMap.keySet()) {
-			attributeDetail.add(attributeDetailMap.get(key));
-		}
-		
-		return attributeDetail;
-	}
-	
-	/**
-	 * DataModel List 로 부터 Attribute 정보 추출
-	 * 
-	 * @param dataModelList
-	 * @param attributeName
-	 * @param links
-	 * @return
-	 */
-	private AvailableAttributeInformation dataModelToAttributeInformation(List<DataModelCacheVO> dataModelList,
-			String attributeName, List<String> links) {
-		AvailableAttributeInformation attributeInformation = new AvailableAttributeInformation();
-		Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
-		
-		for(DataModelCacheVO dataModelCache : dataModelList) {
-			DataModelVO dataModel = dataModelCache.getDataModelVO();
-			
-			for(Attribute attr : dataModel.getAttributes()) {
-				// short name 또는 full uri 가 일치할 경우
-				if(attr.getAttributeUri().equals(attributeName) || attr.getName().equals(attributeName)) {
-					if(attributeInformation.getId() == null) {
-						attributeInformation.setId(attr.getAttributeUri());
-						attributeInformation.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
-						attributeInformation.setAttributeName(attr.getName());
-						attributeInformation.setAttributeTypes(new ArrayList<String>());
-						attributeInformation.setTypeNames(new ArrayList<String>());
-						attributeInformation.getAttributeTypes().add(attr.getAttributeType().getCode());
+    private List<AvailableAttributeDetail> dataModelListToAttributeDetails(List<DataModelCacheVO> dataModelList,
+                                                                           List<String> links) {
+        List<AvailableAttributeDetail> attributeDetail = new ArrayList<AvailableAttributeDetail>();
+        Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
+        Map<String, AvailableAttributeDetail> attributeDetailMap = new HashMap<String, AvailableAttributeDetail>();
+
+        for(DataModelCacheVO dataModelCache : dataModelList) {
+            DataModelVO dataModel = dataModelCache.getDataModelVO();
+            // map 을 통한 중복 필터링
+            for(Attribute attr : dataModel.getAttributes()) {
+                AvailableAttributeDetail attrDetail = null;
+
+                if(attributeDetailMap.containsKey(attr.getAttributeUri())) {
+                    attrDetail = attributeDetailMap.get(attr.getAttributeUri());
+                } else {
+                    attrDetail = new AvailableAttributeDetail();
+                    attrDetail.setId(attr.getAttributeUri());
+                    attrDetail.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
+                    attrDetail.setAttributeName(attr.getName());
+                    attrDetail.setTypeNames(new ArrayList<String>());
+                }
+
+                if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
+                    attrDetail.getTypeNames().add(dataModel.getType());
+                } else {
+                    attrDetail.getTypeNames().add(dataModel.getTypeUri());
+                }
+
+                attributeDetailMap.put(attrDetail.getId(), attrDetail);
+            }
+        }
+
+        for(String key : attributeDetailMap.keySet()) {
+            attributeDetail.add(attributeDetailMap.get(key));
+        }
+
+        return attributeDetail;
+    }
+
+    /**
+     * DataModel List 로 부터 Attribute 정보 추출
+     *
+     * @param dataModelList
+     * @param attributeName
+     * @param links
+     * @return
+     */
+    private AvailableAttributeInformation dataModelToAttributeInformation(List<DataModelCacheVO> dataModelList,
+                                                                          String attributeName, List<String> links) {
+        AvailableAttributeInformation attributeInformation = new AvailableAttributeInformation();
+        Map<String, String> contextMap = dataModelManager.contextToFlatMap(links);
+
+        for(DataModelCacheVO dataModelCache : dataModelList) {
+            DataModelVO dataModel = dataModelCache.getDataModelVO();
+
+            for(Attribute attr : dataModel.getAttributes()) {
+                // short name 또는 full uri 가 일치할 경우
+                if(attr.getAttributeUri().equals(attributeName) || attr.getName().equals(attributeName)) {
+                    if(attributeInformation.getId() == null) {
+                        attributeInformation.setId(attr.getAttributeUri());
+                        attributeInformation.setType(EntityAttributeResultType.ATTRIBUTE.getCode());
+                        attributeInformation.setAttributeName(attr.getName());
+                        attributeInformation.setAttributeTypes(new ArrayList<String>());
+                        attributeInformation.setTypeNames(new ArrayList<String>());
+                        attributeInformation.getAttributeTypes().add(attr.getAttributeType().getCode());
 //						attributeInformation.setAttributeCount(0); // TODO: Attribute 개수 조회하여 세팅
-					}
-					
-					if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
-						attributeInformation.getTypeNames().add(dataModel.getType());
-					} else {
-						attributeInformation.getTypeNames().add(dataModel.getTypeUri());
-					}
-				}
-			}
-		}
-		
-		return attributeInformation;
-	}
-	
-	private BigDataStorageType getDataStorageType(String dataStorageTypeStr) {
-		BigDataStorageType dataStorageType = BigDataStorageType.parseType(dataStorageTypeStr);
+                    }
+
+                    if(contextMap != null && contextMap.containsKey(dataModel.getType())) {
+                        attributeInformation.getTypeNames().add(dataModel.getType());
+                    } else {
+                        attributeInformation.getTypeNames().add(dataModel.getTypeUri());
+                    }
+                }
+            }
+        }
+
+        return attributeInformation;
+    }
+
+    private BigDataStorageType getDataStorageType(String dataStorageTypeStr) {
+        BigDataStorageType dataStorageType = BigDataStorageType.parseType(dataStorageTypeStr);
         if (dataStorageType == null) {
             dataStorageType = defaultStorageType;
         }
         return dataStorageType;
-	}
+    }
 
     private String getPrimaryAccept(String requestAccept) {
 

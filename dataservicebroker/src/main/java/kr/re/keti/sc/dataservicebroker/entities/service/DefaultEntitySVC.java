@@ -54,6 +54,7 @@ import kr.re.keti.sc.dataservicebroker.util.CommonParamUtil;
 import kr.re.keti.sc.dataservicebroker.util.DateUtil;
 import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Entity 공통 서비스 클래스
@@ -62,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEntityFullVO, DynamicEntityDaoVO> {
 
     protected abstract String getTableName(DataModelCacheVO dataModelCacheVO);
-    
+
     protected abstract BigDataStorageType getStorageType();
 
     public abstract void setEntityDAOInterface(EntityDAOInterface<DynamicEntityDaoVO> entityDAO);
@@ -74,7 +75,9 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
     protected EntityDataModelSVC entityDataModelSVC;
     @Autowired
     protected ObjectMapper objectMapper;
-    
+    @Value("${entity.default.context-uri}")
+    private String defaultContextUri;
+
     /**
      * Entity 데이터 Operation 별 벌크 처리
      *
@@ -136,8 +139,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 // Partial Attrbute Update 처리 임시 로직
                 // 추가로 Property도 임시임 , geo, rel 분기 해야함
                 if (opertaion == Operation.PARTIAL_ATTRIBUTE_UPDATE) {
-                    HashMap<String, Object> params = objectMapper.readValue(content, new TypeReference<HashMap<String, Object>>() {
-                    });
+                    HashMap<String, Object> params = objectMapper.readValue(content, new TypeReference<HashMap<String, Object>>() {});
 //        	        params.put(PropertyKey.TYPE.getCode(), DataServiceBrokerCode.AttributeType.PROPERTY.getCode());
 //        	        HashMap<String, Object> convertedHashMap = new HashMap<>();
 //        	        convertedHashMap.put(attrId, params);
@@ -164,24 +166,35 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 entityFullVO.setDatasetId(entityProcessVO.getDatasetId());
 
                 // contentType이 application/json인 경우
-                if(ingestMessageVO.getContentType().contains(Constants.APPLICATION_JSON_VALUE)) {
-                    // contentType이 application/json인 경우 @context 입력불가
-                    if(!ValidateUtil.isEmptyData(entityFullVO.getContext())) {
-                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
-                                "Invalid Request Content. @context parameter cannot be used when contentType=application/json");
-                    }
+                if(!ValidateUtil.isEmptyData(ingestMessageVO.getContentType())) {
+                    if(ingestMessageVO.getContentType().contains(Constants.APPLICATION_JSON_VALUE)) {
+                        // contentType이 application/json인 경우 @context 입력불가
+                        if(!ValidateUtil.isEmptyData(entityFullVO.getContext())) {
+                            throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                                    "Invalid Request Content. @context parameter cannot be used when contentType=application/json");
+                        }
 
-                    if(!ValidateUtil.isEmptyData(ingestMessageVO.getLinks())) {
-                        entityFullVO.setContext(ingestMessageVO.getLinks());
-                    }
+                        if(!ValidateUtil.isEmptyData(ingestMessageVO.getLinks())) {
+                            entityFullVO.setContext(ingestMessageVO.getLinks());
+                        }
 
-                // contentType이 application/ld+json인 경우
-                } else if(ingestMessageVO.getContentType().contains(Constants.APPLICATION_LD_JSON_VALUE)) {
-                    // contentType이 application/ld+json인 경우 link header 입력불가
-                    if(!ValidateUtil.isEmptyData(ingestMessageVO.getLinks())) {
-                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
-                                "Invalid Request Content. Link Header cannot be used when contentType=application/ld+json");
+                        // contentType이 application/ld+json인 경우
+                    } else if(ingestMessageVO.getContentType().contains(Constants.APPLICATION_LD_JSON_VALUE)) {
+                        // contentType이 application/ld+json인 경우 link header 입력불가
+                        if(!ValidateUtil.isEmptyData(ingestMessageVO.getLinks())) {
+                            throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                                    "Invalid Request Content. Link Header cannot be used when contentType=application/ld+json");
+                        }
                     }
+                }
+
+                if(entityFullVO.getContext() == null) {
+                    entityFullVO.setContext(new ArrayList<>());
+                }
+
+                // default context-uri 값을 context 정보 가장 뒤에 추가
+                if(!ValidateUtil.isEmptyData(defaultContextUri)) {
+                    entityFullVO.getContext().add(0, defaultContextUri);
                 }
 
                 if (ValidateUtil.isEmptyData(entityFullVO.getId())) {
@@ -192,17 +205,17 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 EntityDataModelVO retrieveEntityDataModelVO = entityDataModelSVC.getEntityDataModelVOById(entityFullVO.getId());
                 if (opertaion == Operation.CREATE_ENTITY) {
                     if (retrieveEntityDataModelVO != null) {
-                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                        throw new NgsiLdBadRequestException(ErrorCode.ALREADY_EXISTS,
                                 "Invalid Request Content. Already exists entityId=" + entityFullVO.getId());
                     }
                 } else if (opertaion == Operation.DELETE_ENTITY
-                    || opertaion == Operation.APPEND_ENTITY_ATTRIBUTES
-                    || opertaion == Operation.PARTIAL_ATTRIBUTE_UPDATE
-                    || opertaion == Operation.UPDATE_ENTITY_ATTRIBUTES
-                    || opertaion == Operation.REPLACE_ENTITY_ATTRIBUTES
-                    || opertaion == Operation.DELETE_ENTITY_ATTRIBUTES) {
+                        || opertaion == Operation.APPEND_ENTITY_ATTRIBUTES
+                        || opertaion == Operation.PARTIAL_ATTRIBUTE_UPDATE
+                        || opertaion == Operation.UPDATE_ENTITY_ATTRIBUTES
+                        || opertaion == Operation.REPLACE_ENTITY_ATTRIBUTES
+                        || opertaion == Operation.DELETE_ENTITY_ATTRIBUTES) {
                     if (retrieveEntityDataModelVO == null) {
-                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                        throw new NgsiLdResourceNotFoundException(ErrorCode.INVALID_PARAMETER,
                                 "Invalid Request Content. Not exists entityId=" + entityFullVO.getId());
                     }
                 }
@@ -237,6 +250,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 DynamicEntityDaoVO entityDaoVO = fullVOToDaoVO(entityFullVO, dataModelCacheVO, opertaion);
                 entityDaoVO.setAttrId(attrId);
 
+                entityProcessVO.setEntityId(entityFullVO.getId());
                 entityProcessVO.setEntityFullVO(entityFullVO);
                 entityProcessVO.setEntityDaoVO(entityDaoVO);
                 entityProcessVO.setDataModelCacheVO(dataModelCacheVO);
@@ -273,7 +287,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
      * @throws BaseException
      */
     public DynamicEntityDaoVO fullVOToDaoVO(DynamicEntityFullVO dynamicEntityFullVO, DataModelCacheVO dataModelCacheVO,
-    		Operation opertaion) throws BaseException {
+                                            Operation opertaion) throws BaseException {
 
         try {
 
@@ -291,7 +305,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
             // 3. Operation 처리 시 사용될 동적 attribute 정보 추출 및 Dao정보 입력
             if(opertaion != Operation.DELETE_ENTITY) {
-            	List<Attribute> rootAttributes = dataModelCacheVO.getDataModelVO().getAttributes();
+                List<Attribute> rootAttributes = dataModelCacheVO.getDataModelVO().getAttributes();
                 attributeToDynamicDaoVO(dynamicEntityFullVO, dynamicEntityDaoVO, null, rootAttributes, dynamicEntityFullVO.getModifiedAt(), dataModelCacheVO.getDataModelStorageMetadataVO());
                 checkInvalidAttribute(dynamicEntityFullVO, rootAttributes);
             }
@@ -452,10 +466,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     checkObjectType(rootAttribute.getName(), valueType, value, rootAttribute);
 
                     if (valueType == AttributeValueType.DATE) {
-                    	String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
+                        String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                         dynamicEntityDaoVO.put(id, DateUtil.strToDate((String) value));
                     } else {
-                    	String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
+                        String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                         dynamicEntityDaoVO.put(id, value);
                     }
                 }
@@ -471,7 +485,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     GeoJsonObject object = objectMapper.readValue(geoJson, GeoJsonObject.class);
                     List<String> ids = dataModelManager.getColumnNamesByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                     for(String id : ids) {
-                    	dynamicEntityDaoVO.put(id, geoJson);
+                        dynamicEntityDaoVO.put(id, geoJson);
                     }
                 } catch (JsonProcessingException e) {
                     throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
@@ -522,21 +536,21 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     dynamicEntityDaoVO.put(id, (String) value);
                 }
             }
-            
+
             // 3-6. createdAt 속성 추가
             {
-            List<String> hierarchyAttributeIds = new ArrayList<>(currentHierarchyIds);
-            hierarchyAttributeIds.add(PropertyKey.CREATED_AT.getCode());
-            String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, hierarchyAttributeIds);
-            dynamicEntityDaoVO.put(id, eventTime);
+                List<String> hierarchyAttributeIds = new ArrayList<>(currentHierarchyIds);
+                hierarchyAttributeIds.add(PropertyKey.CREATED_AT.getCode());
+                String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, hierarchyAttributeIds);
+                dynamicEntityDaoVO.put(id, eventTime);
             }
 
             // 3-7. modifiedAt 속성 추가
             {
-            	List<String> hierarchyAttributeIds = new ArrayList<>(currentHierarchyIds);
-            	 hierarchyAttributeIds.add(PropertyKey.MODIFIED_AT.getCode());
-            	 String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, hierarchyAttributeIds);
-                 dynamicEntityDaoVO.put(id, eventTime);
+                List<String> hierarchyAttributeIds = new ArrayList<>(currentHierarchyIds);
+                hierarchyAttributeIds.add(PropertyKey.MODIFIED_AT.getCode());
+                String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, hierarchyAttributeIds);
+                dynamicEntityDaoVO.put(id, eventTime);
             }
         }
     }
@@ -586,8 +600,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
      * @param dynamicEntityDaoVO DynamicEntityDaoVO
      * @throws ParseException
      */
-    private void objectTypeParamToDaoVO(List<String> parentHierarchyIds, List<ObjectMember> objectMembers, 
-    		Map<String, Object> object, DynamicEntityDaoVO dynamicEntityDaoVO, DataModelStorageMetadataVO storageMetadataVO) throws ParseException {
+    private void objectTypeParamToDaoVO(List<String> parentHierarchyIds, List<ObjectMember> objectMembers,
+                                        Map<String, Object> object, DynamicEntityDaoVO dynamicEntityDaoVO, DataModelStorageMetadataVO storageMetadataVO) throws ParseException {
 
         for (ObjectMember objectMember : objectMembers) {
             List<String> currentHierarchyIds = new ArrayList<>(parentHierarchyIds);
@@ -603,10 +617,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 objectTypeParamToDaoVO(currentHierarchyIds, objectMember.getObjectMembers(), objectInObject, dynamicEntityDaoVO, storageMetadataVO);
 
             } else if (objectMember.getValueType() == AttributeValueType.DATE) {
-            	String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
+                String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                 dynamicEntityDaoVO.put(id, DateUtil.strToDate((String) value));
             } else {
-            	String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
+                String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                 dynamicEntityDaoVO.put(id, object.get(objectMember.getName()));
             }
         }
@@ -1064,9 +1078,9 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             for (Map.Entry<String, Object> propertyMap : attrValue.entrySet()) {
 
                 String propertyMapKey = propertyMap.getKey();
-                if (propertyMapKey.equals(PropertyKey.TYPE.getCode()) 
-                		|| propertyMapKey.equals(PropertyKey.OBSERVED_AT.getCode()) 
-                		|| propertyMapKey.equals(PropertyKey.UNIT_CODE.getCode()) ) {
+                if (propertyMapKey.equals(PropertyKey.TYPE.getCode())
+                        || propertyMapKey.equals(PropertyKey.OBSERVED_AT.getCode())
+                        || propertyMapKey.equals(PropertyKey.UNIT_CODE.getCode()) ) {
                     continue;
                 } else if (propertyMapKey.equals(PropertyKey.VALUE.getCode())) {
                     Object attrObjectValue = attrValue.get(PropertyKey.VALUE.getCode());
@@ -1259,7 +1273,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 // rootAttribute인 해당 필드가 필수인 경우
                 if (rootRequired) {
                     if (dynamicEntityFullVO.get(rootAttribute.getName()) == null
-                    		&& dynamicEntityFullVO.get(rootAttribute.getAttributeUri()) == null) {
+                            && dynamicEntityFullVO.get(rootAttribute.getAttributeUri()) == null) {
                         throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "'" + rootAttribute.getName() + "' is null");
                     }
 
@@ -2320,7 +2334,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
     @Override
     public List<CommonEntityVO> selectAll(QueryVO queryVO, String accept) {
 
-    	if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             StringBuilder requestParams = new StringBuilder();
             requestParams.append("entityType : ").append(queryVO.getType())
                     .append(", params(queryVO) : ").append(queryVO.toString());
@@ -2336,9 +2350,9 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             }
         }
 
-    	if(ValidateUtil.isEmptyData(queryVO.getType())) {
-    		
-    		List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
+        if(ValidateUtil.isEmptyData(queryVO.getType())) {
+
+            List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
 
             if (dataModelCacheVOs == null) {
                 throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not exist entityTypes. Link=" + String.join(",", queryVO.getLinks()));
@@ -2347,15 +2361,15 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             List<CommonEntityVO> totalCommonEntityVOs = new ArrayList<>();
 
             for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-            	if(dataModelCacheVO.getCreatedStorageTypes() != null
-            			&& dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-            		
-            		if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-            			log.warn("selectAll Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-            			continue;
-            		}
+                if(dataModelCacheVO.getCreatedStorageTypes() != null
+                        && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
 
-            		QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                    if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                        log.warn("selectAll Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                        continue;
+                    }
+
+                    QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
                     innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
                     innerQueryVO.setLinks(null);
                     innerQueryVO.setOffset(queryVO.getOffset());
@@ -2364,14 +2378,14 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     if (!ValidateUtil.isEmptyData(commonEntityVOs)) {
                         totalCommonEntityVOs.addAll(commonEntityVOs);
                     }
-            	}
+                }
             }
 
             Collections.sort(totalCommonEntityVOs);
             return extractSubListWithoutType(totalCommonEntityVOs, queryVO.getLimit(), queryVO.getOffset());
-    	} else {
-    		return selectAllWithType(queryVO, accept);
-    	}
+        } else {
+            return selectAllWithType(queryVO, accept);
+        }
     }
 
     public List<CommonEntityVO> selectAllWithType(QueryVO queryVO, String accept) {
@@ -2384,8 +2398,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         // 데이터모델의 테이블이 아직 생성되지 않은 경우 (데이터셋 흐름 설정이 되지 않거나 해당 storageType과 일치하지 않는 경우)
         if(dataModelCacheVO.getCreatedStorageTypes() == null
-    			|| !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-        	return new ArrayList<>();
+                || !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+            return new ArrayList<>();
         }
 
         // 1. Entity 목록 DB 조회
@@ -2403,11 +2417,11 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     // options = keyValues 일 경우 처리, Simplified Representation
                     commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO);
                 } else {
-                	
-                	boolean includeSysAttrs = false;
-                	if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.SYS_ATTRS.getCode())) {
-                		includeSysAttrs = true;
-                	}
+
+                    boolean includeSysAttrs = false;
+                    if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.SYS_ATTRS.getCode())) {
+                        includeSysAttrs = true;
+                    }
                     // options이 없을 경우 처리, Full Representation
                     commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs);
                 }
@@ -2465,8 +2479,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         // 데이터모델의 테이블이 아직 생성되지 않은 경우 (데이터셋 흐름 설정이 되지 않거나 해당 storageType과 일치하지 않는 경우)
         if(dataModelCacheVO.getCreatedStorageTypes() == null
-    			|| !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-        	return null;
+                || !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+            return null;
         }
 
         CommonEntityVO commonEntityVO = null;
@@ -2482,11 +2496,11 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO);
 
             } else {
-            	
-            	boolean includeSysAttrs = false;
-            	if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.SYS_ATTRS.getCode())) {
-            		includeSysAttrs = true;
-            	}
+
+                boolean includeSysAttrs = false;
+                if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.SYS_ATTRS.getCode())) {
+                    includeSysAttrs = true;
+                }
                 // options이 없을 경우 처리, Full Representation
                 commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs);
             }
@@ -2510,7 +2524,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
     @Override
     public List<CommonEntityVO> selectTemporal(QueryVO queryVO, String accept) {
 
-    	if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             StringBuilder requestParams = new StringBuilder();
             requestParams.append("entityType : ").append(queryVO.getType())
                     .append(", params(queryVO) : ").append(queryVO.toString());
@@ -2526,8 +2540,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             }
         }
 
-    	if(ValidateUtil.isEmptyData(queryVO.getType())) {
-    		List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
+        if(ValidateUtil.isEmptyData(queryVO.getType())) {
+            List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
             if (dataModelCacheVOs == null) {
                 throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityTypes . Link=" + String.join(",", queryVO.getLinks()));
             }
@@ -2535,30 +2549,30 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             List<CommonEntityVO> totalCommonEntityVOs = new ArrayList<>();
 
             for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-            	if(dataModelCacheVO.getCreatedStorageTypes() != null
-            			&& dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-            		
-            		if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-            			log.warn("selectTemporal Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-            			continue;
-            		}
-            		
-    	        	QueryVO copiedQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
-    	            copiedQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
-    	            copiedQueryVO.setLinks(null);
-    	            List<CommonEntityVO> commonEntityVOs = this.selectTemporalWithType(copiedQueryVO, accept);
-    	            if (!ValidateUtil.isEmptyData(commonEntityVOs)) {
-    	                totalCommonEntityVOs.addAll(commonEntityVOs);
-    	            }
-            	}
+                if(dataModelCacheVO.getCreatedStorageTypes() != null
+                        && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+
+                    if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                        log.warn("selectTemporal Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                        continue;
+                    }
+
+                    QueryVO copiedQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                    copiedQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
+                    copiedQueryVO.setLinks(null);
+                    List<CommonEntityVO> commonEntityVOs = this.selectTemporalWithType(copiedQueryVO, accept);
+                    if (!ValidateUtil.isEmptyData(commonEntityVOs)) {
+                        totalCommonEntityVOs.addAll(commonEntityVOs);
+                    }
+                }
             }
 
             Collections.sort(totalCommonEntityVOs);
             return extractSubListWithoutType(totalCommonEntityVOs, queryVO.getLimit(), queryVO.getOffset());
-    	} else {
-    		return selectTemporalWithType(queryVO, accept);
-    	}
-        
+        } else {
+            return selectTemporalWithType(queryVO, accept);
+        }
+
     }
 
     public List<CommonEntityVO> selectTemporalWithType(QueryVO queryVO, String accept) {
@@ -2581,8 +2595,8 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         // 데이터모델의 테이블이 아직 생성되지 않은 경우 (데이터셋 흐름 설정이 되지 않거나 해당 storageType과 일치하지 않는 경우)
         if(dataModelCacheVO.getCreatedStorageTypes() == null
-    			|| !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-        	return new ArrayList<>();
+                || !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+            return new ArrayList<>();
         }
 
         // 1. entity 목록 DB 조회
@@ -2649,10 +2663,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         // 데이터모델의 테이블이 아직 생성되지 않은 경우 (데이터셋 흐름 설정이 되지 않거나 해당 storageType과 일치하지 않는 경우)
         if(dataModelCacheVO.getCreatedStorageTypes() == null
-    			|| !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-        	return new CommonEntityVO();
+                || !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+            return new CommonEntityVO();
         }
-        
+
         // 2. entity 목록 DB 조회
         List<DynamicEntityDaoVO> entityDaoVOList = entityDAO.selectHistById(queryVO);
 
@@ -2707,7 +2721,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
         }
 
         if(ValidateUtil.isEmptyData(queryVO.getType())) {
-        	List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
+            List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
             if (dataModelCacheVOs == null) {
                 throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityTypes . Context=" + String.join(",", queryVO.getLinks()));
             }
@@ -2716,22 +2730,22 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
             try {
                 for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-                	if(dataModelCacheVO.getCreatedStorageTypes() != null
-                			&& dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-                		
-                		if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-                			log.warn("SelectCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-                			continue;
-                		}
+                    if(dataModelCacheVO.getCreatedStorageTypes() != null
+                            && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
 
-                		QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                        if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                            log.warn("SelectCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                            continue;
+                        }
+
+                        QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
                         innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
                         innerQueryVO.setLinks(null);
                         Integer cnt = this.getEntityCountWithType(innerQueryVO);
                         if (!ValidateUtil.isEmptyData(cnt)) {
                             totalCount = totalCount + cnt;
                         }
-                	}
+                    }
                 }
             } catch (NgsiLdBadRequestException ne) {
                 log.warn("selectCount error", ne);
@@ -2740,13 +2754,13 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             // Entity 목록 건수 조회
             return totalCount;
         } else {
-        	return getEntityCountWithType(queryVO);
+            return getEntityCountWithType(queryVO);
         }
     }
-    
-    
+
+
     private Integer getEntityCountWithType(QueryVO queryVO) {
-    	DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(queryVO.getLinks(), queryVO.getType());
+        DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(queryVO.getLinks(), queryVO.getType());
         if (dataModelCacheVO == null) {
             throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Invalid Type. entityType=" + queryVO.getType() + ", link=" + queryVO.getLinks());
         }
@@ -2754,14 +2768,14 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         // 데이터모델의 테이블이 아직 생성되지 않은 경우 (데이터셋 흐름 설정이 되지 않거나 해당 storageType과 일치하지 않는 경우)
         if(dataModelCacheVO.getCreatedStorageTypes() == null
-    			|| !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-        	return 0;
+                || !dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+            return 0;
         }
 
         // Entity 목록 건수 조회
         return entityDAO.selectCount(queryVO);
     }
-    
+
 
 
     @Override
@@ -2782,7 +2796,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
         }
 
         if(ValidateUtil.isEmptyData(queryVO.getType())) {
-        	List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
+            List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
             if (dataModelCacheVOs == null) {
                 throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityTypes . Link=" + String.join(",", queryVO.getLinks()));
             }
@@ -2790,26 +2804,26 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             Integer totalCount = 0;
 
             for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-            	if(dataModelCacheVO.getCreatedStorageTypes() != null
-            			&& dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-            		
-            		if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-            			log.warn("selectTemporalCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-            			continue;
-            		}
-            		
-    	        	QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
-    	            innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
-    	            innerQueryVO.setLinks(null);
-    	            Integer cnt = this.selectTemporalCountWithType(innerQueryVO);
-    	            if (!ValidateUtil.isEmptyData(cnt)) {
-    	                totalCount = totalCount + cnt;
-    	            }
-            	}
+                if(dataModelCacheVO.getCreatedStorageTypes() != null
+                        && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+
+                    if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                        log.warn("selectTemporalCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                        continue;
+                    }
+
+                    QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                    innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
+                    innerQueryVO.setLinks(null);
+                    Integer cnt = this.selectTemporalCountWithType(innerQueryVO);
+                    if (!ValidateUtil.isEmptyData(cnt)) {
+                        totalCount = totalCount + cnt;
+                    }
+                }
             }
             return totalCount;
         } else {
-        	return selectTemporalCountWithType(queryVO);
+            return selectTemporalCountWithType(queryVO);
         }
     }
 
