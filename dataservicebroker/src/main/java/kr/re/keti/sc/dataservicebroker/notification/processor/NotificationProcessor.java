@@ -442,14 +442,6 @@ public class NotificationProcessor implements IBulkProcessor<NotificationProcess
 		kafkaProcessVO.setNotificationReqeustVO(notificationReqeustVO);
 		kafkaProducerManager.produceData(kafkaProcessVO);
 		
-//		if(endpointUri.startsWith("http")) {
-//			notificationResult = httpSender.sendNotification(subscriptionBaseDaoVO.getId(), endpointUri, notifierInfo, receiverInfo, entityId, notificationVO);
-//		} else if(endpointUri.startsWith("mqtt")) {
-//			notificationResult = mqttSender.sendNotification(subscriptionBaseDaoVO.getId(), endpointUri, notifierInfo, receiverInfo, entityId, notificationVO);
-//		} else {
-//			throw new NotificationException(ErrorCode.INVALID_NOTIFICATION_URI, "Invalid notification endpointUri. endpointUri=" + endpointUri);
-//		}
-
 		return true;
 	}
 
