@@ -158,7 +158,12 @@ public class WidgetWebSocketServerEndpoint {
     private void deleteUpdateSetting(WidgetDashboardSVC widgetDashboardSVC, String widgetId, String userId) {
     	WidgetDashboardResponseVO widgetDashboard = widgetInfos.get(widgetId);
     	
-    	if(widgetDashboard == null || (widgetDashboard.getUpdateInterval() < 1 && !widgetDashboard.getRealtimeUpdateEnabled())) {
+    	if(widgetDashboard == null) {
+    		return;
+    	}
+    	
+    	if ((widgetDashboard.getUpdateInterval() == null || widgetDashboard.getUpdateInterval() < 1) 
+    			&& (widgetDashboard.getRealtimeUpdateEnabled() == null || !widgetDashboard.getRealtimeUpdateEnabled())) {
     		return;
     	}
     	

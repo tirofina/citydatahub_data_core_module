@@ -34,4 +34,11 @@ public class WidgetSessionVO {
 	private boolean isMultiEntities;
 	/** Legend */
 	private String legend;
+	/** X Axis Unit */
+	private int xAxisUnit;
+	
+	public WidgetSessionVO() {
+		// Default x-axis unit
+		xAxisUnit = 1;
+	}
 }
