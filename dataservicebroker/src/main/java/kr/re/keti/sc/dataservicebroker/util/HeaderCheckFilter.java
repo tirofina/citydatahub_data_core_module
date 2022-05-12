@@ -40,7 +40,7 @@ public class HeaderCheckFilter extends OncePerRequestFilter {
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
-    @Value("${entity.retrieve.primary.accept:application/ld+json}")
+    @Value("${entity.retrieve.primary.accept:application/json}")
     private String primaryAccept;
 
     private List<String> allowAcceptNameList = Arrays.asList(Constants.ACCEPT_ALL, Constants.APPLICATION_JSON_VALUE, Constants.APPLICATION_LD_JSON_VALUE, Constants.APPLICATION_GEO_JSON_VALUE);

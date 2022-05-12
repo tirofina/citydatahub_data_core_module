@@ -111,7 +111,8 @@ entity:
   retrieve: 
     default.limit: 10000
     include.datasetid: N
-  history: 
+    primary.accept: application/json
+  history:
     # 이력 조회시 full이력 조회 여부, N일 경우 partial이력 조회
     retrive.full.yn: N
     # Entity 삭제 시 이력까지 삭제할 지 여부

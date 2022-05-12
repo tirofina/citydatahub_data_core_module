@@ -51,7 +51,7 @@ public class TemporalEntityController {
     private String isResponseLog;
     @Value("${security.acl.useYn:N}")
     private String securityAclUseYn;
-    @Value("${entity.retrieve.primary.accept:application/ld+json}")
+    @Value("${entity.retrieve.primary.accept:application/json}")
     private String primaryAccept;
 
     /**

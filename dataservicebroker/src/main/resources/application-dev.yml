@@ -104,6 +104,7 @@ entity:
   retrieve: 
     default.limit: 10000
     include.datasetid: N
+    primary.accept: application/json
   history: 
     # 이력 조회시 full이력 조회 여부, N일 경우 partial이력 조회
     retrive.full.yn: N

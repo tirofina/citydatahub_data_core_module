@@ -98,7 +98,7 @@ public class EntityController {
     private String securityAclUseYn;
     @Value("${entity.default.storage:rdb}")
     protected BigDataStorageType defaultStorageType;
-    @Value("${entity.retrieve.primary.accept:application/ld+json}")
+    @Value("${entity.retrieve.primary.accept:application/json}")
     private String primaryAccept;
 
     /**
