@@ -11,7 +11,6 @@
     "widgetOptions": "Widget Options",
     "widgetType": "Widget Type",
     "dataModelID": "Data Model ID",
-    "numberOfInstances": "Number of instances",
     "entityInstanceID": "Entity Instance ID",
     "widgetTitle": "Widget Title",
     "rangeOfYaxis": "Range of Y-axis",
@@ -33,7 +32,9 @@
     "displayAttribute": "Attribute to Display",
     "typeUri": "타입 URI",
     "displayData": "표시 데이터",
-    "chartUnit": "차트 단위"
+    "chartUnit": "차트 단위",
+    "displayHistorical": "단일 엔티티 이력 데이터 (historical)",
+    "displayLatest": "다수 엔티티 최종 데이터 (Latest)"
   },
   "message": {
     "deleteCheck": "Do you want to delete?",

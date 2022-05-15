@@ -31,7 +31,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="chartType === 'pie' || chartType === 'doughnut'" label="상세 검색" name="second">
+        <el-tab-pane v-if="visibleSearchOption" label="상세 검색" name="second">
           <div class="col-12 row mt-4">
             <slot name="searchOption"></slot>
           </div>
@@ -66,7 +66,7 @@
         </el-tab-pane>
       </el-tabs>
 
-      <div v-else-if="a" class="col-12 row mt-4" style="margin:0; padding: 0;">
+      <div v-else class="col-12 row mt-4" style="margin:0; padding: 0;">
         <div class="col-lg-6" style="padding-left: 0;">
           <div class="card">
             <div class="card-body" style="height: 20vmax; overflow-y: auto;">
@@ -108,6 +108,7 @@ export default {
     tabLabel: String,
     chartType: String,
     visibleChartTree: Boolean,
+    visibleSearchOption: Boolean,
   },
   watch: {
     activeName(value) {

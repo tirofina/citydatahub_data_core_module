@@ -11,7 +11,6 @@
     "widgetOptions": "위젯 설정",
     "widgetType": "차트 유형",
     "dataModelID": "데이터 모델 ID",
-    "numberOfInstances": "데이터 유형",
     "entityInstanceID": "엔티티 ID",
     "widgetTitle": "타이틀",
     "rangeOfYaxis": "Y축 범위",
@@ -33,7 +32,9 @@
     "displayAttribute": "차트 값",
     "typeUri": "타입 URI",
     "displayData": "표시 데이터",
-    "chartUnit": "차트 단위"
+    "chartUnit": "차트 단위",
+    "displayHistorical": "다수 엔티티 최종 데이터",
+    "displayLatest": "단일 엔티티 이력 데이터"
   },
   "message": {
     "deleteCheck": "삭제하시겠습니까?",

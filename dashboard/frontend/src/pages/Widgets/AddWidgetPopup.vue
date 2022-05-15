@@ -6,6 +6,7 @@
     :activeName="activeName"
     :chartType="formData['chartType']"
     :visibleChartTree="visibleChartTree"
+    :visibleSearchOption="visibleSearchOption"
     @close-event="onClose"
     @tab-click="tabClick"
   >
@@ -62,6 +63,7 @@
 <!--            <div class="form-group">-->
 <!--            </div>-->
 <!--          </div>-->
+<!--          TODO TypeURI 내용 확인 필요-->
           <div class="col-md-4" v-if="display['typeUri']">
             <div class="form-group">
               <label class="control-label">{{ $t('widget.typeUri') }}</label>
@@ -76,32 +78,6 @@
               >
                 <el-option
                   v-for="item in typeUris"
-                  :key="item.value"
-                  :label="item.text"
-                  :value="item.value"
-                  :disabled="item.disabled"
-                >
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-          <div
-            class="col-md-4"
-            v-if="display['dataType']"
-          >
-            <div class="form-group">
-              <label class="control-label">{{ $t('widget.numberOfInstances') }}</label>
-              <el-select
-                class="mr-sm-2"
-                v-model="formData['dataType']"
-                :placeholder="$t('comm.select')"
-                size="small"
-                style="width: 100%;"
-                @change="onDataTypeChange"
-                :disabled="isDataTypeDisabled"
-              >
-                <el-option
-                  v-for="item in dataTypes"
                   :key="item.value"
                   :label="item.text"
                   :value="item.value"
@@ -138,17 +114,31 @@
               </el-select>
             </div>
           </div>
+          <!--          TODO 데이터 유형 -> 표시 데이터-->
           <div
             class="col-md-4"
             v-if="display['displayData']"
           >
             <div class="form-group">
               <label class="control-label">{{ $t('widget.displayData') }}</label>
-              <b-form-input
-                id="inline-form-input-name"
+              <el-select
                 class="mr-sm-2"
-                v-model="formData['displayData']"
-              />
+                v-model="formData['dataType']"
+                :placeholder="$t('comm.select')"
+                size="small"
+                style="width: 100%;"
+                @change="onDataTypeChange"
+                :disabled="isDataTypeDisabled"
+              >
+                <el-option
+                  v-for="item in dataTypes"
+                  :key="item.value"
+                  :label="item.text"
+                  :value="item.value"
+                  :disabled="item.disabled"
+                >
+                </el-option>
+              </el-select>
             </div>
           </div>
           <div
@@ -493,6 +483,10 @@ export default {
       const chartType = this.formData['chartType'];
       return chartType && !(chartType === 'custom_text' || chartType === 'Image' || chartType === 'map_latest');
     },
+    visibleSearchOption() {
+      const {chartType, dataType} = this.formData;
+      return chartType === 'pie' || chartType === 'donut' || (chartType === 'histogram' && dataType === 'last');
+    },
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
       return !chartAttribute || typeof chartAttribute === 'string';
@@ -515,7 +509,7 @@ export default {
       searchId: null,
       activeName: 'first',
       dataModel: null,
-      isDataTypeDisabled: true,
+      isDataTypeDisabled: false,
       isRealtimeDisabled: false,
       isModify: false,
       treeData: [],
@@ -526,12 +520,12 @@ export default {
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
-        yaxisRange: false, custom_text: false, image: false, dataType: false, latestMap: false,
+        yaxisRange: false, custom_text: false, image: false, latestMap: false,
       },
       dataTypes: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
-        {value: 'history', text: 'Multiple Instances', disabled: false},
-        {value: 'last', text: 'Single Instance', disabled: false}
+        {value: 'history', text: this.$i18n.t('widget.displayHistorical'), disabled: false},
+        {value: 'last', text: this.$i18n.t('widget.displayLatest'), disabled: false}
       ],
       dataModelDisabled: {dataModelId: false, typeUri: false},
       formData: {
@@ -816,7 +810,24 @@ export default {
     onDataTypeChange(value) {
       this.entityId = null;
       if (this.entityIds.length > 0) {
+        // TODO histogram 일때??
         this.entityIds.at(0).disabled = value === 'history' && this.formData['chartType'] === 'bar';
+      }
+      // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
+      if (this.formData.chartType === 'histogram') {
+        const displayOption = {
+          chartType: true,
+          typeUri: true,
+          entityId: true,
+          displayData: true,
+          chartTitle: true,
+          chartUnit: true,
+        };
+        if (value === 'history') {
+          displayOption.time = true;
+          displayOption.timerel = true;
+        }
+        this.initDisplay(displayOption);
       }
     },
     onTypeUriChange(value) {
@@ -861,7 +872,8 @@ export default {
       // Form information exposed according to chart type.
       this.display['chartType'] = !(value === 'custom_text' || value === 'Image' || value === 'latestMap');
 
-      this.isDataTypeDisabled = value !== 'bar';
+      // TODO 2차고도화 변경 과업에 따른 테스트 필요
+      // this.isDataTypeDisabled = value !== 'bar';
 
       // Data to be reset.
       if (!type) {
@@ -890,7 +902,7 @@ export default {
             chartTitle: true,
             chartXName: true,
             chartYName: true,
-            dataType: true,
+            displayData: true,
             realtimeUpdateEnabled: true,
             timerel: true,
             entityId: true,
@@ -912,7 +924,7 @@ export default {
             chartTitle: true,
             chartXName: true,
             chartYName: true,
-            dataType: true,
+            displayData: true,
             realtimeUpdateEnabled: true,
             timerel: true,
             entityId: true,
@@ -957,6 +969,7 @@ export default {
           this.getLatestList();
           break;
         case 'histogram' :
+          this.formData.dataType = 'history';
           this.initDisplay({
             chartType: true,
             typeUri: true,
@@ -967,8 +980,6 @@ export default {
             time: true,
             chartUnit: true,
           });
-          // Call the list of stored latest maps
-          this.getLatestList();
           break;
       }
     },
@@ -1215,7 +1226,7 @@ export default {
       // only update param obj
       this.display = {
         chartType: false,
-        chartTitle: false, chartXName: false, chartYName: false, updateInterval: false, dataType: false,
+        chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, time: false, displayData: false,
         yaxisRange: false, custom_text: false, image: false, latestMap: false,
         chartUnit: false,
