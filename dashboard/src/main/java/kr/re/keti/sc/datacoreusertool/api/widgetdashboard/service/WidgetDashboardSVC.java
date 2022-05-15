@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,7 @@ import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardVO;
 import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetSessionVO;
 import kr.re.keti.sc.datacoreusertool.common.code.Constants;
 import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode;
+import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode.ChartType;
 import kr.re.keti.sc.datacoreusertool.common.vo.ClientExceptionPayloadVO;
 import kr.re.keti.sc.datacoreusertool.notification.vo.NotificationVO;
 import kr.re.keti.sc.datacoreusertool.notification.vo.WidgetWebSocketRegistVO;
@@ -692,6 +694,39 @@ public class WidgetDashboardSVC {
 				log.warn("Not supported chart({}) data type({})", chartType, dataType);
 			}
 		}
+		// Histogram chart (historical/latest data)
+		else if(WidgetDashboardCode.ChartType.HISTOGRAM.getCode().equals(chartType)) {
+			// Set if x-axis unit values exist
+			if(!ValidateUtil.isEmptyData(widgetDashboardVO.getExtention1())) {
+				try {
+					widgetSessionVO.setXAxisUnit(Integer.valueOf(widgetDashboardVO.getExtention1()));
+				} catch(NumberFormatException e) {
+					log.warn("The x axis units must be numeric. xAxisUnit={}", widgetDashboardVO.getExtention1(), e);
+				}
+			}
+			
+			if(WidgetDashboardCode.DataType.HISTORY.getCode().equals(dataType)) {
+				// 1. check required values
+				if(!validateEntityRetrieveVOforId(entityRetrieveVO, widgetId, userId)) {
+					return;
+				}
+				
+				// 2. retrieve historical data & send to websocket(widget)
+				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
+			}
+			else if(WidgetDashboardCode.DataType.LAST.getCode().equals(dataType)) {
+				// 1. check required values
+				if(!validateEntityRetrieveVOforType(entityRetrieveVO, widgetId, userId)) {
+					return;
+				}
+				
+				// 2. retrieve latest data & send to websocket(widget)
+				widgetSessionVO.setMultiEntities(true);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
+			} else {
+				log.warn("Not supported chart({}) data type({})", chartType, dataType);
+			}
+		}
 		else {
 			log.warn("Not supported chart type : {}", chartType);
 		}
@@ -877,18 +912,11 @@ public class WidgetDashboardSVC {
 		widgetChartHistoryDataVO.setDataType(widgetSessionVO.getDataType());
 		widgetChartHistoryDataVO.setAttributeId(originalAttributeId);
 		
-		String message = null;
-		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
-			message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO, legendCommonEntity, widgetSessionVO.getLegend());
-		} 
-		else {
-			message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO, null, null);
-		}
-		
+		String message = commonEntityResponseVOtoMessage(widgetChartHistoryDataVO, legendCommonEntity, widgetSessionVO);		
 		
 		sendToWidgetEntitySession(widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId(), message, widgetSessionVO.getSessionId());
 	}
-	
+
 	/**
 	 * Create entityRetrieveVO for legend
 	 * @param entityRetrieveVO	Entity retrieve VO
@@ -1026,13 +1054,7 @@ public class WidgetDashboardSVC {
 		attrs.add(originalAttributeId);
 		entityRetrieveVO.setAttrs(attrs);
 		
-		String message = null;
-		if(!ValidateUtil.isEmptyData(widgetSessionVO.getLegend())) {
-			message = commonEntityResponseVOtoMessage(widgetChartDataVO, legendCommonEntity, widgetSessionVO.getLegend());
-		} 
-		else {
-			message = commonEntityResponseVOtoMessage(widgetChartDataVO, null, null);
-		}
+		String message = commonEntityResponseVOtoMessage(widgetChartDataVO, legendCommonEntity, widgetSessionVO);
 		
 		sendToWidgetEntitySession(widgetSessionVO.getUserId(), widgetSessionVO.getWidgetId(), message, widgetSessionVO.getSessionId());
 	}
@@ -1146,7 +1168,7 @@ public class WidgetDashboardSVC {
 	 * @return 					commonEntityResponse message
 	 */
 	private String commonEntityResponseVOtoMessage(WidgetChartDataVO widgetChartDataVO,
-			List<CommonEntityVO> legendCommonEntity, String legend) {
+			List<CommonEntityVO> legendCommonEntity, WidgetSessionVO widgetSessionVO) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	    objectMapper.setDateFormat(new SimpleDateFormat(Constants.CONTENT_DATE_FORMAT));
@@ -1162,6 +1184,12 @@ public class WidgetDashboardSVC {
 	    	if(attrIds != null) {
 	    		entityIds = addChartValue(commonEntities, attrIds);
 	    	}
+	    	
+	    	// Data processing for Histogram chart
+			if(ChartType.HISTOGRAM.getCode().equals(widgetChartDataVO.getChartType())) {
+				List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
+				widgetChartDataVO.setData(histogramChartData);
+			}
 	    }
 	    widgetChartDataVO.setAttributeId(attributeId);
 	    
@@ -1169,8 +1197,8 @@ public class WidgetDashboardSVC {
 	    widgetChartDataVO.setEntityIds(entityIds);
 	    
 	    // add Legend value
-	    if(legendCommonEntity != null && legend != null) {
-	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, legend);
+	    if(legendCommonEntity != null && widgetSessionVO.getLegend() != null) {
+	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, widgetSessionVO.getLegend());
 		    widgetChartDataVO.setLegendvalues(legendValues);
 	    }
 	    
@@ -1193,7 +1221,7 @@ public class WidgetDashboardSVC {
 	 * @return							WidgetChartHistoryData message 
 	 */
 	private String commonEntityResponseVOtoMessage(WidgetChartHistoryDataVO widgetChartHistoryDataVO, 
-			List<CommonEntityVO> legendCommonEntity, String legend) {
+			List<CommonEntityVO> legendCommonEntity, WidgetSessionVO widgetSessionVO) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	    objectMapper.setDateFormat(new SimpleDateFormat(Constants.CONTENT_DATE_FORMAT));
@@ -1209,6 +1237,12 @@ public class WidgetDashboardSVC {
 	    	if(attrIds != null) {
 	    		entityIds = addChartValue(commonEntities, attrIds);
 	    	}
+			
+			// Data processing for Histogram chart
+			if(ChartType.HISTOGRAM.getCode().equals(widgetChartHistoryDataVO.getChartType())) {
+				List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
+				widgetChartHistoryDataVO.setData(histogramChartData);
+			}
 	    }
 	    
 	    widgetChartHistoryDataVO.setAttributeId(attributeId);
@@ -1217,8 +1251,8 @@ public class WidgetDashboardSVC {
 	    widgetChartHistoryDataVO.setEntityIds(entityIds);
 	    
 	    // add Legend value
-	    if(legendCommonEntity != null && legend != null) {
-	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, legend);
+	    if(legendCommonEntity != null && widgetSessionVO.getLegend() != null) {
+	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, widgetSessionVO.getLegend());
 		    widgetChartHistoryDataVO.setLegendvalues(legendValues);
 	    }
 	     
@@ -1232,7 +1266,7 @@ public class WidgetDashboardSVC {
 		
 		return message;
 	}
-	
+
 	/**
 	 * Convert WidgetChartMapDataVO to String message
 	 * @param widgetChartMapDataVO	WidgetChartMapDataVO
@@ -1404,6 +1438,7 @@ public class WidgetDashboardSVC {
     			entity = tempCommonEntity.get(attrIds[i]);
 	    		if(entity == null) {
 	    			entity = tempCommonEntity.get("value");
+	    			tempCommonEntity.remove("value");
 	    		} else {
 	    			i++;
 	    		}
@@ -1431,8 +1466,10 @@ public class WidgetDashboardSVC {
 	    		}
 			}
 			
-			commonEntityVO.put("chartValue", entity);
-			commonEntityVO.remove(attrIds[0]);
+			if(entity != null) {
+				commonEntityVO.put("chartValue", entity);
+				commonEntityVO.remove(attrIds[0]);
+			}
 		}
 		
 		for(String key : entityIds.keySet()) {
@@ -1500,5 +1537,98 @@ public class WidgetDashboardSVC {
 	    }
 	    
 		return legendValues;
+	}
+	
+	/**
+	 * Convert histogram data
+	 * @param commonEntities	Retrieved entity result data
+	 * @param xAxisUnit			x-axis unit
+	 * @return					histogram chart data
+	 */
+	private List<CommonEntityVO> convertHistogramData(List<CommonEntityVO> commonEntities, int xAxisUnit) {
+		List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
+		Map<Object, Integer> chartValueMap = new TreeMap<Object, Integer>();
+		Map<Object, Integer> resultMap = new TreeMap<Object, Integer>();
+		
+		double minValue = 9999999.0;
+		double maxValue = -9999999.0;
+		boolean isNumberXAxisValue = false;
+		
+		// Counting the number of identical data
+		for(CommonEntityVO commonEntityVO : commonEntities) {
+			Object chartValue = commonEntityVO.get("chartValue");
+			
+			if(chartValue == null) continue;
+			
+			if(chartValue instanceof Double 
+					|| chartValue instanceof Integer) {
+				String strChartValue = String.valueOf(chartValue); 
+				if(Double.valueOf(strChartValue) < minValue) {
+					minValue = Double.valueOf(strChartValue);
+				}
+				if(Double.valueOf(strChartValue) > maxValue) {
+					maxValue = Double.valueOf(strChartValue);
+				}
+				isNumberXAxisValue = true;
+			}
+			
+			if(chartValueMap.get(chartValue) != null) {
+				chartValueMap.replace(chartValue, chartValueMap.get(chartValue) + 1);
+			} else {
+				chartValueMap.put(chartValue, 1);
+			}
+		}
+		
+		// If the x-axis values ​​are numeric, repositions the values ​​in units of the x-axis.
+		if(isNumberXAxisValue) {
+			double factor = 0.0;
+			if(xAxisUnit > 0) { 
+				factor = minValue/xAxisUnit;
+			}
+			double lowestValue = 0;
+			
+			if(factor < 0) {
+				lowestValue = xAxisUnit * Integer.valueOf(String.format("%.0f", factor));
+			} 
+			else if(factor > 0) {
+				lowestValue = xAxisUnit * (int)factor;
+			}
+			
+			int greatestValue = ((int)(maxValue / xAxisUnit) + 1) * xAxisUnit;
+			if(lowestValue > 0) {
+				lowestValue = 0;
+			}
+			
+			for(int i = xAxisUnit; i <= greatestValue; i += xAxisUnit) {
+				resultMap.put((lowestValue + i) - (xAxisUnit / 2.0), 0);
+			}
+					
+			for(Object key : chartValueMap.keySet()) {
+				if(key instanceof String) {
+					break;
+				}
+				
+				String strKey = String.valueOf(key);
+				if(Double.valueOf(strKey) >= 0) {
+					double xValue = (((int)(Integer.valueOf(strKey) / xAxisUnit) + 1) * xAxisUnit) - (xAxisUnit / 2.0);
+					resultMap.replace(xValue, resultMap.get(xValue) + 1);
+				} else {
+					double xValue = ((int)(Integer.valueOf(strKey) / xAxisUnit) * xAxisUnit) - (xAxisUnit / 2.0);
+					resultMap.replace(xValue, resultMap.get(xValue) + 1);
+				}
+			}
+			chartValueMap = resultMap;
+		}
+		
+		for(Object key : chartValueMap.keySet()) {
+			CommonEntityVO commonEntityVO = new CommonEntityVO();
+			
+			commonEntityVO.put("x", key);
+			commonEntityVO.put("y", chartValueMap.get(key));
+			
+			result.add(commonEntityVO);
+		}
+		
+		return result;
 	}
 }

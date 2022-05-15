@@ -21,6 +21,8 @@ public class WidgetDashboardCode {
         BAR("bar"),
         TEXT("text"),
         BOOLEAN("boolean"),
+        HISTOGRAM("histogram"),
+        SCATTER("scatter"),
         MAP_LATEST("map_latest"),
         MAP_HISTORY("map_history");
 
