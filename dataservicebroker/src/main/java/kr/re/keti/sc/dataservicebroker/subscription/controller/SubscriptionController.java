@@ -1,8 +1,8 @@
 package kr.re.keti.sc.dataservicebroker.subscription.controller;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,15 +80,20 @@ public class SubscriptionController {
             log.info("response body : " + objectMapper.writeValueAsString(resultList));
         }
 
-        if(!Constants.APPLICATION_LD_JSON_VALUE.equals(accept)) {
-            if(!ValidateUtil.isEmptyData(resultList)) {
-                for(SubscriptionVO subscriptionVO : resultList) {
+        HttpHeadersUtil.addPaginationLinkHeader(bigDataStorageType, request, response, accept, limit, offset, totalCount, defaultLimit);
+
+        if(!ValidateUtil.isEmptyData(resultList)) {
+            if(!Constants.APPLICATION_LD_JSON_VALUE.equals(accept)) {
+                List<String> linkHeader = new ArrayList<>();
+                for (SubscriptionVO subscriptionVO : resultList) {
+                    if(subscriptionVO.getContext() != null) {
+                        linkHeader.addAll(subscriptionVO.getContext());
+                    }
                     subscriptionVO.setContext(null);
                 }
+                HttpHeadersUtil.addContextLinkHeader(response, accept, linkHeader.stream().distinct().collect(Collectors.toList()));
             }
         }
-
-        HttpHeadersUtil.addPaginationLinkHeader(bigDataStorageType, request, response, accept, limit, offset, totalCount, defaultLimit);
         response.getWriter().print(objectMapper.writeValueAsString(resultList));
     }
 
@@ -118,6 +123,8 @@ public class SubscriptionController {
         if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
             log.info("response body : " + objectMapper.writeValueAsString(result));
         }
+
+        HttpHeadersUtil.addContextLinkHeader(response, accept, result.getContext());
 
         if(!Constants.APPLICATION_LD_JSON_VALUE.equals(accept)) {
             result.setContext(null);
