@@ -13,7 +13,7 @@
     </b-form>
     <div class="mt-3" v-if="visibleChartTree">
       <el-tabs v-if="activeName" v-model="actName" @tab-click="tabClick">
-        <el-tab-pane label="Attribute to Display" name="first">
+        <el-tab-pane :label="$t('widget.displayAttribute')" name="first">
           <div class="col-12 row mt-4" style="margin:0; padding: 0;">
             <div class="col-lg-6" style="padding-left: 0;">
               <div class="card">

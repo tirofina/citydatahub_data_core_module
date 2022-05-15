@@ -58,8 +58,31 @@
               </el-select>
             </div>
           </div>
-          <div class="col-md-4" v-if="display['chartType']">
+<!--          <div class="col-md-4" v-if="display['chartType']">-->
+<!--            <div class="form-group">-->
+<!--            </div>-->
+<!--          </div>-->
+          <div class="col-md-4" v-if="display['typeUri']">
             <div class="form-group">
+              <label class="control-label">{{ $t('widget.typeUri') }}</label>
+              <el-select
+                class="mr-sm-2"
+                v-model="typeUri"
+                placeholder="Select"
+                size="small"
+                style="width: 100%;"
+                @change="onTypeUriChange"
+                :disabled="dataModelDisabled['typeUri']"
+              >
+                <el-option
+                  v-for="item in typeUris"
+                  :key="item.value"
+                  :label="item.text"
+                  :value="item.value"
+                  :disabled="item.disabled"
+                >
+                </el-option>
+              </el-select>
             </div>
           </div>
           <div
@@ -113,6 +136,19 @@
                 >
                 </el-option>
               </el-select>
+            </div>
+          </div>
+          <div
+            class="col-md-4"
+            v-if="display['displayData']"
+          >
+            <div class="form-group">
+              <label class="control-label">{{ $t('widget.displayData') }}</label>
+              <b-form-input
+                id="inline-form-input-name"
+                class="mr-sm-2"
+                v-model="formData['displayData']"
+              />
             </div>
           </div>
           <div
@@ -358,6 +394,17 @@
         v-model="formData['chartAttribute']"
         disabled
       />
+      <!-- TODO only histogram -->
+      <div v-if="display['chartUnit']">
+        <label class="control-label mb-2">{{ $t('widget.chartUnit') }}
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          v-model="formData['chartUnit']"
+          :disabled="isChartAttributeString"
+        />
+      </div>
     </template>
     <template v-slot:tree>
       <ElementTree
@@ -445,6 +492,10 @@ export default {
     visibleChartTree() {
       const chartType = this.formData['chartType'];
       return chartType && !(chartType === 'custom_text' || chartType === 'Image' || chartType === 'map_latest');
+    },
+    isChartAttributeString() {
+      const chartAttribute = this.validation.chartAttribute;
+      return !chartAttribute || typeof chartAttribute === 'string';
     }
   },
   data() {
@@ -474,8 +525,8 @@ export default {
       latestValue: null,
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
-        realtimeUpdateEnabled: false, timerel: false, entityId: false, time: false, yaxisRange: false,
-        custom_text: false, image: false, dataType: false, latestMap: false,
+        realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
+        yaxisRange: false, custom_text: false, image: false, dataType: false, latestMap: false,
       },
       dataTypes: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -486,7 +537,8 @@ export default {
       formData: {
         dashboardId: null,
         widgetId: null, chartType: null, chartOrder: null, chartSize: null, dataType: null, chartTitle: null,
-        updateInterval: null, realtimeUpdateEnabled: false, chartAttribute: null, yaxisRange: null,
+        updateInterval: null, realtimeUpdateEnabled: false, yaxisRange: null,
+        chartAttribute: null, chartUnit: null,
         chartXName: null, chartYName: null, realTimeOption: null, q: null,
         extention1: null, extention2: null, image: null
       },
@@ -504,6 +556,7 @@ export default {
         {value: 'custom_text', text: 'Text(Custom)', disabled: false},
         {value: 'Image', text: 'Image', disabled: false},
         {value: 'map_latest', text: 'Latest Map', disabled: false},
+        {value: 'histogram', text: 'Histogram', disabled: false},
       ],
       dateOptions: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -903,6 +956,20 @@ export default {
           // Call the list of stored latest maps
           this.getLatestList();
           break;
+        case 'histogram' :
+          this.initDisplay({
+            chartType: true,
+            typeUri: true,
+            timerel: true,
+            entityId: true,
+            displayData: true,
+            chartTitle: true,
+            time: true,
+            chartUnit: true,
+          });
+          // Call the list of stored latest maps
+          this.getLatestList();
+          break;
       }
     },
     handleRemove() {
@@ -1149,8 +1216,9 @@ export default {
       this.display = {
         chartType: false,
         chartTitle: false, chartXName: false, chartYName: false, updateInterval: false, dataType: false,
-        realtimeUpdateEnabled: false, timerel: false, entityId: false, time: false, yaxisRange: false
-        , custom_text: false, image: false, latestMap: false,
+        realtimeUpdateEnabled: false, timerel: false, entityId: false, time: false, displayData: false,
+        yaxisRange: false, custom_text: false, image: false, latestMap: false,
+        chartUnit: false,
         ...obj,
       };
     }

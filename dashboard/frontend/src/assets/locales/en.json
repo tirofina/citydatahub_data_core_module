@@ -30,7 +30,10 @@
     "minMaxAverage": "0-100 (min-max)",
     "dataModel": "Data Model",
     "searchDetails": "Search Details",
-    "displayAttribute": "Attribute to Display"
+    "displayAttribute": "Attribute to Display",
+    "typeUri": "타입 URI",
+    "displayData": "표시 데이터",
+    "chartUnit": "차트 단위"
   },
   "message": {
     "deleteCheck": "Do you want to delete?",
