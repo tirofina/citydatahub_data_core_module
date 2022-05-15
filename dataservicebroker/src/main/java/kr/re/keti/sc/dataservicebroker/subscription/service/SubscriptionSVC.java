@@ -120,10 +120,6 @@ public class SubscriptionSVC {
                     + subscriptionVO.getWatchedAttributes().toString());
 
         }
-//        if (subscriptionVO.getEntities() != null && subscriptionVO.getEntities().size() == 0) {
-//            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "should include entities= "
-//                    + subscriptionVO.getEntities().toString());
-//        }
 
         if (subscriptionVO.getWatchedAttributes() != null && subscriptionVO.getTimeInterval() != null) {
             throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "should include WatchedAttributes or TimeInterval");
@@ -374,13 +370,15 @@ public class SubscriptionSVC {
 
         List<SubscriptionEntitiesDaoVO> subscriptionEntitiesDaoVOs = subscriptionVoToEntitiesDaoVO(subscriptionVO);
 
-        Integer result = null;
+        Integer result = subscriptionDAO.updateSubscriptionBase(subscriptionBaseDaoVO);
 
-        subscriptionDAO.deleteSubscriptionEntities(subscriptionId);
-        result = subscriptionDAO.updateSubscriptionBase(subscriptionBaseDaoVO);
-        if (subscriptionEntitiesDaoVOs != null) {
-            for (SubscriptionEntitiesDaoVO subscriptionEntitiesDaoVO : subscriptionEntitiesDaoVOs) {
-                subscriptionDAO.createSubscriptionEntities(subscriptionEntitiesDaoVO);
+        // entities 정보가 존재할 경우만 업데이트
+        if(!ValidateUtil.isEmptyData(subscriptionEntitiesDaoVOs)) {
+            subscriptionDAO.deleteSubscriptionEntities(subscriptionId);
+            if (subscriptionEntitiesDaoVOs != null) {
+                for (SubscriptionEntitiesDaoVO subscriptionEntitiesDaoVO : subscriptionEntitiesDaoVOs) {
+                    subscriptionDAO.createSubscriptionEntities(subscriptionEntitiesDaoVO);
+                }
             }
         }
 
