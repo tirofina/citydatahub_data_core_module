@@ -2,12 +2,7 @@ package kr.re.keti.sc.dataservicebroker.entities.controller.http;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -484,14 +479,18 @@ public class EntityController {
                                     @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
                                     @RequestBody String requestBody) throws Exception {
 
-        log.info("BatchEntityCreation Reqeust link={}, contentType={}, body={}", link, contentType, requestBody);
+        log.info("BatchEntityCreation Request link={}, contentType={}, body={}", link, contentType, requestBody);
 
-        List<HashMap<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+        List<Map<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+
+        validateContextInBachOperation(contentType, links, jsonList);
 
         // 1. entity 생성을 위한 객체 생성
         BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList,
                 DataServiceBrokerCode.Operation.CREATE_ENTITY, request.getRequestURI(),
-                null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                null, links, contentType);
 
         List<IngestMessageVO> ingestMessageVO = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
@@ -527,11 +526,16 @@ public class EntityController {
 
         log.info("BatchEntityUpsert Reqeust link={}, contentType={}, body={}", link, contentType, requestBody);
 
-        List<HashMap<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+        List<Map<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+
+        validateContextInBachOperation(contentType, links, jsonList);
+
         // 1. entity 생성을 위한 객체 생성
         BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList,
                 Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES, request.getRequestURI(),
-                null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                null, links, contentType);
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
 
@@ -567,7 +571,11 @@ public class EntityController {
 
         log.info("BatchEntityUpdate Reqeust link={}, contentType={}, options={}, body={}", link, contentType, options, requestBody);
 
-        List<HashMap<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+        List<Map<String, Object>> jsonList = objectMapper.readValue(requestBody, List.class);
+
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+
+        validateContextInBachOperation(contentType, links, jsonList);
 
         // 1. entity 생성을 위한 객체 생성
 
@@ -576,10 +584,10 @@ public class EntityController {
         if (options != null && options.equals(OperationOption.NO_OVERWRITE.getCode())) {
             // "noOverwrite". Indicates that no attribute overwrite shall be performed.
             batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList, Operation.APPEND_ENTITY_ATTRIBUTES,
-                    request.getRequestURI(), Arrays.asList(OperationOption.NO_OVERWRITE), HttpHeadersUtil.extractLinkUris(link), contentType);
+                    request.getRequestURI(), Arrays.asList(OperationOption.NO_OVERWRITE), links, contentType);
         } else {
             batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList, Operation.APPEND_ENTITY_ATTRIBUTES,
-                    request.getRequestURI(), null, HttpHeadersUtil.extractLinkUris(link), contentType);
+                    request.getRequestURI(), null, links, contentType);
         }
         List<IngestMessageVO> ingestMessageVOs = batchIngestMessageVO.getIngestMessageVO();
         List<BatchEntityErrorVO> batchEntityErrorVO = batchIngestMessageVO.getBatchEntityErrorVO();
@@ -616,6 +624,10 @@ public class EntityController {
                                   @RequestBody List<String> ids) throws Exception {
 
         log.info("BatchEntityDelete Reqeust link={}, contentType={}, ids={}", link, contentType, ids);
+
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+
+        validateContextInBachOperation(contentType, links, null);
 
         BatchIngestMessageVO batchIngestMessageVO = null;
         // 1. entity 생성을 위한 객체 생성
@@ -1600,4 +1612,54 @@ public class EntityController {
         return requestAccept;
     }
 
+
+    /**
+     * batch 처리 시 context 유효성 체크
+     * @param contentType
+     * @param links
+     * @param jsonList
+     */
+    private void validateContextInBachOperation(String contentType, List<String> links, List<Map<String, Object>> jsonList) {
+
+        if(ValidateUtil.isEmptyData(contentType)) {
+            return;
+        }
+
+        if(contentType.contains(Constants.APPLICATION_LD_JSON_VALUE)) {
+            //Content-Type header is "application/ld+json" and a JSON-LD Link header is present in the incoming HTTP request
+            if(!ValidateUtil.isEmptyData(links)) {
+                throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                        "Invalid Request Content. Link Header cannot be used when contentType=application/ld+json");
+            }
+
+            //Content-Type header is "application/ld+json" and the request payload body does not contain a @context term
+            if(!ValidateUtil.isEmptyData(jsonList)) {
+                Set<String> contextSet = new HashSet<String>();
+                for(Map<String, Object> jsonMap : jsonList) {
+                    List<String> context = (List<String>)jsonMap.get(DefaultAttributeKey.CONTEXT.getCode());
+                    if(ValidateUtil.isEmptyData(context)) {
+                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                                "Invalid Request Content. @context parameter cannot be empty when contentType=application/ld+json");
+                    }
+                    contextSet.addAll(context);
+                }
+                //context에 하나라도 invalid한 건이 있으면 503 에러 반환
+                dataModelManager.contextToFlatMap(new ArrayList<>(contextSet));
+            }
+
+        //Content-Type header is "application/json" and the request payload body (as JSON) contains a "@context" term
+        } else if(contentType.contains(Constants.APPLICATION_JSON_VALUE)) {
+            if(!ValidateUtil.isEmptyData(jsonList)) {
+                for(Map<String, Object> jsonMap : jsonList) {
+                    if(!ValidateUtil.isEmptyData(jsonMap.get(DefaultAttributeKey.CONTEXT.getCode()))) {
+                        throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                                "Invalid Request Content. @context parameter cannot be used when contentType=application/json");
+                    }
+                }
+            }
+
+            //context에 하나라도 invalid한 건이 있으면 503 에러 반환
+            dataModelManager.contextToFlatMap(links);
+        }
+    }
 }

@@ -86,6 +86,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
     public CommonEntityVO daoVOToFullRepresentationVO(DynamicEntityDaoVO dynamicEntityDaoVO, DataModelCacheVO dataModelCacheVO, boolean includeSysAttrs) {
 
         CommonEntityFullVO commonEntityFullVO = new CommonEntityFullVO();
+        addDefaultFullRepresentationField(commonEntityFullVO, dynamicEntityDaoVO, dataModelCacheVO, includeSysAttrs);
 
         DataModelStorageMetadataVO storageMetadataVO = dataModelCacheVO.getDataModelStorageMetadataVO();
         Map<String, DataModelDbColumnVO> dbColumnInfoVOMap = storageMetadataVO.getDbColumnInfoVOMap();
@@ -110,12 +111,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
             commonEntityFullVO.putAll(resultMap);
         }
 
-        if(!commonEntityFullVO.isEmpty()) {
-            addDefaultFullRepresentationField(commonEntityFullVO, dynamicEntityDaoVO, dataModelCacheVO, includeSysAttrs);
-            return commonEntityFullVO;
-        }
-
-        return null;
+        return commonEntityFullVO;
     }
 
 
