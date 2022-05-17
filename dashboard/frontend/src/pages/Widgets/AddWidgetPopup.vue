@@ -507,9 +507,9 @@ export default {
       ],
       dateOptions: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
-        {value: 'before', text: this.$i18n.t('widget.before')},
-        {value: 'after', text: this.$i18n.t('widget.after')},
-        {value: 'between', text: this.$i18n.t('widget.between')}
+        {value: 'before', text: this.$i18n.t('search.before')},
+        {value: 'after', text: this.$i18n.t('search.after')},
+        {value: 'between', text: this.$i18n.t('search.between')}
       ],
       realTimeOptions: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},

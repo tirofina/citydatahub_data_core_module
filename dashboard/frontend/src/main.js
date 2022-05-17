@@ -53,7 +53,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 axios.defaults.headers.timeout = 60000;
 Vue.prototype.$http = axios;
 
-locale.use(i18n.locale);
+locale.use(lang);
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(LightBootstrap);
