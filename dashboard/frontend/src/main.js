@@ -41,7 +41,9 @@ import routes from './routes/routes'
 import './registerServiceWorker'
 
 import TuiGrid from 'tui-grid'
-TuiGrid.setLanguage('en', { display: { noData: 'No search result.' } })
+import i18n from './moudules/i18n'
+
+TuiGrid.setLanguage(i18n.locale, { display: { noData: i18n.t('message.noSearchResult') } });
 
 Vue.component('vue-simple-context-menu', VueSimpleContextMenu);
 
@@ -77,5 +79,6 @@ const router = new VueRouter({
 new Vue({
   el: '#app',
   render: h => h(App),
-  router
+  router,
+  i18n
 });

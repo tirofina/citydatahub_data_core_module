@@ -2,11 +2,10 @@ package kr.re.keti.sc.dataservicebroker.datasetflow.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -174,17 +173,10 @@ public class DatasetFlowSVC {
 			datasetFlowBaseVO.setProvisioningEventTime(eventTime);
 	        datasetFlowDAO.createDatasetFlow(datasetFlowBaseVO);
 
-	        // 6. 데이터모델이 어느 Storage에 생성되어 있는 지 저장
-	        if(ValidateUtil.isEmptyData(datasetFlowBaseVO.getBigDataStorageTypes())) {
-	        	List<BigDataStorageType> createdStorageTypes = new ArrayList<>();
-	        	createdStorageTypes.add(BigDataStorageType.RDB);
-	        	dataModelBaseVO.setCreatedStorageTypes(createdStorageTypes); // default RDB
-	        } else {
-	        	dataModelBaseVO.setCreatedStorageTypes(datasetFlowBaseVO.getBigDataStorageTypes());
-	        }
-	        dataModelSVC.updateDataModelStorage(dataModelBaseVO);
+	        // 6. 데이터모델이 어느 Storage에 생성되어 있는 지 갱신
+			updateDataModelStorageType(datasetFlowBaseVO, dataModelBaseVO);
 
-	        // 7. 캐쉬 등록
+			// 7. 캐쉬 등록
 	        dataModelManager.putDataModelCache(dataModelBaseVO);
 	        dataModelManager.putDatasetFlowCache(datasetFlowBaseVO);
 	
@@ -199,8 +191,27 @@ public class DatasetFlowSVC {
  		}
     }
 
+	private void updateDataModelStorageType(DatasetFlowBaseVO datasetFlowBaseVO, DataModelBaseVO dataModelBaseVO) {
+		List<BigDataStorageType> oldStorageTypes = dataModelBaseVO.getCreatedStorageTypes();
+		List<BigDataStorageType> newStorageTypes = null;
+		if(ValidateUtil.isEmptyData(datasetFlowBaseVO.getBigDataStorageTypes())) {
+			newStorageTypes = new ArrayList<>(); // default RDB
+			newStorageTypes.add(BigDataStorageType.RDB);
+		} else {
+			newStorageTypes = datasetFlowBaseVO.getBigDataStorageTypes();
+		}
 
-    /**
+		if(oldStorageTypes != null) {
+			newStorageTypes.addAll(oldStorageTypes);
+			newStorageTypes = newStorageTypes.stream().distinct().collect(Collectors.toList());
+		}
+
+		dataModelBaseVO.setCreatedStorageTypes(newStorageTypes);
+		dataModelSVC.updateDataModelStorage(dataModelBaseVO);
+	}
+
+
+	/**
      * HBase 및 Hive 테이블 생성
      * @param dataModelVO 테이터모델 정보
      * @param bigDataStorageTypes 빅데이터 저장 유형 리스트
@@ -292,17 +303,10 @@ public class DatasetFlowSVC {
 	                    "Not Exists. datasetId=" + datasetId);
 	        }
 
-	        // 6. 데이터모델이 어느 Storage에 생성되어 있는 지 저장
-	        DatasetBaseVO datasetBaseVO = dataModelManager.getDatasetCache(retrieveDatasetFlowBaseVO.getDatasetId());
-	        DataModelBaseVO dataModelBaseVO = dataModelSVC.getDataModelBaseVOById(datasetBaseVO.getDataModelId());
-	        if(ValidateUtil.isEmptyData(datasetFlowBaseVO.getBigDataStorageTypes())) {
-	        	List<BigDataStorageType> createdStorageTypes = new ArrayList<>();
-	        	createdStorageTypes.add(BigDataStorageType.RDB);
-	        	dataModelBaseVO.setCreatedStorageTypes(createdStorageTypes); // default RDB
-	        } else {
-	        	dataModelBaseVO.setCreatedStorageTypes(datasetFlowBaseVO.getBigDataStorageTypes());
-	        }
-	        dataModelSVC.updateDataModelStorage(dataModelBaseVO);
+			// 6. 데이터모델이 어느 Storage에 생성되어 있는 지 갱신
+			DatasetBaseVO datasetBaseVO = dataModelManager.getDatasetCache(retrieveDatasetFlowBaseVO.getDatasetId());
+			DataModelBaseVO dataModelBaseVO = dataModelSVC.getDataModelBaseVOById(datasetBaseVO.getDataModelId());
+			updateDataModelStorageType(datasetFlowBaseVO, dataModelBaseVO);
 
 	        // 7. 캐쉬갱신
 	        dataModelManager.putDataModelCache(dataModelBaseVO);

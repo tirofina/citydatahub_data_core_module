@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div class="col-12 card-custom" v-if="isCustom">
-      <p class="card-category text-center"><b>{{ this.options.title }}</b></p>
-      <img v-if="type === 'Image'" :src="image.url" alt="image">
-      <p v-else :style="customTextStyle">{{ customText.text }}</p>
+    <div v-if="type === 'Image'" class="col-12 text-center card-image">
+      <p class="card-category"><b>{{ this.options.title }}</b></p>
+      <!--      <div class="card-image">-->
+      <img :src="image.url" alt="image">
+      <!--      </div>-->
+    </div>
+    <div v-else-if="type === 'custom_text'" class="col-12 card-custom" style="padding: 20px 15px;">
+      <p class="card-category text-center "><b>{{ this.options.title }}</b></p>
+      <p :style="customTextStyle">{{ customText.text }}</p>
     </div>
     <div v-else class="col-12 text-center">
       <div class="numbers">
@@ -47,10 +52,6 @@ export default {
         'font-size': this.customText.fontSize
       }
     },
-    isCustom() {
-      // Check to apply other css values
-      return this.type === 'Image' || this.type === 'custom_text';
-    }
   },
   watch: {
     // Update when changing the setting data value in the widget.
@@ -129,14 +130,27 @@ export default {
   word-break: break-all;
   max-height: 100%;
 }
-.card-custom img {
+.card-custom p.card-category {
+  padding-top: 0;
+  width: calc(100% - 32px);
+  position: fixed;
+}
+.card-image img {
   width: 100%;
   height: 100%;
   object-fit: fill;
 }
-.card-custom .card-category {
-  padding-top: 0;
-  width: calc(100% - 32px);
+.card-image {
+  padding: 5px !important;
+  width: 100%;
+  height: 100%;
+}
+.card-image img {
+  width: 100%;
+  height: 100%;
+}
+.card-image p.card-category {
   position: fixed;
+  width: 100%;
 }
 </style>

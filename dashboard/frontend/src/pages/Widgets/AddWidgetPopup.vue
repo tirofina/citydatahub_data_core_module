@@ -1,7 +1,7 @@
 <template>
   <WidgetPopup
     isDashboard
-    popup-title="Widget Options"
+    :popup-title="$t('widget.widgetOptions')"
     visible
     :activeName="activeName"
     :chartType="formData['chartType']"
@@ -14,11 +14,11 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
-              <label class="control-label">Widget Type</label>
+              <label class="control-label">{{ $t('widget.widgetType') }}</label>
               <el-select
                 class="mr-sm-2"
                 v-model="formData['chartType']"
-                placeholder="Select"
+                :placeholder="$t('comm.select')"
                 size="small"
                 style="width: 100%;"
                 @change="onChartTypeChange"
@@ -37,11 +37,11 @@
           </div>
           <div class="col-md-4" v-if="display['chartType']">
             <div class="form-group">
-              <label class="control-label">Data Model ID</label>
+              <label class="control-label">{{ $t('widget.dataModelID') }}</label>
               <el-select
                 class="mr-sm-2"
                 v-model="dataModel"
-                placeholder="Select"
+                :placeholder="$t('message.selectOption')"
                 size="small"
                 style="width: 100%;"
                 @change="onDataModelChange"
@@ -67,11 +67,11 @@
             v-if="display['dataType']"
           >
             <div class="form-group">
-              <label class="control-label">Number of instances</label>
+              <label class="control-label">{{ $t('widget.numberOfInstances') }}</label>
               <el-select
                 class="mr-sm-2"
                 v-model="formData['dataType']"
-                placeholder="Select"
+                :placeholder="$t('comm.select')"
                 size="small"
                 style="width: 100%;"
                 @change="onDataTypeChange"
@@ -93,7 +93,7 @@
             v-if="display['entityId']"
           >
             <div class="form-group">
-              <label class="control-label">Entity Instance ID</label>
+              <label class="control-label">{{ $t('widget.entityInstanceID') }}</label>
               <el-select
                 class="mr-sm-2"
                 v-model="entityId"
@@ -101,7 +101,7 @@
                 :collapse-tags="formData['dataType'] === 'last'"
                 size="small"
                 style="width: 100%;"
-                placeholder="Please select an option"
+                :placeholder="$t('message.selectOption')"
                 @change="onSelectedEntity"
               >
                 <el-option
@@ -120,7 +120,7 @@
             v-if="display['chartTitle']"
           >
             <div class="form-group">
-              <label class="control-label">Widget Title</label>
+              <label class="control-label">{{ $t('widget.widgetTitle') }}</label>
               <b-form-input
                 id="inline-form-input-name"
                 class="mr-sm-2"
@@ -133,12 +133,12 @@
             v-if="display['yaxisRange']"
           >
             <div class="form-group">
-              <label class="control-label">Range of Y-axis</label>
+              <label class="control-label">{{ $t('widget.rangeOfYaxis') }}</label>
               <b-form-input
                 id="inline-form-input-name"
                 class="mr-sm-2"
                 v-model="formData['yaxisRange']"
-                placeholder="0-100 (min-max)"
+                :placeholder="$t('widget.minMaxAverage')"
               />
             </div>
           </div>
@@ -147,10 +147,10 @@
             v-if="display['timerel']"
           >
             <div class="form-group">
-              <label class="control-label">Time Relation</label>
+              <label class="control-label">{{ $t('search.timeRelation') }}</label>
               <el-select
                 v-model="timerel"
-                placeholder="Select"
+                :placeholder="$t('comm.select')"
                 size="small"
                 style="width: 100%;"
                 @change="ontimerelChange"
@@ -171,12 +171,12 @@
             v-if="display['time']"
           >
             <div class="form-group">
-              <label class="control-label">Time</label>
+              <label class="control-label">{{ $t('widget.time') }}</label>
               <el-date-picker
                 v-if="timerel !== 'between'"
                 v-model="time"
                 type="datetime"
-                placeholder="Select date and time"
+                :placeholder="$t('message.selectDateTime')"
                 size="small"
                 style="width: 100%;"
                 @change="onTimeChange"
@@ -186,8 +186,8 @@
                 v-model="times"
                 type="datetimerange"
                 size="small"
-                start-placeholder="start at"
-                end-placeholder="end at"
+                :start-placeholder="$t('search.startAt')"
+                :end-placeholder="$t('search.endAt')"
                 style="width: 100%;"
                 :default-time="['00:00:00']"
                 @change="onTimeChange"
@@ -200,10 +200,11 @@
             v-if="display['realtimeUpdateEnabled']"
           >
             <div class="form-group">
-              <label class="control-label">Auto Refresh</label>
+              <label class="control-label">{{ $t('widget.autoRefresh') }}
+              </label>
               <el-select
                 v-model="formData['realtimeUpdateEnabled']"
-                placeholder="Select"
+                :placeholder="$t('comm.select')"
                 size="small"
                 style="width: 100%;"
                 :disabled="isRealtimeDisabled"
@@ -224,7 +225,8 @@
             v-if="display['chartYName']"
           >
             <div class="form-group">
-              <label class="control-label">Label of Y-axis</label>
+              <label class="control-label">{{ $t('widget.labelOfYaxis') }}
+              </label>
               <input type="text" class="form-control" v-model="formData['chartYName']"/>
             </div>
           </div>
@@ -233,7 +235,7 @@
             v-if="display['chartXName']"
           >
             <div class="form-group">
-              <label class="control-label">Label of X-axis</label>
+              <label class="control-label">{{ $t('widget.labelOfXaxis') }}</label>
               <input type="text" class="form-control" v-model="formData['chartXName']"/>
             </div>
           </div>
@@ -242,11 +244,11 @@
             v-if="display['updateInterval']"
           >
             <div class="form-group">
-              <label class="control-label">Refresh Interval (sec)</label>
+              <label class="control-label">{{ $t('widget.refreshInterval') }}</label>
               <input
                 type="number"
                 class="form-control"
-                placeholder="0 means no refresh"
+                :placeholder="$t('message.ZeroEqualRefresh')"
                 v-model="formData['updateInterval']"
               />
             </div>
@@ -256,11 +258,11 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
-              <label class="control-label">Text to Display</label>
+              <label class="control-label">{{ $t('widget.textToDisplay') }}</label>
               <input
                 type="text"
                 class="form-control"
-                placeholder="Max text length is 100"
+                :placeholder="$t('message.maxTextLength')"
                 v-model="formData['extention1']"
                 maxlength="100"
               />
@@ -271,10 +273,10 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
-              <label class="control-label">Font Size</label>
+              <label class="control-label">{{ $t('widget.fontSize') }}</label>
               <el-select
                 v-model="formData['extention2']"
-                placeholder="Select"
+                :placeholder="$t('comm.select')"
                 size="small"
                 style="width: 100%;"
               >
@@ -294,7 +296,7 @@
             v-if="display['image']"
           >
             <div class="form-group">
-              <label class="control-label">Image File</label>
+              <label class="control-label">{{ $t('widget.imageFile') }}</label>
               <div>
                 <el-upload
                   ref="upload"
@@ -303,8 +305,8 @@
                   accept="image/jpeg,image/jpg,image/png"
                   :limit="1" :on-exceed="handleExceed"
                   :on-change="handleImageChange">
-                  <el-button size="small" type="primary">Select File</el-button>
-                  <div slot="tip" class="el-upload__tip">* Max 10MB JPG or PNG file is allowed.</div>
+                  <el-button size="small" type="primary">{{ $t('widget.selectFile') }}</el-button>
+                  <div slot="tip" class="el-upload__tip">{{ $t('message.fileMaxDescription') }}</div>
                 </el-upload>
               </div>
             </div>
@@ -314,12 +316,12 @@
             v-if="display['latestMap']"
           >
             <div class="form-group">
-              <label class="control-label">User Map (latest data)</label>
+              <label class="control-label">{{ $t('widget.userMapLatestData') }}</label>
               <div>
                 <el-select
                   v-model="formData['mapSearchConditionId']"
                   filterable
-                  placeholder="Selected Map"
+                  :placeholder="$t('message.selectMap')"
                   size="small"
                   style="margin-right: 10px;"
                   @change="getLatest"
@@ -348,7 +350,8 @@
       </ElementTree>
     </template>
     <template v-slot:addAttr>
-      <label class="control-label mb-2">Selected Attribute</label>
+      <label class="control-label mb-2">{{ $t('widget.selectedAttribute') }}
+      </label>
       <input
         type="text"
         class="form-control"
@@ -375,8 +378,8 @@
           disabled
         ></b-form-input>
         <div class="ml-1">
-          <el-button size="small" type="info" @click="addDynamicSearch">Add</el-button>
-          <el-button size="small" type="primary" @click="handleDynamicSearchSave">Save</el-button>
+          <el-button size="small" type="info" @click="addDynamicSearch">{{ $t('comm.add') }}</el-button>
+          <el-button size="small" type="primary" @click="handleDynamicSearchSave">{{ $t('comm.save') }}</el-button>
         </div>
       </b-form>
       <DynamicSearch v-for="(map, index) in addList" :key="index" :formData="map" :index="index"
@@ -389,15 +392,15 @@
         width="200"
         v-model="messageVisible">
         <p style="font-size: 12px;">
-          삭제하시겠습니까?
+          {{ $t('message.deleteCheck') }}
         </p>
         <div style="text-align: right; margin: 0">
-          <el-button size="mini" type="" @click="messageVisible = false">Cancel</el-button>
-          <el-button type="primary" size="mini" @click="handleRemove">OK</el-button>
+          <el-button size="mini" type="" @click="messageVisible = false">{{ $t('comm.cancel') }}</el-button>
+          <el-button type="primary" size="mini" @click="handleRemove">{{ $t('comm.ok') }}</el-button>
         </div>
-        <el-button slot="reference" class="mr-2" type="danger" size="small">Delete Widget</el-button>
+        <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('widget.deleteWidget') }}</el-button>
       </el-popover>
-      <el-button class="ml-1" type="primary" @click="widgetSave" size="small">Save</el-button>
+      <el-button class="ml-1" type="primary" @click="widgetSave" size="small">{{ $t('comm.save') }}</el-button>
     </template>
   </WidgetPopup>
 </template>
@@ -475,7 +478,7 @@ export default {
         custom_text: false, image: false, dataType: false, latestMap: false,
       },
       dataTypes: [
-        {value: null, text: 'Please select an option', disabled: true},
+        {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
         {value: 'history', text: 'Multiple Instances', disabled: false},
         {value: 'last', text: 'Single Instance', disabled: false}
       ],
@@ -491,7 +494,7 @@ export default {
         chartAttribute: null,
       },
       chartTypes: [
-        {value: null, text: 'Please select an option', disabled: true},
+        {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
         {value: 'donut', text: 'Donut', disabled: false},
         {value: 'bar', text: 'Bar', disabled: false},
         {value: 'pie', text: 'Pie', disabled: false},
@@ -503,18 +506,18 @@ export default {
         {value: 'map_latest', text: 'Latest Map', disabled: false},
       ],
       dateOptions: [
-        {value: null, text: 'Please select an option', disabled: true},
-        {value: 'before', text: 'before'},
-        {value: 'after', text: 'after'},
-        {value: 'between', text: 'between'}
+        {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
+        {value: 'before', text: this.$i18n.t('search.before')},
+        {value: 'after', text: this.$i18n.t('search.after')},
+        {value: 'between', text: this.$i18n.t('search.between')}
       ],
       realTimeOptions: [
-        {value: null, text: 'Please select an option', disabled: true},
-        {value: true, text: 'Yes'},
-        {value: false, text: 'No'},
+        {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
+        {value: true, text: this.$i18n.t('comm.yes')},
+        {value: false, text: this.$i18n.t('comm.no')},
       ],
       textSizes: [
-        {value: null, text: 'Please select an option', disabled: true},
+        {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
         {value: '10px', text: '10px'},
         {value: '20px', text: '20px'},
         {value: '30px', text: '30px'},
@@ -622,12 +625,12 @@ export default {
 
           return true;
         }).then(hasEntityIds => {
-          if (hasEntityIds) {
-            dataModelApi.attributes(dataModelId)
-              .then(data => {
-                this.treeData = data;
-              });
-          }
+        if (hasEntityIds) {
+          dataModelApi.attributes(dataModelId)
+            .then(data => {
+              this.treeData = data;
+            });
+        }
       })
     },
     getAttributed() {
@@ -639,7 +642,7 @@ export default {
     getDataModelList() {
       dataModelApi.fetch()
         .then(data => {
-          let result = [{value: null, text: 'Please select an option', disabled: true}];
+          let result = [{value: null, text: this.$i18n.t('message.selectOption'), disabled: true}];
           data.map(item => {
             return result.push({value: item, text: item, disabled: false});
           });
@@ -649,7 +652,7 @@ export default {
     getTypUriList() {
       typeUriApi.fetch()
         .then(data => {
-          let result = [{value: null, text: 'Please select an option', disabled: true}];
+          let result = [{value: null, text: this.$i18n.t('message.selectOption'), disabled: true}];
           data.map(item => {
             return result.push({value: item, text: item, disabled: false});
           });
