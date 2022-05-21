@@ -154,10 +154,11 @@ public class SubscriptionController {
         Integer result = null;
         try {
             // 1. context 정보 유효성 체크
-            validateAndSetContext(subscriptionVO, contentType, link);
+            validateContext(subscriptionVO, contentType);
 
             // 2. 구독 생성 요청
-            result = subscriptionSVC.createSubscription(subscriptionVO);
+            List<String> links = HttpHeadersUtil.extractLinkUris(link);
+            result = subscriptionSVC.createSubscription(subscriptionVO, links);
         } catch (org.springframework.dao.DuplicateKeyException e) {
             throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.ALREADY_EXISTS, "Already Exists. subscriptionID=" + subscriptionVO.getId(), e);
         } catch (NgsiLdNoExistTypeException e) {
@@ -233,10 +234,11 @@ public class SubscriptionController {
         subscriptionVO.setType(DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode());
 
         // 2. context 정보 유효성 체크
-        validateAndSetContext(subscriptionVO, contentType, link);
+        validateContext(subscriptionVO, contentType);
 
-        // 2. 구독 업데이트 요청
-        Integer resultCnt = subscriptionSVC.updateSubscription(subscriptionId, subscriptionVO);
+        // 3. 구독 업데이트 요청
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+        Integer resultCnt = subscriptionSVC.updateSubscription(subscriptionId, subscriptionVO, links);
 
         // 3. 요청 결과 확인
         if (resultCnt > 0) {
@@ -250,7 +252,7 @@ public class SubscriptionController {
 
 
 
-    private void validateAndSetContext(SubscriptionVO subscriptionVO, String contentType, String link) {
+    private void validateContext(SubscriptionVO subscriptionVO, String contentType) {
         // accept가 application/json 인 경우
         if(Constants.APPLICATION_JSON_VALUE.equals(contentType)) {
             // contentType이 application/json인 경우 @context 입력불가
@@ -259,9 +261,12 @@ public class SubscriptionController {
                         "Invalid Request Content. @context parameter cannot be used in contentType=application/json");
             }
 
-            // link header가 존재할 경우 추출하여 context 필드에 값 세팅
-            List<String> links = HttpHeadersUtil.extractLinkUris(link);
-            subscriptionVO.setContext(links);
+        // accept가 application/ld+json 인 경우
+        } else if(Constants.APPLICATION_LD_JSON_VALUE.equals(contentType)) {
+            if(ValidateUtil.isEmptyData(subscriptionVO.getContext())) {
+                throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                        "Invalid Request Content. @context is empty. contentType=application/ld+json");
+            }
         }
     }
 }
