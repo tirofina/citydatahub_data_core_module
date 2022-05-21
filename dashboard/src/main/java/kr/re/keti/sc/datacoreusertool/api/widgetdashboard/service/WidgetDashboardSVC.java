@@ -727,6 +727,30 @@ public class WidgetDashboardSVC {
 				log.warn("Not supported chart({}) data type({})", chartType, dataType);
 			}
 		}
+		// Scatter chart
+		else if(WidgetDashboardCode.ChartType.SCATTER.getCode().equals(chartType)) {
+			if(WidgetDashboardCode.DataType.HISTORY.getCode().equals(dataType)) {
+				// 1. check required values
+				if(!validateEntityRetrieveVOforId(entityRetrieveVO, widgetId, userId)) {
+					return;
+				}
+				
+				// 2. retrieve historical data & send to websocket(widget)
+				retreiveHistoryAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
+			}
+			else if(WidgetDashboardCode.DataType.LAST.getCode().equals(dataType)) {
+				// 1. check required values
+				if(!validateEntityRetrieveVOforType(entityRetrieveVO, widgetId, userId)) {
+					return;
+				}
+				
+				// 2. retrieve latest data & send to websocket(widget)
+				widgetSessionVO.setMultiEntities(true);
+				retreiveLastAttributeAndSendToWidgetSession(entityRetrieveVO, widgetSessionVO);
+			} else {
+				log.warn("Not supported chart({}) data type({})", chartType, dataType);
+			}
+		}
 		else {
 			log.warn("Not supported chart type : {}", chartType);
 		}
@@ -871,7 +895,21 @@ public class WidgetDashboardSVC {
 			// Only one attribute is supported in the widget chart.
 			originalAttributeId = entityRetrieveVO.getAttrs().get(0);
 			String[] attrList = splitAttributeId(entityRetrieveVO.getAttrs().get(0));
-			if(!ValidateUtil.isEmptyData(attrList)) {
+			
+			// only for scatter chart
+			if(entityRetrieveVO.getAttrs().size() == 2 
+					&& ChartType.SCATTER.getCode().equals(widgetSessionVO.getChartType())) {
+				originalAttributeId += ";" + entityRetrieveVO.getAttrs().get(1);
+				
+				String[] attrList2 = splitAttributeId(entityRetrieveVO.getAttrs().get(1));
+				if(!ValidateUtil.isEmptyData(attrList)
+						&& !ValidateUtil.isEmptyData(attrList2)) {
+					attrs.add(attrList[0]);
+					attrs.add(attrList2[0]);
+					entityRetrieveVO.setAttrs(attrs);
+				}
+			}
+			else if(!ValidateUtil.isEmptyData(attrList)) {
 				attrs.add(attrList[0]);
 				entityRetrieveVO.setAttrs(attrs);
 			}
@@ -995,7 +1033,21 @@ public class WidgetDashboardSVC {
 			// Only one attribute is supported in the widget chart.
 			originalAttributeId = entityRetrieveVO.getAttrs().get(0);
 			String[] attrList = splitAttributeId(entityRetrieveVO.getAttrs().get(0));
-			if(!ValidateUtil.isEmptyData(attrList)) {
+			
+			// only for scatter chart
+			if(entityRetrieveVO.getAttrs().size() == 2 
+					&& ChartType.SCATTER.getCode().equals(widgetSessionVO.getChartType())) {
+				originalAttributeId += ";" + entityRetrieveVO.getAttrs().get(1);
+				
+				String[] attrList2 = splitAttributeId(entityRetrieveVO.getAttrs().get(1));
+				if(!ValidateUtil.isEmptyData(attrList)
+						&& !ValidateUtil.isEmptyData(attrList2)) {
+					attrs.add(attrList[0]);
+					attrs.add(attrList2[0]);
+					entityRetrieveVO.setAttrs(attrs);
+				}
+			}
+			else if(!ValidateUtil.isEmptyData(attrList)) {
 				attrs.add(attrList[0]);
 				entityRetrieveVO.setAttrs(attrs);
 			}
@@ -1178,18 +1230,40 @@ public class WidgetDashboardSVC {
 	    List<String> entityIds = null;
 	    
 	    if(!ValidateUtil.isEmptyData(commonEntities)) {
-	    	String[] attrIds = splitAttributeId(attributeId);
-	    	attributeId = attrIds[attrIds.length - 1];
-	    	
-	    	if(attrIds != null) {
-	    		entityIds = addChartValue(commonEntities, attrIds);
+	    	// Data processing for Scatter chart
+	    	if(ChartType.SCATTER.getCode().equals(widgetChartDataVO.getChartType())) {
+	    		String[] attrs = attributeId.split(";");
+	    		
+	    		if(attrs.length != 2) {
+	    			log.warn("The number of attribute IDs is not 2. AttributeIds: {}", attributeId);
+	    			return null;
+	    		}
+	    		
+	    		String[] xAttrIds = splitAttributeId(attrs[0]);
+	    		String[] yAttrIds = splitAttributeId(attrs[1]);
+	    		
+	    		if(xAttrIds != null && yAttrIds != null) {
+	    			attributeId = xAttrIds[xAttrIds.length - 1] + "," + yAttrIds[yAttrIds.length - 1];
+	    			entityIds = addChartValue(commonEntities, xAttrIds, yAttrIds);
+	    		}
+	    		
+				List<CommonEntityVO> scatterChartData = convertScatterData(commonEntities);
+				widgetChartDataVO.setData(scatterChartData);
 	    	}
-	    	
-	    	// Data processing for Histogram chart
-			if(ChartType.HISTOGRAM.getCode().equals(widgetChartDataVO.getChartType())) {
-				List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
-				widgetChartDataVO.setData(histogramChartData);
-			}
+	    	else {
+	    		String[] attrIds = splitAttributeId(attributeId);
+		    	
+		    	if(attrIds != null) {
+		    		attributeId = attrIds[attrIds.length - 1];
+		    		entityIds = addChartValue(commonEntities, attrIds, null);
+		    	}
+		    	
+		    	// Data processing for Histogram chart
+				if(ChartType.HISTOGRAM.getCode().equals(widgetChartDataVO.getChartType())) {
+					List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
+					widgetChartDataVO.setData(histogramChartData);
+				}
+	    	}
 	    }
 	    widgetChartDataVO.setAttributeId(attributeId);
 	    
@@ -1231,18 +1305,40 @@ public class WidgetDashboardSVC {
 	    List<String> entityIds = null;
 	    
 	    if(!ValidateUtil.isEmptyData(commonEntities)) {
-	    	String[] attrIds = splitAttributeId(attributeId);
-	    	attributeId = attrIds[attrIds.length - 1];
-	    	
-	    	if(attrIds != null) {
-	    		entityIds = addChartValue(commonEntities, attrIds);
+	    	// Data processing for Scatter chart
+	    	if(ChartType.SCATTER.getCode().equals(widgetChartHistoryDataVO.getChartType())) {
+	    		String[] attrs = attributeId.split(";");
+	    		
+	    		if(attrs.length != 2) {
+	    			log.warn("The number of attribute IDs is not 2. AttributeIds: {}", attributeId);
+	    			return null;
+	    		}
+	    		
+	    		String[] xAttrIds = splitAttributeId(attrs[0]);
+	    		String[] yAttrIds = splitAttributeId(attrs[1]);
+	    		
+	    		if(xAttrIds != null && yAttrIds != null) {
+	    			attributeId = xAttrIds[xAttrIds.length - 1] + "," + yAttrIds[yAttrIds.length - 1];
+	    			entityIds = addChartValue(commonEntities, xAttrIds, yAttrIds);
+	    		}
+	    		
+				List<CommonEntityVO> scatterChartData = convertScatterData(commonEntities);
+				widgetChartHistoryDataVO.setData(scatterChartData);
 	    	}
-			
-			// Data processing for Histogram chart
-			if(ChartType.HISTOGRAM.getCode().equals(widgetChartHistoryDataVO.getChartType())) {
-				List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
-				widgetChartHistoryDataVO.setData(histogramChartData);
-			}
+	    	else {
+	    		String[] attrIds = splitAttributeId(attributeId);
+		    	
+	    		if(attrIds != null) {
+	    			attributeId = attrIds[attrIds.length - 1];
+		    		entityIds = addChartValue(commonEntities, attrIds, null);
+		    	}
+				
+				// Data processing for Histogram chart
+				if(ChartType.HISTOGRAM.getCode().equals(widgetChartHistoryDataVO.getChartType())) {
+					List<CommonEntityVO> histogramChartData = convertHistogramData(commonEntities, widgetSessionVO.getXAxisUnit());
+					widgetChartHistoryDataVO.setData(histogramChartData);
+				}
+	    	}
 	    }
 	    
 	    widgetChartHistoryDataVO.setAttributeId(attributeId);
@@ -1251,7 +1347,8 @@ public class WidgetDashboardSVC {
 	    widgetChartHistoryDataVO.setEntityIds(entityIds);
 	    
 	    // add Legend value
-	    if(legendCommonEntity != null && widgetSessionVO.getLegend() != null) {
+	    if(legendCommonEntity != null && widgetSessionVO.getLegend() != null
+	    		&& !ChartType.SCATTER.getCode().equals(widgetChartHistoryDataVO.getChartType())) {
 	    	List<String> legendValues = extractLegends(entityIds, legendCommonEntity, widgetSessionVO.getLegend());
 		    widgetChartHistoryDataVO.setLegendvalues(legendValues);
 	    }
@@ -1418,7 +1515,7 @@ public class WidgetDashboardSVC {
 	 * @param attrIds			List of attribute id
 	 * @return					List of entity id
 	 */
-	private List<String> addChartValue(List<CommonEntityVO> commonEntities, String[] attrIds) {
+	private List<String> addChartValue(List<CommonEntityVO> commonEntities, String[] attrIds, String[] attrIds2) {
 		Object entity = null;
 		Map<String, String> entityIds = new HashMap<String, String>();
 		List<String> result = new ArrayList();
@@ -1469,6 +1566,46 @@ public class WidgetDashboardSVC {
 			if(entity != null) {
 				commonEntityVO.put("chartValue", entity);
 				commonEntityVO.remove(attrIds[0]);
+			}
+			
+			if(attrIds2 != null) {
+				j = 0;
+				for(int i = 0 ; i < attrIds2.length ;) {
+	    			entity = tempCommonEntity.get(attrIds2[i]);
+		    		if(entity == null) {
+		    			entity = tempCommonEntity.get("value");
+		    			tempCommonEntity.remove("value");
+		    		} else {
+		    			i++;
+		    		}
+		    		
+		    		if(tempCommonEntity.get("observedAt") != null) {
+		    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
+		    		}
+		    		
+		    		if(i < attrIds2.length && entity != null) {
+		    			tempCommonEntity.putAll((Map<? extends String, ? extends Object>) entity);
+		    		}
+		    		
+		    		if(j++ > 50) break;
+		    	}
+				
+				if(entity != null && entity instanceof Map) {
+					tempCommonEntity.putAll((Map<? extends String, ? extends Object>) entity);
+					
+					if(tempCommonEntity.get("value") != null) {
+						entity = tempCommonEntity.get("value");
+					}
+					
+					if(tempCommonEntity.get("observedAt") != null) {
+		    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
+		    		}
+				}
+				
+				if(entity != null) {
+					commonEntityVO.put("chartValue2", entity);
+					commonEntityVO.remove(attrIds2[0]);
+				}
 			}
 		}
 		
@@ -1627,6 +1764,28 @@ public class WidgetDashboardSVC {
 			commonEntityVO.put("y", chartValueMap.get(key));
 			
 			result.add(commonEntityVO);
+		}
+		
+		return result;
+	}
+	
+	private List<CommonEntityVO> convertScatterData(List<CommonEntityVO> commonEntities) {
+		List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
+		
+		for(CommonEntityVO commonEntityVO : commonEntities) {
+			Object chartValue = commonEntityVO.get("chartValue");
+			Object chartValue2 = commonEntityVO.get("chartValue2");
+			
+			if(chartValue == null || chartValue2 == null) continue;
+			
+			String strChartValue = String.valueOf(chartValue);
+			String strChartValue2 = String.valueOf(chartValue2);
+			CommonEntityVO commonEntity = new CommonEntityVO();
+			
+			commonEntity.put("x", Double.valueOf(strChartValue));
+			commonEntity.put("y", Double.valueOf(strChartValue2));
+			
+			result.add(commonEntity);
 		}
 		
 		return result;
