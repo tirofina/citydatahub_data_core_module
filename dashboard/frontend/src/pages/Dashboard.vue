@@ -146,6 +146,8 @@
                 :chartTitle="item.title"
                 :chartKey="`latest_map_${item.i}`"
               />
+              <HistogramChart class="chartWrapper" v-if="item.chartType === 'histogram'"
+                        :options="item.options" :chartData="item.data"/>
             </div>
           </div>
         </GridItem>
@@ -172,6 +174,7 @@
  * - LineChart,
  * - Doughnut,
  * - LatestMapChart
+ * - HistogramChart
  * - element-ui
  * @props props { ... }
  * @state data() { ... }
@@ -183,6 +186,7 @@ import BarChart from '@/components/Chart/BarChart';
 import PieChart from '@/components/Chart/PieChart';
 import CardChart from '@/components/Chart/CardChart';
 import LatestMapChart from '@/components/Chart/LatestMapChart';
+import HistogramChart from '@/components/Chart/HistogramChart';
 import AddWidgetPopup from "@/pages/Widgets/AddWidgetPopup";
 
 import {dashboardApi, widgetApi} from '@/moudules/apis';
@@ -210,7 +214,8 @@ export default {
     BarChart,
     LineChart,
     Doughnut,
-    LatestMapChart
+    LatestMapChart,
+    HistogramChart
   },
   data() {
     return {

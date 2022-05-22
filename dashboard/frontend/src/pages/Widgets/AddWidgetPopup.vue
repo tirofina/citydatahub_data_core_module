@@ -93,11 +93,12 @@
           >
             <div class="form-group">
               <label class="control-label">{{ $t('widget.entityInstanceID') }}</label>
+<!--              :multiple="isEntityIdMultiple && (['bar'].indexOf(formData['chartType']) > -1)"-->
               <el-select
                 class="mr-sm-2"
                 v-model="entityId"
-                :multiple="formData['dataType'] === 'last' && (['bar'].indexOf(formData['chartType']) > -1)"
-                :collapse-tags="formData['dataType'] === 'last'"
+                :multiple="isEntityIdMultiple"
+                :collapse-tags="isEntityIdMultiple"
                 size="small"
                 style="width: 100%;"
                 :placeholder="$t('message.selectOption')"
@@ -490,6 +491,9 @@ export default {
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
       return !chartAttribute || typeof chartAttribute === 'string';
+    },
+    isEntityIdMultiple() {
+      return this.formData['dataType'] === 'last';
     }
   },
   data() {
@@ -499,7 +503,7 @@ export default {
       time: null,
       times: [],
       timerel: null,
-      entityIds: [],
+      entityIds: [], // DummyData
       entityId: null,
       typeUri: null,
       typeUris: [],
@@ -806,6 +810,7 @@ export default {
       const {fullId, valueType} = data;
       this.formData.chartAttribute = fullId;
       this.validation.chartAttribute = valueType;
+      this.formData.chartUnit = null; // TODO 확인 필요 - attribute 값 변할 때마다 비워주기
     },
     onDataTypeChange(value) {
       this.entityId = null;
@@ -1069,6 +1074,12 @@ export default {
 
       if (chartType === 'map_latest') {
         this.formData.chartAttribute = 'map_latest';
+      }
+
+      // TODO 확인 필요
+      if (chartType === 'histogram') {
+        // TODO attribute가 Number인 경우에만
+        this.formData.extention1 = this.formData['chartUnit'];
       }
 
       // Save the chart size location.

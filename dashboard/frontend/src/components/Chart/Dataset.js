@@ -197,3 +197,31 @@ export const setLineChart = (lineData) => {
 
   return { labels: labels, datasets: datasets };
 };
+
+// Histogram History Chart dateset data binding
+export const setHistogramChartHistory = (barData) => {
+  const randomIndex = Math.floor(Math.random() * 13);
+  let labels = [];
+  let datasets = [];
+
+  //If you have two entity IDs, you need to create two data sets.
+  // barchart single id
+  let chartLabels = barData.entityIds;
+  chartLabels.forEach(entityId =>
+    datasets.push({
+      label: entityId,
+      data: [],
+      borderColor: color(randomIndex),
+      backgroundColor: transparentize(color(randomIndex), 0.5),
+      borderWidth: 1
+    }));
+
+  // Find and map the entity ID corresponding to the created data set.
+  // Data extract
+  // TODO 데이터 받아서 확인 필요
+  barData.data.forEach((item, index) => {
+    datasets.map(d => item.id === d.label && d.data.push(item.chartValue));
+    labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
+  });
+  return { labels: labels, datasets: datasets };
+};
