@@ -83,7 +83,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
      * @return CommonEntityVO (EntityFullVO)
      */
     @Override
-    public CommonEntityVO daoVOToFullRepresentationVO(DynamicEntityDaoVO dynamicEntityDaoVO, DataModelCacheVO dataModelCacheVO, boolean includeSysAttrs) {
+    public CommonEntityVO daoVOToFullRepresentationVO(DynamicEntityDaoVO dynamicEntityDaoVO, DataModelCacheVO dataModelCacheVO, boolean includeSysAttrs, List<String> attrs) {
 
         CommonEntityFullVO commonEntityFullVO = new CommonEntityFullVO();
         addDefaultFullRepresentationField(commonEntityFullVO, dynamicEntityDaoVO, dataModelCacheVO, includeSysAttrs);
@@ -111,7 +111,30 @@ public class RdbEntitySVC extends DefaultEntitySVC {
             commonEntityFullVO.putAll(resultMap);
         }
 
+        // attrs filtering 조건이 있을 경우 조회된 attributes 중 attrs 항목이 포함되었는지 체크
+        if (validateAttrsFiltering(attrs, commonEntityFullVO)) {
+            return null;
+        }
+
         return commonEntityFullVO;
+    }
+
+    private boolean validateAttrsFiltering(List<String> attrs, CommonEntityFullVO commonEntityFullVO) {
+        if(ValidateUtil.isEmptyData(attrs)) {
+           return false;
+        }
+
+        boolean isMatch = false;
+        for(String attr : attrs) {
+            if(commonEntityFullVO.containsKey(attr)) {
+                isMatch = true;
+                break;
+            }
+        }
+        if(isMatch) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -471,9 +494,9 @@ public class RdbEntitySVC extends DefaultEntitySVC {
      * @return CommonEntityVO (OffStreetParkingSimpleVO)
      */
     @Override
-    public CommonEntityVO daoVOToSimpleRepresentationVO(DynamicEntityDaoVO dynamicEntityDaoVO, DataModelCacheVO entitySchemaCacheVO) {
+    public CommonEntityVO daoVOToSimpleRepresentationVO(DynamicEntityDaoVO dynamicEntityDaoVO, DataModelCacheVO entitySchemaCacheVO, List<String> attrs) {
 
-        CommonEntityVO commonEntityVO = daoVOToFullRepresentationVO(dynamicEntityDaoVO, entitySchemaCacheVO, false);
+        CommonEntityVO commonEntityVO = daoVOToFullRepresentationVO(dynamicEntityDaoVO, entitySchemaCacheVO, false, attrs);
 
         if(commonEntityVO != null) {
             for (String key : commonEntityVO.keySet()) {
@@ -709,7 +732,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
         for (DynamicEntityDaoVO dynamicEntityDaoVO : entityDaoVOList) {
 
             // 1. options이 없을 경우 처리, Full Representation (normalizedHistory)
-            CommonEntityVO commonEntityVO = this.daoVOToFullRepresentationVO(dynamicEntityDaoVO, dataModelCacheVO, false);
+            CommonEntityVO commonEntityVO = this.daoVOToFullRepresentationVO(dynamicEntityDaoVO, dataModelCacheVO, false, null);
             if(commonEntityVO != null) {
                 commonEntityVOList.add(commonEntityVO);
 
