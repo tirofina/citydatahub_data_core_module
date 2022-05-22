@@ -54,7 +54,7 @@ public class SubscriptionSVC {
      * @param subscriptionVO
      * @param isCreateMode
      */
-    private void validateCreateAndUpdateParameter(SubscriptionVO subscriptionVO, Boolean isCreateMode) {
+    private void validateCreateAndUpdateParameter(SubscriptionVO subscriptionVO, Boolean isCreateMode, List<String> links) {
 
         //생성 시에만 사용되는 유효성 체크
 
@@ -208,7 +208,7 @@ public class SubscriptionSVC {
         }
 
         // information 및 location 필드 유효성 체크
-        validateParameterByContext(subscriptionVO);
+        validateParameterByContext(subscriptionVO, links);
 
     }
 
@@ -220,7 +220,7 @@ public class SubscriptionSVC {
      * @throws Exception
      */
     @Transactional(value = "dataSourceTransactionManager")
-    public Integer createSubscription(SubscriptionVO subscriptionVO) throws Exception {
+    public Integer createSubscription(SubscriptionVO subscriptionVO, List<String> links) throws Exception {
 
         // 1. 구독 id가 없는 경우 생성
         if (ValidateUtil.isEmptyData(subscriptionVO.getId())) {
@@ -228,11 +228,11 @@ public class SubscriptionSVC {
         }
 
         // 2. 파라미터 유효성 체크
-        validateCreateAndUpdateParameter(subscriptionVO, true);
+        validateCreateAndUpdateParameter(subscriptionVO, true, links);
 
         // 3. csource 정보 생성
         SubscriptionBaseDaoVO subscriptionBaseDaoVO = subscriptionVoToBaseDaoVO(subscriptionVO);
-        List<SubscriptionEntitiesDaoVO> subscriptionVoToEntitiesDaoVOs = subscriptionVoToEntitiesDaoVO(subscriptionVO);
+        List<SubscriptionEntitiesDaoVO> subscriptionVoToEntitiesDaoVOs = subscriptionVoToEntitiesDaoVO(subscriptionVO, links);
 
         Integer object = subscriptionDAO.createSubscriptionBase(subscriptionBaseDaoVO);
 
@@ -312,9 +312,9 @@ public class SubscriptionSVC {
     }
 
     @Transactional(value = "dataSourceTransactionManager")
-    public Integer updateSubscription(String subscriptionId, SubscriptionVO subscriptionVO) throws Exception {
+    public Integer updateSubscription(String subscriptionId, SubscriptionVO subscriptionVO, List<String> links) throws Exception {
 
-        validateCreateAndUpdateParameter(subscriptionVO, false);
+        validateCreateAndUpdateParameter(subscriptionVO, false, links);
 
         SubscriptionVO retrieveVO = retrieveSubscription(subscriptionId);
 
@@ -368,7 +368,7 @@ public class SubscriptionSVC {
         SubscriptionBaseDaoVO subscriptionBaseDaoVO = subscriptionVoToBaseDaoVO(subscriptionVO);
         subscriptionBaseDaoVO.setSubscriptionId(subscriptionId);
 
-        List<SubscriptionEntitiesDaoVO> subscriptionEntitiesDaoVOs = subscriptionVoToEntitiesDaoVO(subscriptionVO);
+        List<SubscriptionEntitiesDaoVO> subscriptionEntitiesDaoVOs = subscriptionVoToEntitiesDaoVO(subscriptionVO, links);
 
         Integer result = subscriptionDAO.updateSubscriptionBase(subscriptionBaseDaoVO);
 
@@ -472,7 +472,7 @@ public class SubscriptionSVC {
         return subscriptionBaseDaoVO;
     }
 
-    private List<SubscriptionEntitiesDaoVO> subscriptionVoToEntitiesDaoVO(SubscriptionVO subscriptionVO) {
+    private List<SubscriptionEntitiesDaoVO> subscriptionVoToEntitiesDaoVO(SubscriptionVO subscriptionVO, List<String> links) {
 
         List<SubscriptionVO.EntityInfo> entityInfos = subscriptionVO.getEntities();
         List<SubscriptionEntitiesDaoVO> subscriptionEntitiesDaoVOs = new ArrayList<>();
@@ -481,6 +481,7 @@ public class SubscriptionSVC {
             return null;
         }
 
+        List<String> context = subscriptionVO.getContext() != null ? subscriptionVO.getContext() : links;
         for (SubscriptionVO.EntityInfo entityInfo : entityInfos) {
             String type = entityInfo.getType();
 
@@ -493,7 +494,7 @@ public class SubscriptionSVC {
                     throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATAMODEL, "Not exists entities.type.");
                 }
 
-                dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(subscriptionVO.getContext(), type);
+                dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(context, type);
                 if (dataModelCacheVO == null) {
                     throw new NgsiLdNoExistTypeException(DataServiceBrokerCode.ErrorCode.NOT_EXISTS_DATAMODEL, "Invalid entities.type. type=" + type);
                 }
@@ -549,10 +550,11 @@ public class SubscriptionSVC {
     }
 
 
-    private void validateParameterByContext(SubscriptionVO subscriptionVO) {
+    private void validateParameterByContext(SubscriptionVO subscriptionVO, List<String> links) {
+        List<String> context = subscriptionVO.getContext() != null ? subscriptionVO.getContext() : links;
         Map<String, String> contextMap = null;
-        if(!ValidateUtil.isEmptyData(subscriptionVO.getContext())) {
-            contextMap = dataModelManager.contextToFlatMap(subscriptionVO.getContext());
+        if(!ValidateUtil.isEmptyData(context)) {
+            contextMap = dataModelManager.contextToFlatMap(context);
         }
 
         // validate entity type

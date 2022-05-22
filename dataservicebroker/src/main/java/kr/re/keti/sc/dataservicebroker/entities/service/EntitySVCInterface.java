@@ -40,14 +40,14 @@ public interface EntitySVCInterface<T1 extends CommonEntityFullVO, T2 extends Co
 	 * @param daoVO (EntityDaoVO)
 	 * @return CommonEntityVO (EntityFullVO)
 	 */
-	public CommonEntityVO daoVOToFullRepresentationVO(T2 daoVO, DataModelCacheVO dataModelCacheVO, boolean includeSysAttrs);
+	public CommonEntityVO daoVOToFullRepresentationVO(T2 daoVO, DataModelCacheVO dataModelCacheVO, boolean includeSysAttrs, List<String> attrs);
 
 	/**
      * DB조회 결과인 daoVO 를 SimplifiedRepresentationVO 로 변환 (* options=KeyValues)
      * @param daoVO (EntityDaoVO)
      * @return CommonEntityVO (EntitySimpleVO)
      */
-	public CommonEntityVO daoVOToSimpleRepresentationVO(T2 daoVO, DataModelCacheVO dataModelCacheVO);
+	public CommonEntityVO daoVOToSimpleRepresentationVO(T2 daoVO, DataModelCacheVO dataModelCacheVO, List<String> attrs);
 
 	/**
      * DB조회 결과인 daoVO 를 temporal 기본 규격으로 변환

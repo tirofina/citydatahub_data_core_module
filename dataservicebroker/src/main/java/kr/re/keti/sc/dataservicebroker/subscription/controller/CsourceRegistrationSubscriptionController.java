@@ -61,9 +61,11 @@ public class CsourceRegistrationSubscriptionController {
     @PostMapping("/csourceSubscriptions")
     public void createContextSourceRegistrationSubscription(HttpServletRequest request, 
     														HttpServletResponse response,
+                                                            @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
+                                                            @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
     														@RequestBody SubscriptionVO subscriptionVO) throws Exception {
 
-        log.info("csourceSubscriptions request. subscriptionVO={}", subscriptionVO);
+        log.info("create csourceSubscriptions request. contentType={}, link={}, subscriptionVO={}", contentType, link, subscriptionVO);
 
         // 1. 파라미터 유효성 체크
         if (!subscriptionVO.getType().equalsIgnoreCase(DataServiceBrokerCode.JsonLdType.SUBSCRIPTION.getCode())) {
@@ -81,8 +83,12 @@ public class CsourceRegistrationSubscriptionController {
                 id = makeRandomCsourceRegistrationSubscriptionId();
                 subscriptionVO.setId(id);
             }
+
+            validateContext(subscriptionVO, contentType);
+
             // 2. 구독 생성 요청
-            result = subscriptionSVC.createSubscription(subscriptionVO);
+            List<String> links = HttpHeadersUtil.extractLinkUris(link);
+            result = subscriptionSVC.createSubscription(subscriptionVO, links);
         } catch (org.springframework.dao.DuplicateKeyException e) {
             throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.ALREADY_EXISTS, "Already Exists. csourceSubscriptionID=" + subscriptionVO.getId(), e);
         } catch (NgsiLdNoExistTypeException e) {
@@ -207,13 +213,20 @@ public class CsourceRegistrationSubscriptionController {
     @PatchMapping("/csourceSubscriptions/{subscriptionId}")
     public void updateSubscription(HttpServletRequest request,
                                    HttpServletResponse response,
+                                   @RequestHeader(value = HttpHeaders.CONTENT_TYPE, required = false) String contentType,
+                                   @RequestHeader(value = HttpHeaders.LINK, required = false) String link,
                                    @PathVariable("subscriptionId") String subscriptionId,
                                    @RequestBody SubscriptionVO subscriptionVO) throws Exception {
 
-        log.info("delete csourceSubscriptions request. subscriptionId={}, subscriptionVO={}", subscriptionId, subscriptionVO);
+        log.info("update csourceSubscription request. contentType={}, link={}, subscriptionVO={}, subscriptionId={}",
+                contentType, link, subscriptionVO, subscriptionId);
 
-        // 1. 구독 업데이트
-        Integer resultCnt = subscriptionSVC.updateSubscription(subscriptionId, subscriptionVO);
+        subscriptionVO.setId(subscriptionId);
+
+        validateContext(subscriptionVO, contentType);
+
+        List<String> links = HttpHeadersUtil.extractLinkUris(link);
+        Integer resultCnt = subscriptionSVC.updateSubscription(subscriptionId, subscriptionVO, links);
 
         if (resultCnt > 0) {
             response.setStatus(HttpStatus.NO_CONTENT.value());
@@ -235,5 +248,23 @@ public class CsourceRegistrationSubscriptionController {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String id = Constants.PREFIX_CSOURCE_REGISTRATION_SUBSCRIPTION_ID + uuid.substring(0, 10);
         return id;
+    }
+
+    private void validateContext(SubscriptionVO subscriptionVO, String contentType) {
+        // accept가 application/json 인 경우
+        if(Constants.APPLICATION_JSON_VALUE.equals(contentType)) {
+            // contentType이 application/json인 경우 @context 입력불가
+            if(!ValidateUtil.isEmptyData(subscriptionVO.getContext())) {
+                throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                        "Invalid Request Content. @context parameter cannot be used in contentType=application/json");
+            }
+
+            // accept가 application/ld+json 인 경우
+        } else if(Constants.APPLICATION_LD_JSON_VALUE.equals(contentType)) {
+            if(ValidateUtil.isEmptyData(subscriptionVO.getContext())) {
+                throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
+                        "Invalid Request Content. @context is empty. contentType=application/ld+json");
+            }
+        }
     }
 }

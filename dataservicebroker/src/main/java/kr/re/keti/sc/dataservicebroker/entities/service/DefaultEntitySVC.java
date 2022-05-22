@@ -2357,41 +2357,54 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
         }
 
         if(ValidateUtil.isEmptyData(queryVO.getType())) {
-
             List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
-
-            if (dataModelCacheVOs == null) {
-                throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not exist entityTypes. Link=" + String.join(",", queryVO.getLinks()));
-            }
-
-            List<CommonEntityVO> totalCommonEntityVOs = new ArrayList<>();
-
-            for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-                if(dataModelCacheVO.getCreatedStorageTypes() != null
-                        && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-
-                    if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-                        log.warn("selectAll Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-                        continue;
-                    }
-
-                    QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
-                    innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
-                    innerQueryVO.setLinks(null);
-                    innerQueryVO.setOffset(queryVO.getOffset());
-                    innerQueryVO.setLimit(queryVO.getLimit());
-                    List<CommonEntityVO> commonEntityVOs = this.selectAllWithType(innerQueryVO, accept);
-                    if (!ValidateUtil.isEmptyData(commonEntityVOs)) {
-                        totalCommonEntityVOs.addAll(commonEntityVOs);
-                    }
+            return selectAllWithMultiType(dataModelCacheVOs, queryVO, accept);
+        } else if(queryVO.getType().contains(",")) {
+            String[] typeArrs = queryVO.getType().split(",");
+            List<DataModelCacheVO> dataModelCacheVOs = new ArrayList<>();
+            for(String type : typeArrs) {
+                DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(queryVO.getLinks(), type);
+                if(dataModelCacheVO != null) {
+                    dataModelCacheVOs.add(dataModelCacheVO);
                 }
             }
-
-            Collections.sort(totalCommonEntityVOs);
-            return extractSubListWithoutType(totalCommonEntityVOs, queryVO.getLimit(), queryVO.getOffset());
+            return selectAllWithMultiType(dataModelCacheVOs, queryVO, accept);
         } else {
             return selectAllWithType(queryVO, accept);
         }
+    }
+
+    private List<CommonEntityVO> selectAllWithMultiType(List<DataModelCacheVO> dataModelCacheVOs, QueryVO queryVO, String accept) {
+
+        if (ValidateUtil.isEmptyData(dataModelCacheVOs)) {
+            throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not exist entityTypes. type=" + queryVO.getType() + ", Link=" + queryVO.getLinks());
+        }
+
+        List<CommonEntityVO> totalCommonEntityVOs = new ArrayList<>();
+
+        for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
+            if(dataModelCacheVO.getCreatedStorageTypes() != null
+                    && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+
+                if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                    log.warn("selectAll Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                    continue;
+                }
+
+                QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
+                innerQueryVO.setLinks(null);
+                innerQueryVO.setOffset(queryVO.getOffset());
+                innerQueryVO.setLimit(queryVO.getLimit());
+                List<CommonEntityVO> commonEntityVOs = this.selectAllWithType(innerQueryVO, accept);
+                if (!ValidateUtil.isEmptyData(commonEntityVOs)) {
+                    totalCommonEntityVOs.addAll(commonEntityVOs);
+                }
+            }
+        }
+
+        Collections.sort(totalCommonEntityVOs);
+        return extractSubListWithoutType(totalCommonEntityVOs, queryVO.getLimit(), queryVO.getOffset());
     }
 
     public List<CommonEntityVO> selectAllWithType(QueryVO queryVO, String accept) {
@@ -2421,7 +2434,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 // 2. options 조건에 따라 분기 처리
                 if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.KEY_VALUES.getCode())) {
                     // options = keyValues 일 경우 처리, Simplified Representation
-                    commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO);
+                    commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO, queryVO.getAttrs());
                 } else {
 
                     boolean includeSysAttrs = false;
@@ -2429,7 +2442,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                         includeSysAttrs = true;
                     }
                     // options이 없을 경우 처리, Full Representation
-                    commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs);
+                    commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs, queryVO.getAttrs());
                 }
 
                 // 3. 요청 header의 accept가 'application/ld+json' 일 경우 @context 정보 추가
@@ -2499,7 +2512,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             // 4. options 조건에 따라 분기 처리
             if (queryVO.getOptions() != null && queryVO.getOptions().contains(RetrieveOptions.KEY_VALUES.getCode())) {
                 // options = keyValues 일 경우 처리, Simplified Representation
-                commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO);
+                commonEntityVO = this.daoVOToSimpleRepresentationVO(entityDaoVO, dataModelCacheVO, queryVO.getAttrs());
 
             } else {
 
@@ -2508,7 +2521,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                     includeSysAttrs = true;
                 }
                 // options이 없을 경우 처리, Full Representation
-                commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs);
+                commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs, queryVO.getAttrs());
             }
         }
 
@@ -2728,40 +2741,55 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         if(ValidateUtil.isEmptyData(queryVO.getType())) {
             List<DataModelCacheVO> dataModelCacheVOs = dataModelManager.getTargetDataModelByQueryUri(queryVO.getLinks(), queryVO);
-            if (dataModelCacheVOs == null) {
-                throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityTypes . Context=" + String.join(",", queryVO.getLinks()));
-            }
+            return getEntityCountWithMultiType(queryVO, dataModelCacheVOs);
 
-            Integer totalCount = 0;
-
-            try {
-                for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
-                    if(dataModelCacheVO.getCreatedStorageTypes() != null
-                            && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
-
-                        if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
-                            log.warn("SelectCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
-                            continue;
-                        }
-
-                        QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
-                        innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
-                        innerQueryVO.setLinks(null);
-                        Integer cnt = this.getEntityCountWithType(innerQueryVO);
-                        if (!ValidateUtil.isEmptyData(cnt)) {
-                            totalCount = totalCount + cnt;
-                        }
-                    }
+        } else if(queryVO.getType().contains(",")) {
+            String[] typeArrs = queryVO.getType().split(",");
+            List<DataModelCacheVO> dataModelCacheVOs = new ArrayList<>();
+            for(String type : typeArrs) {
+                DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheByContext(queryVO.getLinks(), type);
+                if(dataModelCacheVO != null) {
+                    dataModelCacheVOs.add(dataModelCacheVO);
                 }
-            } catch (NgsiLdBadRequestException ne) {
-                log.warn("selectCount error", ne);
             }
-
-            // Entity 목록 건수 조회
-            return totalCount;
+            return getEntityCountWithMultiType(queryVO, dataModelCacheVOs);
         } else {
             return getEntityCountWithType(queryVO);
         }
+    }
+
+    private Integer getEntityCountWithMultiType(QueryVO queryVO, List<DataModelCacheVO> dataModelCacheVOs) {
+        if (dataModelCacheVOs == null) {
+            throw new NgsiLdBadRequestException(ErrorCode.NOT_EXIST_ENTITY, "Not Exist EntityTypes . Context=" + String.join(",", queryVO.getLinks()));
+        }
+
+        Integer totalCount = 0;
+
+        try {
+            for (DataModelCacheVO dataModelCacheVO : dataModelCacheVOs) {
+                if(dataModelCacheVO.getCreatedStorageTypes() != null
+                        && dataModelCacheVO.getCreatedStorageTypes().contains(this.getStorageType())) {
+
+                    if(dataModelCacheVO.getDataModelVO().getTypeUri() == null) {
+                        log.warn("SelectCount Invalid DataModel. typeUri is null. dataModelId={}", dataModelCacheVO.getDataModelVO().getId());
+                        continue;
+                    }
+
+                    QueryVO innerQueryVO = (QueryVO) SerializationUtils.clone(queryVO);
+                    innerQueryVO.setType(dataModelCacheVO.getDataModelVO().getTypeUri());
+                    innerQueryVO.setLinks(null);
+                    Integer cnt = this.getEntityCountWithType(innerQueryVO);
+                    if (!ValidateUtil.isEmptyData(cnt)) {
+                        totalCount = totalCount + cnt;
+                    }
+                }
+            }
+        } catch (NgsiLdBadRequestException ne) {
+            log.warn("selectCount error", ne);
+        }
+
+        // Entity 목록 건수 조회
+        return totalCount;
     }
 
 
