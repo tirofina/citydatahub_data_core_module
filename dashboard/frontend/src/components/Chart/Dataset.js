@@ -96,6 +96,44 @@ export const lineChartOptions = (option) => {
   };
 };
 
+// Histogram Chart options
+// TODO 확인 필요
+export const histogramChartOptions = (option) => {
+  // https://www.chartjs.org/docs/latest/getting-started/v3-migration.html
+  // TODO tooltip 적용 필요
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: {
+      display: true,
+    },
+    scales: {
+      xAxes: [{
+        display: false,
+        barPercentage: 1,
+        ticks: {
+          max: 10, // 데이터 개수 -1 설정 필요
+        }
+      }, {
+        display: true,
+        ticks: {
+          autoSkip: true,
+          max: 11, // 데이터 개수 설정 필요
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    },
+    title: {
+      display: true,
+      text: option.title
+    }
+  };
+};
+
 // Donut, Pie Chart dateset data binding
 export const setDonutChart = (donutData) => {
   const rendomIndex = Math.floor(Math.random() * 13);
@@ -199,29 +237,77 @@ export const setLineChart = (lineData) => {
 };
 
 // Histogram History Chart dateset data binding
-export const setHistogramChartHistory = (barData) => {
-  const randomIndex = Math.floor(Math.random() * 13);
-  let labels = [];
+// TODO 데이터 받아서 확인 필요
+export const setHistogramChartHistory = (histogramData) => {
+  let randomIndex = Math.floor(Math.random() * 13);
+  let labels = [0];
   let datasets = [];
+
+  // colors
 
   //If you have two entity IDs, you need to create two data sets.
   // barchart single id
-  let chartLabels = barData.entityIds;
+  let chartLabels = histogramData.entityIds;
   chartLabels.forEach(entityId =>
     datasets.push({
       label: entityId,
       data: [],
-      borderColor: color(randomIndex),
-      backgroundColor: transparentize(color(randomIndex), 0.5),
-      borderWidth: 1
+      borderColor: [],
+      // borderColor: color(randomIndex),
+      backgroundColor: [],
+      // backgroundColor: transparentize(color(randomIndex), 0.5),
+      borderWidth: 1,
+      barPercentage: 1, // 공백 없게
+      categoryPercentage: 1, // 공백 없게
     }));
 
   // Find and map the entity ID corresponding to the created data set.
   // Data extract
-  // TODO 데이터 받아서 확인 필요
-  barData.data.forEach((item, index) => {
-    datasets.map(d => item.id === d.label && d.data.push(item.chartValue));
-    labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
+  histogramData.data.forEach((item, index) => {
+    datasets.map(d => item.id === d.label && d.data.push(item.chartValue.y));
+    datasets.forEach(d => {
+      if (item.id === d.label) {
+        d.data.push(item.chartValue.y);
+        randomIndex = Math.floor(Math.random() * 13);
+        d.borderColor.push(color(randomIndex));
+        d.backgroundColor.push(transparentize(color(randomIndex), 0.5));
+      }
+    });
+      // datasets.map(d => item.id === d.label && d.data.push(item.chartValue.y));
+    // labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
+    labels.push(item.chartValue.x);
+  });
+  return {
+    labels: labels,
+    datasets: datasets
+  };
+};
+
+// Histogram Last Chart dateset data binding
+// TODO 데이터 받아서 확인 필요
+export const setHistogramChartLast = (histogramData) => {
+  const rendomIndex = Math.floor(Math.random() * 13);
+  let labels = [];
+  let datasets = [];
+  let data = [];
+  let bgColor = [];
+  let borderColor = [];
+
+  // Setting the data according to the received array value.
+  histogramData.data.forEach((item, index) => {
+    labels.push(item.id);
+    data.push(item.chartValue);
+    bgColor.push(transparentize(color(rendomIndex + index), 0.5));
+    borderColor.push(color(rendomIndex + index));
+  });
+  datasets.push({
+    label: histogramData.attributeId,
+    data: data,
+    borderColor: borderColor,
+    backgroundColor: bgColor,
+    borderWidth: 1,
+    barPercentage: 1, // 공백 없게
+    categoryPercentage: 1, // 공백 없게
   });
   return { labels: labels, datasets: datasets };
 };

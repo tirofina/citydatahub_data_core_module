@@ -195,9 +195,12 @@ import {
   setBarChartLast,
   setBarChartHistory,
   setLineChart,
+  setHistogramChartHistory,
+  setHistogramChartLast,
   chartOptions,
   barChartOptions,
-  lineChartOptions
+  lineChartOptions,
+  histogramChartOptions,
 } from '@/components/Chart/Dataset';
 
 const GridLayout = VueGridLayout.GridLayout;
@@ -547,7 +550,42 @@ export default {
               this.index++;
             });
           }
+        })
+      .finally(() => {
+
+        // TODO 더미데이터 셋팅
+        const socketData = {
+          // entityIds: ["AAA", "BBB", "CCC"],
+          entityIds: ["AAA"],
+          data: [
+            // TODO 예제로 주신건 chartjs 3버전이라서 2 버전으로 하고자 하면 chartValue 단일 리스트 필요
+            // x가 나누고자 하던 항목 단위에서, 종료 값? 으로 변경 필요
+            // https://www.educative.io/edpresso/chartjs---create-a-histogram
+            // https://stackoverflow.com/questions/51880101/make-a-histogram-in-chart-js
+            {id: 'AAA', chartValue: {x: 1, y: 100}},
+            {id: 'AAA', chartValue: {x: 2, y: 100}},
+            {id: 'AAA', chartValue: {x: 3, y: 300}},
+            {id: 'AAA', chartValue: {x: 4, y: 200}},
+            {id: 'AAA', chartValue: {x: 5, y: 200}},
+            {id: 'AAA', chartValue: {x: 6, y: 200}},
+            {id: 'AAA', chartValue: {x: 7, y: 200}},
+            {id: 'AAA', chartValue: {x: 8, y: 200}},
+            {id: 'AAA', chartValue: {x: 9, y: 200}},
+            {id: 'AAA', chartValue: {x: 10, y: 200}},
+            {id: 'AAA', chartValue: {x: 11, y: 200}},
+            // {id: 'BBB', chartValue: 300},
+            // {id: 'CCC', chartValue: 200},
+          ]
+        }
+        const resultData = setHistogramChartHistory(socketData);
+        this.layout.forEach(item => {
+          if (item.chartType === 'histogram') {
+            item.data = resultData;
+            item.options = histogramChartOptions(item);
+            // item.options = barChartOptions(item);
+          }
         });
+      });
     },
     getBase64Image(index, file, name) {
       const url = `data:image/png;base64,${file}`
