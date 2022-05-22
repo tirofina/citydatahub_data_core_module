@@ -7,6 +7,7 @@ import Router from 'vue-router';
 
 import DataModelView from '@/views/datamodel/DataModelView';
 import DatasetView from '@/views/dataset/DatasetView';
+import AccessControlView from '@/views/accessControl/AccessControl';
 import VerificationHistoryView from '@/views/verification/VerificationHistoryView';
 import VerificationModifyView from '@/views/verification/VerificationModifyView';
 import UserManageView from '@/views/system/UserManageView';
@@ -16,6 +17,7 @@ import MenuRoleManageView from '@/views/system/MenuRoleManageView';
 import DataModelModView from '@/views/datamodel/DataModelModView';
 
 import DatasetModView from '@/views/dataset/DatasetModView';
+import AccessControlModView from '@/views/accessControl/AccessControlModView';
 import ProvisionServerView from '@/views/provision/ProvisionServerView';
 import ProvisionServerModView from '@/views/provision/ProvisionServerModView';
 import ExternalPlatformView from '@/views/platform/ExternalPlatformView';
@@ -71,6 +73,22 @@ export default new Router({
       component: DatasetModView,
       meta: {
         breadcrumb: ['데이터 셋 관리', '데이터 셋 정보 상세']
+      }
+    },
+    {
+      path: '/accessControl',
+      name: 'AccessControl',
+      component: AccessControlView,
+      meta: {
+        breadcrumb: ['데이터 접근 제어 관리', '데이터 접근제어 관리 정보']
+      }
+    },
+    {
+      path: '/accessControlMod',
+      name: 'AccessControlMod',
+      component: AccessControlModView,
+      meta: {
+        breadcrumb: ['데이터 접근 제어 관리', '데이터 접근제어 관리 정보 상세']
       }
     },
     {

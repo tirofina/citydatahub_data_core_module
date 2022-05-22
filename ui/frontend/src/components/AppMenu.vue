@@ -2,12 +2,12 @@
   <!-- aside -->
   <div class="aside">
     <div class="aside__header">
-<!--      <h1 class="aside__logo" style="margin-top: 0;">-->
-<!--        <a href="/"><span class="hidden">Smart City Hub</span></a>-->
-<!--      </h1>-->
-      <a href="/">
-        <img src="../assets/img/city_data_hub_logo_W.png" alt="" />
-      </a>
+      <h1 class="aside__logo" style="margin-top: 0;">
+        <a href="/"><span class="hidden">Smart City Hub</span></a>
+      </h1>
+<!--      <a href="/">-->
+<!--        <img src="../assets/img/city_data_hub_logo_W.png" alt="" />-->
+<!--      </a>-->
     </div>
     <div class="aside__content">
       <h2 class="hidden">주메뉴</h2>
