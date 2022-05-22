@@ -9,15 +9,15 @@
     <p class="text__total">총 {{ totalCount }}건</p>
     <AppTable
         :meta-data="tableFields"
-        :table-items="datasetList"
+        :table-items="accessControls"
         @on-row-event="onDetailView"
     >
       <template v-slot:pagination>
         <AppPagination
             :total-count="totalCount"
             :pagination-value="15"
-            :items="datasetList"
-            @on-page-click="getDatasetList"
+            :items="accessControls"
+            @on-page-click="getAccessControlList"
         />
       </template>
       <template v-slot:buttons>
@@ -72,7 +72,7 @@ import AppForm from '@/components/AppForm';
 import * as Fields from '@/modules/meta-fields';
 import { APIHandler } from '@/modules/api-handler';
 import { mapMutations, mapState } from 'vuex';
-import { errorRender } from "@/modules/utils";
+import { dateFormat, errorRender } from '@/modules/utils';
 
 export default {
   name: 'DatasetView',
@@ -84,6 +84,8 @@ export default {
     AppTable,
     SmartSearch
   },
+
+
   data() {
     return {
       isShow: false,
@@ -92,13 +94,13 @@ export default {
       formFields: Fields.DATASET_SEARCH_FIELDS,
       tableFields: [
         { name: 'id', displayName: '접근제어 ID', require: false, col: 15 },
-        { name: 'name', displayName: '리소스 ID', require: false, col: 15 },
-        { name: 'updateInterval', displayName: '리소스 유형', require: false, col: 10 },
-        { name: 'category', displayName: '사용자 ID', require: false, col: 10 },
-        { name: 'providerSystem', displayName: 'condition', require: false, col: 15 },
-        { name: 'qualityCheckEnabled', displayName: 'operation', require: false, col: 10 },
+        { name: 'resourceId', displayName: '리소스 ID', require: false, col: 15 },
+        { name: 'resourceType', displayName: '리소스 유형', require: false, col: 10 },
+        { name: 'userId', displayName: '사용자 ID', require: false, col: 10 },
+        { name: 'condition', displayName: 'condition', require: false, col: 15 },
+        { name: 'operation', displayName: 'operation', require: false, col: 10 },
         { name: 'createdAt', displayName: '생성시간', require: false, col: 15 },
-        { name: 'modifyAt', displayName: '수정시간', require: false, col: 15 },
+        { name: 'modifiedAt', displayName: '수정시간', require: false, col: 15 },
       ],
       accessControls: [],
       formData: { dataStoreUri: [] },
@@ -165,10 +167,21 @@ export default {
 
       this.$http.get(APIHandler.buildUrl([queryStr]))
           .then(response => {
-            const items = response.data.dataSetResponseVO;
+            const items = response.data.aclRuleResponseVOs;
             const totalCnt = response.data.totalCount;
             if (items && items !== '') {
-              console.log(items);
+              this.accessControls = items.map(item => {
+                return {
+                  id: item.id,
+                  resourceId: item.resourceId,
+                  resourceType: item.resourceType,
+                  userId: item.userId,
+                  condition: item.condition,
+                  operation: item.operation,
+                  createdAt: dateFormat(new Date(item.createdAt), 'yyyy-MM-dd HH:mm:ss'),
+                  modifiedAt: dateFormat(new Date(item.modifiedAt), 'yyyy-MM-dd HH:mm:ss'),
+                }
+              });
               this.totalCount = totalCnt;
               // this.setDataSetList(items);
             } else {
@@ -184,7 +197,7 @@ export default {
     },
     onDetailView(item) {
       this.$router.push({
-        name: 'DatasetModView',
+        name: 'AccessControlMod',
         query: {
           id: item.id,
           mode: 'mod'
