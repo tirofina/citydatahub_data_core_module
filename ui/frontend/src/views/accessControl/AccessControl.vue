@@ -61,7 +61,7 @@
 
 <script>
 /**
- * Dataset list view page (container)
+ * Access Control list view page (container)
  */
 import AppTable from '@/components/AppTable';
 import AppPagination from '@/components/AppPagination';
@@ -69,13 +69,12 @@ import AppButtons from '@/components/AppButtons';
 import AppModal from '@/components/AppModal';
 import SmartSearch from '@/components/SmartSearch';
 import AppForm from '@/components/AppForm';
-import * as Fields from '@/modules/meta-fields';
 import { APIHandler } from '@/modules/api-handler';
 import { mapMutations, mapState } from 'vuex';
 import { dateFormat, errorRender } from '@/modules/utils';
 
 export default {
-  name: 'DatasetView',
+  name: 'AccessControl',
   components: {
     AppForm,
     AppModal,
@@ -91,7 +90,16 @@ export default {
       isShow: false,
       isAlertShow: false,
       modalText: null,
-      formFields: Fields.DATASET_SEARCH_FIELDS,
+      formFields: [
+        [{ name: 'resourceId', displayName: '리소스 ID', type: 'text', require: false },
+          { name: 'resourceType', displayName: '리소스 유형', type: 'choice', require: false,
+            choices: [
+              { value: 'DATASET', displayName: 'DATASET' }
+            ]}
+        ],
+        [{ name: 'userId', displayName: '사용자 ID', type: 'text', require: false },
+          { name: 'clientId', displayName: 'Client ID', type: 'text', require: false }]
+      ],
       tableFields: [
         { name: 'id', displayName: '접근제어 ID', require: false, col: 15 },
         { name: 'resourceId', displayName: '리소스 ID', require: false, col: 15 },
@@ -103,7 +111,7 @@ export default {
         { name: 'modifiedAt', displayName: '수정시간', require: false, col: 15 },
       ],
       accessControls: [],
-      formData: { dataStoreUri: [] },
+      formData: { resourceId: '', resourceType: '', userId: '', clientId: '' },
       totalCount: 0,
     }
   },
@@ -127,11 +135,11 @@ export default {
     onClose() {
       this.isShow = false;
       this.isAlertShow = false;
-      this.formData = { dataStoreUri: [] };
+      this.formData = { resourceId: '', resourceType: '', userId: '', clientId: '' };
     },
     onCreate() {
       this.$router.push({
-        name: 'DatasetModView',
+        name: 'AccessControlMod',
         query: {
           mode: 'add'
         }
@@ -139,12 +147,13 @@ export default {
     },
     onSearch() {
       this.isShow = false;
-      this.setDataSetInfoSearchData(this.formData);
-      this.getDatasetList('search');
+      // this.setDataSetInfoSearchData(this.formData);
+      this.getAccessControlList('search');
     },
     onDataTableAdd(data) {
-      const { value } = data;
-      this.formData.dataStoreUri.push(value);
+      console.log(data);
+      // const { value } = data;
+      // this.formData.dataStoreUri.push(value);
     },
     onDataTableDel(data) {
       const { value } = data;
@@ -206,7 +215,7 @@ export default {
     }
   },
   mounted() {
-    this.formData = this.dataSetInfoSearchData;
+    // this.formData = this.dataSetInfoSearchData;
     this.setDataModelSearchData({});
     this.setDataSetFlowSearchData({});
     this.setVerificationHistorySearchData({});
