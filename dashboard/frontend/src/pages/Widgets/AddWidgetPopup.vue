@@ -676,7 +676,9 @@ export default {
             return result.push({value: item, text: item, disabled: false});
           });
           this.entityIds = result;
-          this.entityIds.at(0).disabled = this.formData.dataType === 'history' && this.formData.chartType === 'bar';
+          // TODO 검증 필요
+          const {dataType, chartType} = this.formData;
+          this.entityIds.at(0).disabled = dataType === 'history' && (chartType === 'bar' || chartType === 'histogram');
 
           return true;
         }).then(hasEntityIds => {
@@ -823,8 +825,9 @@ export default {
     onDataTypeChange(value) {
       this.entityId = null;
       if (this.entityIds.length > 0) {
-        // TODO histogram 일때??
-        this.entityIds.at(0).disabled = value === 'history' && this.formData['chartType'] === 'bar';
+        // TODO 검증 필요
+        const {dataType, chartType} = this.formData;
+        this.entityIds.at(0).disabled = dataType === 'history' && (chartType === 'bar' || chartType === 'histogram');
       }
       // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
       if (this.formData.chartType === 'histogram') {
@@ -839,6 +842,7 @@ export default {
         if (value === 'history') {
           displayOption.time = true;
           displayOption.timerel = true;
+          this.dynamicQuery = {};
         }
         this.initDisplay(displayOption);
       }
@@ -862,6 +866,7 @@ export default {
       this.dataModelDisabled = {dataModelId: this.isModify, typeUri: true};
     },
     onSelectedEntity(array) {
+      // TODO 확인필요
       if (this.dataType === 'history') {
         let newArr = [];
         let text = null;
@@ -931,7 +936,7 @@ export default {
           });
           break;
         case 'line' :
-          this.formData.dataType = 'history';
+          this.formData.dataType = this.formData.dataType || 'history';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
@@ -982,7 +987,7 @@ export default {
           this.getLatestList();
           break;
         case 'histogram' :
-          this.formData.dataType = 'history';
+          this.formData.dataType = this.formData.dataType || 'history';
           this.initDisplay({
             chartType: true,
             typeUri: true,
@@ -1041,7 +1046,7 @@ export default {
         return;
       }
 
-      if (chartType === 'pie' || chartType === 'donut') {
+      if (chartType === 'pie' || chartType === 'donut' || chartType === 'histogram') {
         Object.keys(this.dynamicQuery).map(key => {
           this.dynamicQuery[key].forEach(item => {
             query.push(item);
@@ -1148,7 +1153,7 @@ export default {
         return null;
       }
 
-      if (chartType !== 'line' && chartType !== 'bar' && chartType !== 'custom_text') {
+      if (chartType !== 'line' && chartType !== 'bar' && chartType !== 'custom_text' && chartType !== 'histogram') {
         this.formData.dataType = 'last';
       }
 
