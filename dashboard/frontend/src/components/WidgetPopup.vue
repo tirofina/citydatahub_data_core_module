@@ -31,7 +31,8 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="visibleSearchOption" label="상세 검색" name="second">
+        <!-- TODO 상세 검색 적용 안됨 -->
+        <el-tab-pane v-if="visibleSearchOption" :label="$t('widget.searchDetails')" name="second">
           <div class="col-12 row mt-4">
             <slot name="searchOption"></slot>
           </div>

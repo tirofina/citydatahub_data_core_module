@@ -43,6 +43,7 @@
     "dashboardDescription": "To configure each widget, double click on the right-top corner.",
     "defaultWidgetTitle": "Provide widget title here.",
     "fileMaxDescription": "Max 10MB JPG or PNG file is allowed.",
+    "fileExist": "이미 등록된 파일이 있습니다. 삭제 후 재등록 가능합니다.",
     "selectOption": "Please select an option",
     "selectDateTime": "Select date and time",
     "ZeroEqualRefresh": "0 means no refresh",
@@ -65,7 +66,8 @@
     "saved": "Saved.",
     "deleted": "Deleted.",
     "selectDataModels": "Select Data Model(s).",
-    "selectDataEntityIds": "Select Data Entity ID(s)."
+    "selectDataEntityIds": "Select Data Entity ID(s).",
+    "notSupportStringType": "해당 차트 유형에서는 String 타입의 차트 값을 선택할 수 없습니다."
   },
   "search": {
     "subscribe": "Subscribe",

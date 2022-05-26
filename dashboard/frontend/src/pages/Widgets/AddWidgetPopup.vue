@@ -609,7 +609,7 @@ export default {
         return null;
       }
       if (this.addList.length > 9) {
-        this.$alert('최대 10개 입력 가능합니다.', '', {
+        this.$alert(this.$i18n.t('message.enterMaxNum', [10]), '', {
           confirmButtonText: 'OK'
         });
         return null;
@@ -626,13 +626,13 @@ export default {
       });
     },
     handleExceed() {
-      this.$message.warning(`이미 등록된 파일이 있습니다. 삭제 후 재등록 가능합니다.`);
+      this.$message.warning(this.$i18n.t('message.fileExist'));
     },
     handleImageChange(file, fileList) {
       const isLt10M = file.size / 1024 / 1024 < 10;
 
       if (!isLt10M) {
-        this.$message.error('10MB 이하의 파일만 등록 가능합니다.');
+        this.$message.error('message.fileMaxDescription');
         this.imageFiles = [];
         this.imageFile = null;
       } else this.imageFile = file.raw;
@@ -1024,16 +1024,15 @@ export default {
       // start exceptions
 
       // 1. String value cannot be selected for chart-type widgets.
-      // TODO 다국어 처리 누락됨
       const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line';
       if (notPermitStrChartType && this.validation.chartAttribute === "STRING") {
-        this.$alert('해당 차트 유형에서는 String 타입의 차트 값을 선택할 수 없습니다.');
+        this.$alert(this.$i18n.t('message.notSupportStringType'));
         return;
       }
 
       // 2. Required verification of entity ID.
       if (!this.isEntityIdDisabled && this.display['entityId'] && this.entityId === null) {
-        this.$alert('엔티티 ID를 선택해주세요.');
+        this.$alert(this.$i18n.t('message.selectDataEntityIds'));
         return;
       }
 
