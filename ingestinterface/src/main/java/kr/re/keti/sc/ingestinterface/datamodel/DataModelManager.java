@@ -1,33 +1,7 @@
 package kr.re.keti.sc.ingestinterface.datamodel;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import kr.re.keti.sc.ingestinterface.jsonldcontext.service.JsonldContextSVC;
-import kr.re.keti.sc.ingestinterface.jsonldcontext.vo.JsonldContextBaseVO;
-import kr.re.keti.sc.ingestinterface.jsonldcontext.vo.JsonldContextCacheVO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import kr.re.keti.sc.ingestinterface.acl.rule.service.AclRuleSVC;
 import kr.re.keti.sc.ingestinterface.acl.rule.vo.AclRuleVO;
 import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode;
@@ -39,8 +13,26 @@ import kr.re.keti.sc.ingestinterface.datamodel.vo.DataModelBaseVO;
 import kr.re.keti.sc.ingestinterface.datamodel.vo.DataModelCacheVO;
 import kr.re.keti.sc.ingestinterface.dataset.service.DatasetSVC;
 import kr.re.keti.sc.ingestinterface.dataset.vo.DatasetBaseVO;
+import kr.re.keti.sc.ingestinterface.jsonldcontext.service.JsonldContextSVC;
+import kr.re.keti.sc.ingestinterface.jsonldcontext.vo.JsonldContextBaseVO;
+import kr.re.keti.sc.ingestinterface.jsonldcontext.vo.JsonldContextCacheVO;
 import kr.re.keti.sc.ingestinterface.util.ValidateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <pre>
@@ -268,19 +260,14 @@ public class DataModelManager {
 				continue;
 			}
 
-			if (aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.ALL) {
-
+			if(aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.AND) {
 				if (userId.equals(aclRuleVO.getUserId()) && clientId.equals(aclRuleVO.getClientId())) {
 					datasetIds.add(aclRuleVO.getResourceId());
 				}
-
-			} else if (aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.CLIENT_ID) {
-//                if (aclRuleVO.getUserId() == null && clientId.equals(aclRuleVO.getClientId())) {
+			} else if(aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.OR) {
 				if (clientId.equals(aclRuleVO.getClientId())) {
 					datasetIds.add(aclRuleVO.getResourceId());
 				}
-			} else if (aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.USER_ID) {
-//                if (userId.equals(aclRuleVO.getUserId()) && aclRuleVO.getClientId() == null) {
 				if (userId.equals(aclRuleVO.getUserId()) ) {
 					datasetIds.add(aclRuleVO.getResourceId());
 				}

@@ -497,19 +497,14 @@ public class DataModelManager {
                 continue;
             }
 
-            if (aclRuleVO.getCondition() == DataServiceBrokerCode.AclRuleCondition.ALL) {
-
+            if(aclRuleVO.getCondition() == DataServiceBrokerCode.AclRuleCondition.AND) {
                 if (userId.equals(aclRuleVO.getUserId()) && clientId.equals(aclRuleVO.getClientId())) {
                     datasetIds.add(aclRuleVO.getResourceId());
                 }
-
-            } else if (aclRuleVO.getCondition() == DataServiceBrokerCode.AclRuleCondition.CLIENT_ID) {
-//                if (aclRuleVO.getUserId() == null && clientId.equals(aclRuleVO.getClientId())) {
+            } else if(aclRuleVO.getCondition() == DataServiceBrokerCode.AclRuleCondition.OR) {
                 if (clientId.equals(aclRuleVO.getClientId())) {
                     datasetIds.add(aclRuleVO.getResourceId());
                 }
-            } else if (aclRuleVO.getCondition() == DataServiceBrokerCode.AclRuleCondition.USER_ID) {
-//                if (userId.equals(aclRuleVO.getUserId()) && aclRuleVO.getClientId() == null) {
                 if (userId.equals(aclRuleVO.getUserId()) ) {
                     datasetIds.add(aclRuleVO.getResourceId());
                 }

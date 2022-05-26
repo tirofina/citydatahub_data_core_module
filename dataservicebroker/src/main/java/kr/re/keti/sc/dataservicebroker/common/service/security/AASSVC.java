@@ -2,6 +2,7 @@ package kr.re.keti.sc.dataservicebroker.common.service.security;
 
 import kr.re.keti.sc.dataservicebroker.common.code.Constants;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
+import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
 import kr.re.keti.sc.dataservicebroker.common.vo.AASUserDetailsVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.QueryVO;
@@ -75,14 +76,14 @@ public class AASSVC {
         if (!isAdmin) {
             List<String> aclDatasetList = (List<String>) request.getAttribute(Constants.ACL_DATASET_IDS);
             if (aclDatasetList == null) {
-                throw new NgsiLdResourceNotFoundException(DataServiceBrokerCode.ErrorCode.NOT_EXIST_ID, "no dataset access available");
+                throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_AUTHORIZATION, "no dataset access available");
             }
             for (String aclDataset : aclDatasetList) {
                 if (datasetId.equalsIgnoreCase(aclDataset)) {
                     return;
                 }
             }
-            throw new NgsiLdResourceNotFoundException(DataServiceBrokerCode.ErrorCode.NOT_EXIST_ID, "no dataset access available");
+            throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_AUTHORIZATION, "no dataset access available");
         }
     }
 }

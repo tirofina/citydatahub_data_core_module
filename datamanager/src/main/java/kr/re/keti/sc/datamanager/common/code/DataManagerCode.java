@@ -890,12 +890,10 @@ public class DataManagerCode {
 
     public static enum AclRuleCondition {
 
-        @JsonProperty("ALL")
-        ALL("ALL"),
-        @JsonProperty("CLIENT_ID")
-        CLIENT_ID("CLIENT_ID"),
-        @JsonProperty("USER_ID")
-        USER_ID("USER_ID");
+        @JsonProperty("AND")
+        AND("AND"),
+        @JsonProperty("OR")
+        OR("OR");
 
         private String code;
 
