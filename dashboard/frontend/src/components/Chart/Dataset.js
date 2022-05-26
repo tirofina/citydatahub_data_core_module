@@ -98,29 +98,40 @@ export const lineChartOptions = (option) => {
 
 // Histogram Chart options
 // TODO 확인 필요
-export const histogramChartOptions = (option) => {
+export const histogramChartOptions = (option, chartUnit, totalCount) => {
   // https://www.chartjs.org/docs/latest/getting-started/v3-migration.html
   // TODO tooltip 적용 필요
   return {
     responsive: true,
     maintainAspectRatio: false,
     legend: {
-      display: true,
+      display: false,
+    },
+    tooltips: {
+      callbacks: {
+        title: function(tooltipItem, data) {
+          const label = tooltipItem[0]['xLabel'];
+          return `${label}-${label+chartUnit}` ;
+        },
+      }
     },
     scales: {
       xAxes: [{
         display: false,
-        barPercentage: 1,
-        ticks: {
-          max: 10, // 데이터 개수 -1 설정 필요
-        }
-      }, {
-        display: true,
         ticks: {
           autoSkip: true,
-          max: 11, // 데이터 개수 설정 필요
+          max: totalCount - chartUnit, // 최종 값 - 기준 값 (ex- 0~100 / 10 단위면 90까지)
+        },
+      },
+        {
+          offset: false,
+          display: true,
+          ticks: {
+            autoSkip: true,
+            max: totalCount, // 최종 값 - 기준 값 (ex- 0~100)
+          }
         }
-      }],
+      ],
       yAxes: [{
         ticks: {
           beginAtZero: true
@@ -236,6 +247,7 @@ export const setLineChart = (lineData) => {
   return { labels: labels, datasets: datasets };
 };
 
+/*
 // Histogram History Chart dateset data binding
 // TODO 데이터 받아서 확인 필요
 export const setHistogramChartHistory = (histogramData) => {
@@ -282,8 +294,42 @@ export const setHistogramChartHistory = (histogramData) => {
     datasets: datasets
   };
 };
+ */
 
 // Histogram Last Chart dateset data binding
+// TODO 데이터 받아서 확인 필요
+// TODO x를 중간값이 아닌 시작 값으로 API 변경 요청 필요
+export const setHistogramChartHistory = (histogramData, chartUnit) => {
+  let randomIndex = Math.floor(Math.random() * 13);
+  let labels = [0]; // TODO 항상 0으로 시작?
+  let datasets = [];
+  let data = [];
+  let bgColor = [];
+  let borderColor = [];
+
+  const half = chartUnit / 2;
+  // Setting the data according to the received array value.
+  histogramData.data.forEach((item, index) => {
+    labels.push(item.x + half);
+    data.push(item.y);
+    randomIndex = Math.floor(Math.random() * 13);
+    bgColor.push(transparentize(color(randomIndex + index), 0.5));
+    borderColor.push(color(randomIndex + index));
+  });
+  datasets.push({
+    label: histogramData.attributeId,
+    data: data,
+    borderColor: borderColor,
+    backgroundColor: bgColor,
+    borderWidth: 1,
+    barPercentage: 1, // 공백 없게
+    categoryPercentage: 1, // 공백 없게
+  });
+  return { labels: labels, datasets: datasets };
+};
+
+// Histogram Last Chart dateset data binding
+// TODO Last, History가 아니라, Integer, String으로 나누어야 할듯?
 // TODO 데이터 받아서 확인 필요
 export const setHistogramChartLast = (histogramData) => {
   const rendomIndex = Math.floor(Math.random() * 13);

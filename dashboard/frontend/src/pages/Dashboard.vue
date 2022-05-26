@@ -290,18 +290,20 @@ export default {
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
-          // console.log(event);
-          // console.log('websocket open');
+          console.log('websocket open');
+          console.log(event);
           this.onOpen();
         };
 
         this.websocket.onmessage = (event) => {
+          console.log('websocket onMessage');
+          console.log(event);
           this.onMessage(event);
         };
 
         this.websocket.onclose = (event) => {
-          // console.log(event);
-          // console.log('websocket close');
+          console.log('websocket close');
+          console.log(event);
         };
       }
     },
@@ -337,6 +339,14 @@ export default {
         resultData = setLineChart(socketData);
       }
 
+      if (socketData.chartType === 'histogram') {
+        if (socketData.dataType === 'last') {
+          resultData = setHistogramChartLast(socketData);
+        } else {
+          resultData = setHistogramChartHistory(socketData);
+        }
+      }
+
       this.layout.some(item => {
         if (item.widgetId === socketData.widgetId) {
           item.data = resultData;
@@ -344,6 +354,8 @@ export default {
             item.options = barChartOptions(item);
           } else if (item.chartType === 'line') {
             item.options = lineChartOptions(item);
+          } else if (item.chartType === 'histogram') {
+            item.options = histogramChartOptions(item, socketData.data.length);
           } else {
             item.options = chartOptions(item);
           }
@@ -554,6 +566,7 @@ export default {
       .finally(() => {
 
         // TODO 더미데이터 셋팅
+        /*
         const socketData = {
           // entityIds: ["AAA", "BBB", "CCC"],
           entityIds: ["AAA"],
@@ -573,16 +586,75 @@ export default {
             {id: 'AAA', chartValue: {x: 9, y: 200}},
             {id: 'AAA', chartValue: {x: 10, y: 200}},
             {id: 'AAA', chartValue: {x: 11, y: 200}},
+            {id: 'AAA', chartValue: {x: 12, y: 200}},
+            {id: 'AAA', chartValue: {x: 13, y: 200}},
+            {id: 'AAA', chartValue: {x: 14, y: 200}},
+            {id: 'AAA', chartValue: {x: 15, y: 200}},
+            {id: 'AAA', chartValue: {x: 16, y: 200}},
             // {id: 'BBB', chartValue: 300},
             // {id: 'CCC', chartValue: 200},
           ]
         }
-        const resultData = setHistogramChartHistory(socketData);
+         */
+        const socketData = {
+          "totalCount": 100,
+          "widgetId": "89c21dad-09ca-481c-910b-6a2b13975e62",
+          "chartType": "histogram",
+          "dataType": "history",
+          "attributeId": "availableSpotNumber",
+          "data": [
+            {
+              "x": 5,
+              "y": 0
+            },
+            {
+              "x": 15,
+              "y": 0
+            },
+            {
+              "x": 25,
+              "y": 4
+            },
+            {
+              "x": 35,
+              "y": 5
+            },
+            {
+              "x": 45,
+              "y": 5
+            },
+            {
+              "x": 55,
+              "y": 7
+            },
+            {
+              "x": 65,
+              "y": 6
+            },
+            {
+              "x": 75,
+              "y": 8
+            },
+            {
+              "x": 85,
+              "y": 9
+            },
+            {
+              "x": 95,
+              "y": 2
+            }
+          ],
+          "entityIds": [
+            "urn:datahub:OffStreetParking:yt_lot_2"
+          ]
+        }
+        // const chartUnit = this.formData.extention1; // TODO 실제 해당 값으로 설정 필요
+        const chartUnit = 10; // 데미데이터
+        const resultData = setHistogramChartHistory(socketData, chartUnit);
         this.layout.forEach(item => {
           if (item.chartType === 'histogram') {
             item.data = resultData;
-            item.options = histogramChartOptions(item);
-            // item.options = barChartOptions(item);
+            item.options = histogramChartOptions(item, chartUnit, socketData.totalCount);
           }
         });
       });
