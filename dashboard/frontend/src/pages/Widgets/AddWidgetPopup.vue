@@ -103,6 +103,7 @@
                 style="width: 100%;"
                 :placeholder="$t('message.selectOption')"
                 @change="onSelectedEntity"
+                :disabled="isEntityIdDisabled"
               >
                 <el-option
                   v-for="item in entityIds"
@@ -385,14 +386,13 @@
         v-model="formData['chartAttribute']"
         disabled
       />
-      <!-- TODO only histogram -->
       <div v-if="display['chartUnit']">
         <label class="control-label mb-2">{{ $t('widget.chartUnit') }}
         </label>
         <input
-          type="text"
+          type="number"
           class="form-control"
-          v-model="formData['chartUnit']"
+          v-model="chartUnit"
           :disabled="isChartAttributeString"
         />
       </div>
@@ -490,10 +490,14 @@ export default {
     },
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
-      return !chartAttribute || typeof chartAttribute === 'string';
+      return !chartAttribute || !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
     },
     isEntityIdMultiple() {
       return this.formData['dataType'] === 'last';
+    },
+    isEntityIdDisabled() {
+      const {chartType, dataType} = this.formData;
+      return chartType === 'histogram' && dataType === 'last';
     }
   },
   data() {
@@ -521,6 +525,7 @@ export default {
       imageFile: null,
       latestMaps: [],
       latestValue: null,
+      chartUnit: null,
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
@@ -536,8 +541,7 @@ export default {
         dashboardId: null,
         widgetId: null, chartType: null, chartOrder: null, chartSize: null, dataType: null, chartTitle: null,
         updateInterval: null, realtimeUpdateEnabled: false, yaxisRange: null,
-        chartAttribute: null, chartUnit: null,
-        chartXName: null, chartYName: null, realTimeOption: null, q: null,
+        chartAttribute: null, chartXName: null, chartYName: null, realTimeOption: null, q: null,
         extention1: null, extention2: null, image: null
       },
       validation: {
@@ -744,6 +748,10 @@ export default {
           const {chartType, entityRetrieveVO, file, extention1, dataType} = data;
           this.formData = data;
 
+          if (chartType === 'histogram') {
+            this.chartUnit = extention1;
+          }
+
           if (chartType === 'Image') {
             this.imageFile = new Blob([file]);
             this.imageToFile(file, extention1);
@@ -810,7 +818,7 @@ export default {
       const {fullId, valueType} = data;
       this.formData.chartAttribute = fullId;
       this.validation.chartAttribute = valueType;
-      this.formData.chartUnit = null; // TODO 확인 필요 - attribute 값 변할 때마다 비워주기
+      this.chartUnit = null; // x chartUnit TODO 확인 필요 - attribute 값 변할 때마다 비워주기
     },
     onDataTypeChange(value) {
       this.entityId = null;
@@ -1016,6 +1024,7 @@ export default {
       // start exceptions
 
       // 1. String value cannot be selected for chart-type widgets.
+      // TODO 다국어 처리 누락됨
       const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line';
       if (notPermitStrChartType && this.validation.chartAttribute === "STRING") {
         this.$alert('해당 차트 유형에서는 String 타입의 차트 값을 선택할 수 없습니다.');
@@ -1023,7 +1032,7 @@ export default {
       }
 
       // 2. Required verification of entity ID.
-      if (this.display['entityId'] && this.entityId === null) {
+      if (!this.isEntityIdDisabled && this.display['entityId'] && this.entityId === null) {
         this.$alert('엔티티 ID를 선택해주세요.');
         return;
       }
@@ -1076,10 +1085,8 @@ export default {
         this.formData.chartAttribute = 'map_latest';
       }
 
-      // TODO 확인 필요
       if (chartType === 'histogram') {
-        // TODO attribute가 Number인 경우에만
-        this.formData.extention1 = this.formData['chartUnit'];
+        this.formData.extention1 = this.chartUnit;
       }
 
       // Save the chart size location.
@@ -1216,6 +1223,7 @@ export default {
       this.dataModels = [];
       this.imageFiles = [];
       this.imageFile = null;
+      this.chartUnit = null;
 
       this.formData = {
         dashboardId: null,
