@@ -381,12 +381,10 @@ public class DataCoreUiCode {
     
     public static enum AclRuleCondition {
 
-        @JsonProperty("ALL")
-        ALL("ALL"),
-        @JsonProperty("CLIENT_ID")
-        CLIENT_ID("CLIENT_ID"),
-        @JsonProperty("USER_ID")
-        USER_ID("USER_ID");
+        @JsonProperty("AND")
+        AND("AND"),
+        @JsonProperty("OR")
+        OR("OR");
 
         private String code;
 
@@ -431,6 +429,39 @@ public class DataCoreUiCode {
             for (AclRuleResourceType aclRuleCondition : values()) {
                 if (aclRuleCondition.getCode().equals(code)) {
                     return aclRuleCondition;
+                }
+            }
+            return null;
+        }
+    }
+    
+    public static enum AclRuleOperationType {
+
+        @JsonProperty("create")
+        create("create"),
+        @JsonProperty("update")
+        update("update"),
+        @JsonProperty("delete")
+        delete("delete"),
+        @JsonProperty("retrieve")
+        retrieve("retrieve");
+
+        private String code;
+
+        @JsonCreator
+        private AclRuleOperationType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @JsonValue
+        public static AclRuleOperationType parseType(String code) {
+            for (AclRuleOperationType aclRuleOperation : values()) {
+                if (aclRuleOperation.getCode().equals(code)) {
+                    return aclRuleOperation;
                 }
             }
             return null;

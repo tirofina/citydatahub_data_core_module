@@ -1,6 +1,7 @@
 package kr.re.keti.sc.datacoreui.api.aclrule.vo;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,11 +28,11 @@ public class AclRuleVO {
     private String resourceId;
     private DataCoreUiCode.AclRuleResourceType resourceType;
     private DataCoreUiCode.AclRuleCondition condition;
+    private List<DataCoreUiCode.AclRuleOperationType> operation;
+    
     private String creatorId;
     private String modifierId;
     
     private String provisioningRequestId;
     private Date provisioningEventTime;
-    
-    
 }
