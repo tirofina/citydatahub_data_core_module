@@ -26,4 +26,6 @@ public class AclRuleResponseVO extends AclRuleVO {
 	private Date createdAt;
 	@JsonFormat(pattern = Constants.CONTENT_DATE_FORMAT)
     private Date modifiedAt;
+	@JsonFormat(pattern = Constants.CONTENT_DATE_FORMAT)
+	private Date provisioningEventTime;
 }
