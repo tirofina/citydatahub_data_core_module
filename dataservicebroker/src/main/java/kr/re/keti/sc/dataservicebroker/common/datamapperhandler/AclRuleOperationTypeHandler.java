@@ -38,7 +38,7 @@ public class AclRuleOperationTypeHandler extends BaseTypeHandler<ArrayList<AclRu
 		if(str == null) return null;
 
 		ArrayList<AclRuleOperationType> aclRuleOperationTypes = new ArrayList<AclRuleOperationType>();
-		str = str.replace("{", "").replace("}", "");
+		str = str.replace("{", "").replace("}", "").replace("\"", "");
 		String[] strArray = str.split(",");
 	    for(String s : strArray) {
 	    	aclRuleOperationTypes.add(AclRuleOperationType.parseType(s));
@@ -52,7 +52,7 @@ public class AclRuleOperationTypeHandler extends BaseTypeHandler<ArrayList<AclRu
 		if(str == null) return null;
 
 		ArrayList<AclRuleOperationType> aclRuleOperationTypes = new ArrayList<AclRuleOperationType>();
-		str = str.replace("{", "").replace("}", "");
+		str = str.replace("{", "").replace("}", "").replace("\"", "");
 		String[] strArray = str.split(",");
 	    for(String s : strArray) {
 	    	aclRuleOperationTypes.add(AclRuleOperationType.parseType(s));
@@ -66,7 +66,7 @@ public class AclRuleOperationTypeHandler extends BaseTypeHandler<ArrayList<AclRu
 		if(str == null) return null;
 
 		ArrayList<AclRuleOperationType> aclRuleOperationTypes = new ArrayList<AclRuleOperationType>();
-		str = str.replace("{", "").replace("}", "");
+		str = str.replace("{", "").replace("}", "").replace("\"", "");
 		String[] strArray = str.split(",");
 	    for(String s : strArray) {
 	    	aclRuleOperationTypes.add(AclRuleOperationType.parseType(s));
