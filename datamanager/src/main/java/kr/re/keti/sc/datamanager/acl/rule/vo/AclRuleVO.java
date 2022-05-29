@@ -1,11 +1,7 @@
 package kr.re.keti.sc.datamanager.acl.rule.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import kr.re.keti.sc.datamanager.common.code.Constants;
-import kr.re.keti.sc.datamanager.common.code.DataManagerCode;
 import kr.re.keti.sc.datamanager.common.vo.PageRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +38,9 @@ public class AclRuleVO extends PageRequest {
     private Date modifyDatetime;
     private String modifierId;
 
+    @JsonIgnore
     private String provisioningRequestId;
+    @JsonIgnore
     private Date provisioningEventTime;
 
     @Override
