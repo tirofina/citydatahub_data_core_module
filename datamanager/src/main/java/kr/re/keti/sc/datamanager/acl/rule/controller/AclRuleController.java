@@ -210,15 +210,20 @@ public class AclRuleController {
         // 3. check duplicate
         List<AclRuleVO> duplicatedAclRuleVOS = aclRuleSVC.getAclRuleVOList(requestAclRuleVO);
         if (duplicatedAclRuleVOS != null && duplicatedAclRuleVOS.size() > 0) {
-            AclRuleVO duplicatedAclRuleVO = duplicatedAclRuleVOS.get(0);
 
-            throw new BadRequestException(DataManagerCode.ErrorCode.ALREADY_EXISTS,
-                    "Exists. id=" + duplicatedAclRuleVO.getClientId()
-                            + " , userId=" + duplicatedAclRuleVO.getUserId()
-                            + " , clientId=" + duplicatedAclRuleVO.getClientId()
-                            + " , resourceId=" + duplicatedAclRuleVO.getResourceId()
-            );
+            for(AclRuleVO duplicatedAclRuleVO : duplicatedAclRuleVOS) {
+                if(duplicatedAclRuleVO.getId().equals(id)) {
+                    continue;
+                }
+                throw new BadRequestException(DataManagerCode.ErrorCode.ALREADY_EXISTS,
+                        "Exists. id=" + duplicatedAclRuleVO.getClientId()
+                                + " , userId=" + duplicatedAclRuleVO.getUserId()
+                                + " , clientId=" + duplicatedAclRuleVO.getClientId()
+                                + " , resourceId=" + duplicatedAclRuleVO.getResourceId()
+                );
+            }
         }
+
         // 4.  provisioning update event
         ProvisionNotiVO provisionNotiVO = aclRuleSVC.provisionAclRule(requestAclRuleVO, DataManagerCode.ProvisionEventType.UPDATED, request.getRequestURI());
 
