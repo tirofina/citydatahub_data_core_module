@@ -45,6 +45,5 @@ public class Constants {
 	public static final String TOTAL_COUNT= "totalCount";
 
 	// for acl rule
-	public static final String ACL_DATASET_IDS = "acl_dataset_ids";
-	public static final String ACL_ADMIN = "acl_admin";
+	public static final String ACL_PERMISSION_KEY = "ACL_PERMISSION_KEY";
 }

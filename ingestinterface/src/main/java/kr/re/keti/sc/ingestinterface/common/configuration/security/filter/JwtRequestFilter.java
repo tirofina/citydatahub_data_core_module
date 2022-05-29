@@ -4,6 +4,7 @@ import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode;
 import kr.re.keti.sc.ingestinterface.common.configuration.CachedBodyHttpServletRequest;
 import kr.re.keti.sc.ingestinterface.common.configuration.security.AASTokenUtil;
 import kr.re.keti.sc.ingestinterface.common.configuration.security.JwtTokenUtil;
+import kr.re.keti.sc.ingestinterface.common.service.security.AASSVC;
 import kr.re.keti.sc.ingestinterface.common.vo.security.AASUserDetailsVO;
 import kr.re.keti.sc.ingestinterface.common.vo.security.AASUserVO;
 import kr.re.keti.sc.ingestinterface.datamodel.DataModelManager;
@@ -34,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
     @Autowired
-    private DataModelManager dataModelManager;
+    private AASSVC aASSVC;
 
     @Value("${security.external.platform.useYn:N}")
     private String securityExternalPlatformUseYn;
@@ -81,16 +82,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             - /entityOperations, /entities에 CUD의 경우 dataset이 있는 경우에만 접근제어 적용
             - /entities, /temporal/entities R의 경우 token으로 허용되는 dataset값들만 조회 (접근제어 적용 항상)
          */
-        if (header == null || !header.startsWith("Bearer ")) {
-            //
-            String method = cachedBodyHttpServletRequest.getMethod();
-            if (method.equalsIgnoreCase("GET")) {
-                // 스프링 시큐리티 룰에 따라 처리, permit url은 skip 처리되고 권한이 필요한 url access denied 예외 발생됨
-                chain.doFilter(cachedBodyHttpServletRequest, response);
-            } else {
-                //어드민 권한으로 처리
-                grantAdminAuthority(cachedBodyHttpServletRequest, response, chain, IngestInterfaceCode.AclRuleResourceType.DATASET);
-            }
+        if (header == null
+                || (!header.startsWith("Bearer ") && !header.startsWith("bearer "))) {
+
+            // 스프링 시큐리티 룰에 따라 처리, permit url은 skip 처리되고 권한이 필요한 url access denied 예외 발생됨
+            chain.doFilter(cachedBodyHttpServletRequest, response);
             return;
         }
 
@@ -124,14 +120,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private UsernamePasswordAuthenticationToken makeUsernamePasswordAuthenticationToken(AASUserVO aasUserVO, IngestInterfaceCode.AclRuleResourceType aclRuleResourceType) {
 
-
-        AASUserDetailsVO aasUserDetailsVO = new AASUserDetailsVO();
-        BeanUtils.copyProperties(aasUserVO, aasUserDetailsVO);
-
-        List<String> resourceIds = dataModelManager.getResourceIdsFromAclRule(aasUserDetailsVO.getUserId(), aasUserDetailsVO.getClientId(), aclRuleResourceType);
-        aasUserDetailsVO.setResourceIds(resourceIds);
-        aasUserDetailsVO.setResourceType(aclRuleResourceType);
-        aasUserDetailsVO.setUsername(aasUserVO.getUserId());
+        AASUserDetailsVO aasUserDetailsVO = aASSVC.createAASUserByAclRule(
+                aasUserVO,
+                aclRuleResourceType
+        );
 
         UserDetails userDetails = aasUserDetailsVO;
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(

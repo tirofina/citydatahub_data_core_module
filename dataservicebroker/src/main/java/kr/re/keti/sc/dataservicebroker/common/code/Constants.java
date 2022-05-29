@@ -55,9 +55,8 @@ public class Constants {
     public static final String PREFIX_SERVICE_REGISTRATION_ID = "urn:ngsi-ld:serviceRegistration:";
     public static final String PREFIX_SERVICE_EXECUTION_ID = "urn:ngsi-ld:serviceRequest:";
 
-    // 접근제어
-    public static final String ACL_DATASET_IDS = "acl_dataset_ids";
-    public static final String ACL_ADMIN = "acl_admin";
+    // for acl rule
+    public static final String ACL_PERMISSION_KEY = "ACL_PERMISSION_KEY";
 
     public static final int POSTGRES_COLUMN_NAME_MAX_LENTH = 63;
 

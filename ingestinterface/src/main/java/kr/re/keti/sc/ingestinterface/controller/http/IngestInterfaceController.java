@@ -248,7 +248,7 @@ public class IngestInterfaceController {
             requestMessageVO.setContent(entity);
             requestMessageVO.setTo(requestUri);
             requestMessageVO.setOperationOptions(operationOptions);
-            aasSVC.checkCUDAccessRule(request, datasetId);
+            aasSVC.checkCUDAccessRule(request, datasetId, operation);
 
             requestMessageVO.setDatasetId(datasetId);
             requestMessageVO.setIngestTime(ingestTime);

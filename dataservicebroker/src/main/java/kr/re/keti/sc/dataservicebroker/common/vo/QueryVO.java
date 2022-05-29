@@ -65,7 +65,6 @@ public class QueryVO implements Serializable {
 
     private DataModelCacheVO dataModelCacheVO;
     private List<String> aclDatasetIds;
-    private Boolean isAdminUser;
 
     private List<String> links;
 

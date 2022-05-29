@@ -1,9 +1,9 @@
 package kr.re.keti.sc.ingestinterface.common.vo.security;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode;
+import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode.AclRuleOperationType;
+import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode.AclRuleResourceType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,12 +14,12 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AASUserDetailsVO extends AASUserVO implements UserDetails {
-
+public class AASUserDetailsVO extends kr.re.keti.sc.ingestinterface.common.vo.security.AASUserVO implements UserDetails {
 
     private String username;
     private List<String> resourceIds;
-    private IngestInterfaceCode.AclRuleResourceType resourceType;
+    private AclRuleResourceType resourceType;
+    private List<AclRuleOperationType> operationTypes;
 
     public void setUsername(String username) {
         this.username = username;
@@ -33,12 +33,20 @@ public class AASUserDetailsVO extends AASUserVO implements UserDetails {
         this.resourceIds = resourceIds;
     }
 
-    public IngestInterfaceCode.AclRuleResourceType getResourceType() {
+    public AclRuleResourceType getResourceType() {
         return resourceType;
     }
 
-    public void setResourceType(IngestInterfaceCode.AclRuleResourceType resourceType) {
+    public void setResourceType(AclRuleResourceType resourceType) {
         this.resourceType = resourceType;
+    }
+
+    public List<AclRuleOperationType> getOperationTypes() {
+        return operationTypes;
+    }
+
+    public void setOperationTypes(List<AclRuleOperationType> operationTypes) {
+        this.operationTypes = operationTypes;
     }
 
     @Override

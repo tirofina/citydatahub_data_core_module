@@ -15,10 +15,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AASUserDetailsVO extends kr.re.keti.sc.dataservicebroker.common.vo.AASUserVO implements UserDetails {
 
-
     private String username;
     private List<String> resourceIds;
     private DataServiceBrokerCode.AclRuleResourceType resourceType;
+    private List<DataServiceBrokerCode.AclRuleOperationType> operationTypes;
 
     public void setUsername(String username) {
         this.username = username;
@@ -38,6 +38,14 @@ public class AASUserDetailsVO extends kr.re.keti.sc.dataservicebroker.common.vo.
 
     public void setResourceType(DataServiceBrokerCode.AclRuleResourceType resourceType) {
         this.resourceType = resourceType;
+    }
+
+    public List<DataServiceBrokerCode.AclRuleOperationType> getOperationTypes() {
+        return operationTypes;
+    }
+
+    public void setOperationTypes(List<DataServiceBrokerCode.AclRuleOperationType> operationTypes) {
+        this.operationTypes = operationTypes;
     }
 
     @Override

@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.re.keti.sc.dataservicebroker.common.service.security.AASSVC;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
     @Autowired
-    private DataModelManager dataModelManager;
+    private AASSVC aASSVC;
 
     @Value("${security.acl.useYn:N}")
     private String securityAclUseYn;
@@ -83,19 +84,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             - /entityOperations, /entities에 CUD의 경우 dataset이 있는 경우에만 접근제어 적용
             - /entities, /temporal/entities R의 경우 token으로 허용되는 dataset값들만 조회 (접근제어 적용 항상)
          */
-        if (header == null || !header.startsWith("Bearer ")) {
-            //
-            String method = cachedBodyHttpServletRequest.getMethod();
-            if (method.equalsIgnoreCase("GET")) {
-                // 스프링 시큐리티 룰에 따라 처리, permit url은 skip 처리되고 권한이 필요한 url access denied 예외 발생됨
-                chain.doFilter(cachedBodyHttpServletRequest, response);
-            } else {
-                //어드민 권한으로 처리
-                grantAdminAuthority(cachedBodyHttpServletRequest, response, chain, DataServiceBrokerCode.AclRuleResourceType.DATASET);
-            }
+        if (header == null
+                || (!header.startsWith("Bearer ") && !header.startsWith("bearer "))) {
+            chain.doFilter(cachedBodyHttpServletRequest, response);
             return;
         }
-
 
         // Get jwt token and validate
         final String token = header.split(" ")[1].trim();
@@ -127,14 +120,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private UsernamePasswordAuthenticationToken makeUsernamePasswordAuthenticationToken(AASUserVO aasUserVO, DataServiceBrokerCode.AclRuleResourceType aclRuleResourceType) {
 
-
-        AASUserDetailsVO aasUserDetailsVO = new AASUserDetailsVO();
-        BeanUtils.copyProperties(aasUserVO, aasUserDetailsVO);
-
-        List<String> resourceIds = dataModelManager.getResourceIdsFromAclRule(aasUserDetailsVO.getUserId(), aasUserDetailsVO.getClientId(), aclRuleResourceType);
-        aasUserDetailsVO.setResourceIds(resourceIds);
-        aasUserDetailsVO.setResourceType(aclRuleResourceType);
-        aasUserDetailsVO.setUsername(aasUserVO.getUserId());
+        AASUserDetailsVO aasUserDetailsVO = aASSVC.createAASUserByAclRule(
+                aasUserVO,
+                aclRuleResourceType
+        );
 
         UserDetails userDetails = aasUserDetailsVO;
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(

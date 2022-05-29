@@ -259,7 +259,7 @@ public class EntityController {
 
         // 1. entity 생성을 위한 객체 생성
         List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, requestBody,
-                DataServiceBrokerCode.Operation.CREATE_ENTITY, request.getRequestURI(), null, links, contentType);
+                Operation.CREATE_ENTITY, request.getRequestURI(), null, links, contentType);
 
         // 2. 리소스 생성 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -301,10 +301,10 @@ public class EntityController {
         // 1. entity 업데이트를 위한 객체 생성
         if (options != null && options.equals(OperationOption.NO_OVERWRITE.getCode())) {
             // "noOverwrite". Indicates that no attribute overwrite shall be performed.
-            requestMessageVOList = makeRequestMessageVO(request, requestBody, DataServiceBrokerCode.Operation.APPEND_ENTITY_ATTRIBUTES, request.getRequestURI(), id
+            requestMessageVOList = makeRequestMessageVO(request, requestBody, Operation.APPEND_ENTITY_ATTRIBUTES, request.getRequestURI(), id
                     , Arrays.asList(OperationOption.NO_OVERWRITE), links, contentType);
         } else {
-            requestMessageVOList = makeRequestMessageVO(request, requestBody, DataServiceBrokerCode.Operation.APPEND_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
+            requestMessageVOList = makeRequestMessageVO(request, requestBody, Operation.APPEND_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
         }
         // 2. parital  업데이트 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -342,7 +342,7 @@ public class EntityController {
 
         // 1. entity 업데이트를 위한 객체 생성
         List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, requestBody,
-                DataServiceBrokerCode.Operation.UPDATE_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
+                Operation.UPDATE_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
 
         // 2. parital  업데이트 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -380,7 +380,7 @@ public class EntityController {
 
         // 1. entity 업데이트를 위한 객체 생성
         List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, requestBody,
-                DataServiceBrokerCode.Operation.PARTIAL_ATTRIBUTE_UPDATE, request.getRequestURI(), id, HttpHeadersUtil.extractLinkUris(link), contentType);
+                Operation.PARTIAL_ATTRIBUTE_UPDATE, request.getRequestURI(), id, HttpHeadersUtil.extractLinkUris(link), contentType);
 
         // 2. partial 업데이트 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -410,7 +410,7 @@ public class EntityController {
 
         // 1. entity 삭제를 위한 객체 생성
         List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, null,
-                DataServiceBrokerCode.Operation.DELETE_ENTITY, request.getRequestURI(), id, null, null);
+                Operation.DELETE_ENTITY, request.getRequestURI(), id, null, null);
 
         // 2. 리소스 삭제 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -448,7 +448,7 @@ public class EntityController {
         // 1. entity 삭제를 위한 객체 생성
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
         List<IngestMessageVO> requestMessageVOList = makeRequestMessageVO(request, null,
-                DataServiceBrokerCode.Operation.DELETE_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
+                Operation.DELETE_ENTITY_ATTRIBUTES, request.getRequestURI(), id, links, contentType);
 
         // 2. 리소스 삭제 요청
         ProcessResultVO processResultVO = process(requestMessageVOList);
@@ -489,7 +489,7 @@ public class EntityController {
 
         // 1. entity 생성을 위한 객체 생성
         BatchIngestMessageVO batchIngestMessageVO = makeBatchRequestMessageVO(request, jsonList,
-                DataServiceBrokerCode.Operation.CREATE_ENTITY, request.getRequestURI(),
+                Operation.CREATE_ENTITY, request.getRequestURI(),
                 null, links, contentType);
 
         List<IngestMessageVO> ingestMessageVO = batchIngestMessageVO.getIngestMessageVO();
@@ -1121,7 +1121,7 @@ public class EntityController {
 
         String entityType = extractEntityTypeById(id);
         String datasetId = extractDatasetIdById(id);
-        aasSVC.checkCUDAccessRule(request, datasetId);
+        aasSVC.checkCUDAccessRule(request, datasetId, operation);
 
         IngestMessageVO requestMessageVO = new IngestMessageVO();
         requestMessageVO.setEntityType(entityType);
@@ -1193,11 +1193,11 @@ public class EntityController {
 
 
                         String datasetId = extractDatasetIdById(entityId);
-
-                        aasSVC.checkCUDAccessRule(request, datasetId);
                         requestMessageVO.setDatasetId(datasetId);
 
                     }
+
+                    aasSVC.checkCUDAccessRule(request, requestMessageVO.getDatasetId(), operation);
 
                     String requestBody = objectMapper.writeValueAsString(obj);
                     requestMessageVO.setEntityType(entityType);

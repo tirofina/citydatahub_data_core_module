@@ -4,6 +4,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.Constants;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
 import kr.re.keti.sc.dataservicebroker.common.service.security.AASSVC;
 import kr.re.keti.sc.dataservicebroker.common.vo.AASUserDetailsVO;
+import kr.re.keti.sc.dataservicebroker.common.vo.AASUserPermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -39,22 +40,24 @@ public class AclInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
-
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AASUserDetailsVO aasUserDetailsVO = (AASUserDetailsVO) authentication.getPrincipal();
         String role = aasUserDetailsVO.getRole();
-        if (adminUserRoleList.contains(role)) {
-            request.setAttribute(Constants.ACL_ADMIN, true);
 
-        } else {
-            request.setAttribute(Constants.ACL_ADMIN, false);
-            List<String> aclDatasetIds = aasSVC.getAclResourceIds(aasUserDetailsVO);
-            request.setAttribute(Constants.ACL_DATASET_IDS, aclDatasetIds);
+        boolean isSuperUser = adminUserRoleList.contains(role);
+
+        if(!isSuperUser) {
+            aasSVC.validateUserRole(role);
         }
+
+        AASUserPermissionVO permissionVO = AASUserPermissionVO.builder()
+                .isSuperUser(isSuperUser)
+                .resourceIds(aasUserDetailsVO.getResourceIds())
+                .operationTypes(aasUserDetailsVO.getOperationTypes())
+                .build();
+
+        request.setAttribute(Constants.ACL_PERMISSION_KEY, permissionVO);
 
         return true;
     }
-
-
 }

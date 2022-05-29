@@ -4,6 +4,7 @@ import kr.re.keti.sc.ingestinterface.common.code.Constants;
 import kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode;
 import kr.re.keti.sc.ingestinterface.common.service.security.AASSVC;
 import kr.re.keti.sc.ingestinterface.common.vo.security.AASUserDetailsVO;
+import kr.re.keti.sc.ingestinterface.common.vo.security.AASUserPermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -33,25 +34,28 @@ public class AclInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
-
         //인증을 사용하지 않을 경우, SKIP
         if (securityAclUseYn.equals(IngestInterfaceCode.UseYn.NO)) {
             return true;
         }
 
-
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AASUserDetailsVO aasUserDetailsVO = (AASUserDetailsVO) authentication.getPrincipal();
         String role = aasUserDetailsVO.getRole();
-        if (adminUserRoleList.contains(role)) {
-            request.setAttribute(Constants.ACL_ADMIN, true);
 
-        } else {
-            request.setAttribute(Constants.ACL_ADMIN, false);
-            List<String> aclDatasetIds = aasSVC.getAclResourceIds(aasUserDetailsVO);
-            request.setAttribute(Constants.ACL_DATASET_IDS, aclDatasetIds);
+        boolean isSuperUser = adminUserRoleList.contains(role);
+
+        if(!isSuperUser) {
+            aasSVC.validateUserRole(role);
         }
+
+        AASUserPermissionVO permissionVO = AASUserPermissionVO.builder()
+                .isSuperUser(isSuperUser)
+                .resourceIds(aasUserDetailsVO.getResourceIds())
+                .operationTypes(aasUserDetailsVO.getOperationTypes())
+                .build();
+
+        request.setAttribute(Constants.ACL_PERMISSION_KEY, permissionVO);
 
         return true;
     }

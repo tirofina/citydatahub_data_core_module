@@ -242,47 +242,8 @@ public class DataModelManager {
 		aclRuleCache.remove(id);
 	}
 
-	/**
-	 * 접근제어에 사용되는 resouceId 리스트 가져오기
-	 *
-	 * @param userId
-	 * @param clientId
-	 * @return
-	 */
-	public List<String> getResourceIdsFromAclRule(String userId, String clientId, IngestInterfaceCode.AclRuleResourceType aclRuleResourceType) {
-
-		List<String> datasetIds = new ArrayList<>();
-		for (Map.Entry<String, AclRuleVO> elem : aclRuleCache.entrySet()) {
-	
-			AclRuleVO aclRuleVO = elem.getValue();
-
-			if (aclRuleVO.getResourceType() != aclRuleResourceType){
-				continue;
-			}
-
-			if(aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.AND) {
-				if (userId.equals(aclRuleVO.getUserId()) && clientId.equals(aclRuleVO.getClientId())) {
-					datasetIds.add(aclRuleVO.getResourceId());
-				}
-			} else if(aclRuleVO.getCondition() == IngestInterfaceCode.AclRuleCondition.OR) {
-				if (clientId.equals(aclRuleVO.getClientId())) {
-					datasetIds.add(aclRuleVO.getResourceId());
-				}
-				if (userId.equals(aclRuleVO.getUserId()) ) {
-					datasetIds.add(aclRuleVO.getResourceId());
-				}
-			}
-		}
-
-		if (datasetIds.size() == 0) {
-			return null;
-		}
-
-		// 중복 제거
-		datasetIds = datasetIds.stream().distinct().collect(Collectors.toList());
-
-
-		return datasetIds;
+	public List<AclRuleVO> getAclRuleCaches() {
+		return new ArrayList<>(aclRuleCache.values());
 	}
 
 	/**
