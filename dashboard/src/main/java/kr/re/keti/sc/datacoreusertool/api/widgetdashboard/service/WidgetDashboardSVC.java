@@ -1,7 +1,10 @@
 package kr.re.keti.sc.datacoreusertool.api.widgetdashboard.service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +51,7 @@ import kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetSessionVO;
 import kr.re.keti.sc.datacoreusertool.common.code.Constants;
 import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode;
 import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode.ChartType;
+import kr.re.keti.sc.datacoreusertool.common.component.Properties;
 import kr.re.keti.sc.datacoreusertool.common.vo.ClientExceptionPayloadVO;
 import kr.re.keti.sc.datacoreusertool.notification.vo.NotificationVO;
 import kr.re.keti.sc.datacoreusertool.notification.vo.WidgetWebSocketRegistVO;
@@ -89,6 +93,9 @@ public class WidgetDashboardSVC {
 	
 	@Autowired
 	private MapSVC mapSVC;
+	
+	@Autowired
+	private Properties properties;
 	
 	final static String LEGEND = "legend";
 
@@ -1540,9 +1547,7 @@ public class WidgetDashboardSVC {
 	    			i++;
 	    		}
 	    		
-	    		if(tempCommonEntity.get("observedAt") != null) {
-	    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
-	    		}
+	    		convertTimeformat(tempCommonEntity, commonEntityVO);
 	    		
 	    		if(i < attrIds.length && entity != null) {
 	    			tempCommonEntity.putAll((Map<? extends String, ? extends Object>) entity);
@@ -1558,9 +1563,7 @@ public class WidgetDashboardSVC {
 					entity = tempCommonEntity.get("value");
 				}
 				
-				if(tempCommonEntity.get("observedAt") != null) {
-	    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
-	    		}
+				convertTimeformat(tempCommonEntity, commonEntityVO);
 			}
 			
 			if(entity != null) {
@@ -1579,9 +1582,7 @@ public class WidgetDashboardSVC {
 		    			i++;
 		    		}
 		    		
-		    		if(tempCommonEntity.get("observedAt") != null) {
-		    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
-		    		}
+		    		convertTimeformat(tempCommonEntity, commonEntityVO);
 		    		
 		    		if(i < attrIds2.length && entity != null) {
 		    			tempCommonEntity.putAll((Map<? extends String, ? extends Object>) entity);
@@ -1597,9 +1598,7 @@ public class WidgetDashboardSVC {
 						entity = tempCommonEntity.get("value");
 					}
 					
-					if(tempCommonEntity.get("observedAt") != null) {
-		    			commonEntityVO.put("observedAt", tempCommonEntity.get("observedAt"));
-		    		}
+					convertTimeformat(tempCommonEntity, commonEntityVO);
 				}
 				
 				if(entity != null) {
@@ -1769,6 +1768,11 @@ public class WidgetDashboardSVC {
 		return result;
 	}
 	
+	/**
+	 * make scatter data
+	 * @param commonEntities	Retrieved entity result data
+	 * @return					Scatter chart data
+	 */
 	private List<CommonEntityVO> convertScatterData(List<CommonEntityVO> commonEntities) {
 		List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
 		
@@ -1789,5 +1793,21 @@ public class WidgetDashboardSVC {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Convert time format
+	 * @param tempCommonEntity		Retrieved entity result temporary data
+	 * @param commonEntityVO		Retrieved entity result data
+	 */
+	private void convertTimeformat(CommonEntityVO tempCommonEntity, CommonEntityVO commonEntityVO) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.CONTENT_DATE_FORMAT);
+		SimpleDateFormat dateFormat = new SimpleDateFormat(properties.getChartTimeFormat());
+		
+		if(tempCommonEntity.get("observedAt") != null) {
+			LocalDateTime date = LocalDateTime.parse((String) tempCommonEntity.get("observedAt"), formatter);
+			long milliSeconds = Timestamp.valueOf(date).getTime();
+			commonEntityVO.put("observedAt", dateFormat.format(milliSeconds));
+		}
 	}
 }
