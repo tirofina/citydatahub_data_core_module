@@ -37,24 +37,36 @@
                 <td>
                   <label>
                     <input
-                        class="input__text"
+                        :class="error['clientId'] ? `input__text error__border` : `input__text`"
                         type="text"
                         v-model="formData['clientId']"
                         name="clientId"
+                        :disabled="!conditions['clientId']"
+                        @blur="onFocusoutEvent"
                     />
                   </label>
+                  <br>
+                  <span v-show="error['clientId']" class="error__color">
+                    필수 값 입니다.
+                  </span>
                 </td>
                 <th class="icon__require">사용자 ID</th>
                 <td>
                   <label>
                     <input
+                        :class="error['userId'] ? `input__text error__border` : `input__text`"
                         class="input__text"
                         type="text"
                         v-model="formData['userId']"
                         name="userId"
-                        disabled
+                        :disabled="!conditions['userId']"
+                        @blur="onFocusoutEvent"
                     />
                   </label>
+                  <br>
+                  <span v-show="error['userId']" class="error__color">
+                    필수 값 입니다.
+                  </span>
                 </td>
               </tr>
               <tr>
@@ -179,33 +191,28 @@
                 <td colspan="5">
                   <label>
                     <el-checkbox-group v-model="operations">
-                      <el-checkbox label="CREATE"></el-checkbox>
-                      <el-checkbox label="RETRIEVE"></el-checkbox>
-                      <el-checkbox label="UPDATE"></el-checkbox>
-                      <el-checkbox label="DELETE"></el-checkbox>
+                      <el-checkbox label="create"></el-checkbox>
+                      <el-checkbox label="update"></el-checkbox>
+                      <el-checkbox label="delete"></el-checkbox>
+                      <el-checkbox label="retrieve"></el-checkbox>
                     </el-checkbox-group>
                   </label>
+                  <span v-show="error['operation']" class="error__color">
+                    필수 값 입니다.
+                  </span>
                 </td>
               </tr>
               <tr>
                 <th class="icon__require">condition</th>
-                <td>
+                <td colspan="2">
                   <label>
-                    <el-checkbox-group v-model="conditions">
-                      <el-checkbox label="Client ID" value="clientId"></el-checkbox>
-                      <el-checkbox label="사용자 ID" value="userId"></el-checkbox>
-                    </el-checkbox-group>
+                    <el-checkbox v-model="conditions['clientId']" @change="onChange">Client ID</el-checkbox>
+                    <el-checkbox v-model="conditions['userId']" @change="onChange">사용자 ID</el-checkbox>
                   </label>
                 </td>
                 <td>
-                  <input
-                      v-if="conditions.length < 2"
-                      class="input__text"
-                      type="text"
-                      disabled
-                  />
                   <select
-                      v-else
+                      v-if="conditions.clientId && conditions.userId"
                       v-model="formData['condition']"
                       class="input__text"
                       :style="error['condition'] ? `border-color: #f56c6c;` : null"
@@ -219,6 +226,15 @@
                       OR
                     </option>
                   </select>
+                  <input
+                      v-else
+                      class="input__text"
+                      type="text"
+                      disabled
+                  />
+                  <span v-show="error['condition']" class="error__color">
+                    필수 값 입니다.
+                  </span>
                 </td>
               </tr>
               </tbody>
@@ -261,6 +277,15 @@
         :is-success-btn="true"
         :isCancelBtn="true"
     />
+    <AppModal
+        :is-show="isAlertShow"
+        @close-modal="onClose"
+        @on-event-modal="onDeleteSuccess"
+        modalSize="w-360"
+        :content="modalText"
+        close-name="확인"
+        :isCancelBtn="true"
+    />
   </div>
 </template>
 
@@ -278,13 +303,16 @@ export default {
   data() {
     return {
       formData: { resourceType: 'DATASET', resourceId: '' },
-      error: {},
+      error: {
+        clientId: false, userId: false, operation: false, condition: false
+      },
       operations: [],
-      conditions: [],
+      conditions: { clientId: false, userId: false },
       isMode: '',
       datasetList: [],
       isDelAttrShow: false,
       modalText: '',
+      isAlertShow: false,
     }
   },
   methods: {
@@ -292,11 +320,14 @@ export default {
       const { id } = this.$route.query;
       this.$http.get(APIHandler.buildUrl(['acl', 'rules', id]))
           .then(response => {
-            console.log(response);
-            this.formData = response.data;
-            this.formData.createdAt = dateFormat(new Date(response.data.createdAt), 'yyyy-MM-dd HH:mm:ss');
-            this.formData.modifiedAt = dateFormat(new Date(response.data.modifiedAt), 'yyyy-MM-dd HH:mm:ss');
-            this.formData.provisioningEventTime = dateFormat(new Date(response.data.provisioningEventTime), 'yyyy-MM-dd HH:mm:ss');
+            const { data } = response;
+            this.formData = data;
+            this.operations = data.operation;
+
+            if (data.condition && data.condition !== '') {
+              this.conditions = { clientId: true, userId: true };
+            }
+
           }).catch(error => {
             const result = errorRender(error.response.status, error.response.data);
             this.isAlertShow = result.isAlertShow;
@@ -331,26 +362,51 @@ export default {
     onSave() {
       const { mode, id } = this.$route.query;
       this.formData.operation = this.operations;
-      console.log(this.formData);
+
+      Object.keys(this.error).map(key => {
+        if (!this.formData[key] || this.formData[key] === '' || this.formData[key].length === 0) {
+          if (key !== 'type') {
+            this.error[key] = true;
+          }
+        }
+      });
+      if (this.operations.length > 0) {
+        this.error['operation'] = false;
+      }
+      let checkResult = Object.keys(this.error).some(key => {
+        return !!this.error[key];
+      });
+      if (checkResult) {
+        return null;
+      }
+
       if (mode === 'add') {
         // create
         this.$http.post(APIHandler.buildUrl(['acl', 'rules']), this.formData)
             .then(response => {
-              console.log(response);
+              const { status } = response;
+              if (status === 200 || 201 || 204) {
+                this.isAlertShow = true;
+                this.modalText = '저장되었습니다.';
+              }
             }).catch(error => {
-          const result = errorRender(error.response.status, error.response.data);
-          this.isAlertShow = result.isAlertShow;
-          this.modalText = result.message + `(${ error.message })`;
+              const result = errorRender(error.response.status, error.response.data);
+              this.isAlertShow = result.isAlertShow;
+              this.modalText = result.message + `(${ error.message })`;
         });
       } else {
         // modify
         this.$http.put(APIHandler.buildUrl(['acl', 'rules', id]), this.formData)
             .then(response => {
-              console.log(response);
+              const { status } = response;
+              if (status === 200 || 201 || 204) {
+                this.isAlertShow = true;
+                this.modalText = '저장되었습니다.';
+              }
             }).catch(error => {
-          const result = errorRender(error.response.status, error.response.data);
-          this.isAlertShow = result.isAlertShow;
-          this.modalText = result.message + `(${ error.message })`;
+              const result = errorRender(error.response.status, error.response.data);
+              this.isAlertShow = result.isAlertShow;
+              this.modalText = result.message + `(${ error.message })`;
         });
       }
     },
@@ -359,9 +415,15 @@ export default {
       this.modalText = '삭제하시겠습니까?';
     },
     onDeleteSuccess() {
+      const { id } = this.$route.query;
       this.$http.delete(APIHandler.buildUrl(['acl', 'rules', id]))
           .then(response => {
-            console.log(response);
+            const { status } = response;
+            if (status === 204) {
+              this.$router.push({
+                name: 'AccessControl'
+              });
+            }
           }).catch(error => {
         const result = errorRender(error.response.status, error.response.data);
         this.isAlertShow = result.isAlertShow;
@@ -370,6 +432,13 @@ export default {
     },
     onClose() {
       this.isDelAttrShow = false;
+      this.isAlertShow = false;
+    },
+    onChange() {
+      Object.keys(this.conditions)
+          .some(() => this.conditions['clientId'] && this.conditions['userId']
+              ? this.formData['condition'] = 'AND'
+              : this.formData['condition'] = '');
     }
   },
   mounted() {
@@ -384,9 +453,10 @@ export default {
 </script>
 
 <style scoped>
-.text__total {
-  height: 25px;
-  border-top: 0;
-  line-height: 35px;
+.error__color {
+  color: #f56c6c; font-size: 10px;
+}
+.error__border {
+  border-color: #f56c6c;
 }
 </style>

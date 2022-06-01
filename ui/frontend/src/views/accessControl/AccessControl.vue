@@ -185,10 +185,10 @@ export default {
                   resourceId: item.resourceId,
                   resourceType: item.resourceType,
                   userId: item.userId,
-                  condition: item.condition,
+                  condition: item.condition.toString(),
                   operation: item.operation,
-                  createdAt: dateFormat(new Date(item.createdAt), 'yyyy-MM-dd HH:mm:ss'),
-                  modifiedAt: dateFormat(new Date(item.modifiedAt), 'yyyy-MM-dd HH:mm:ss'),
+                  createdAt: item.createdAt,
+                  modifiedAt: item.modifiedAt,
                 }
               });
               this.totalCount = totalCnt;
