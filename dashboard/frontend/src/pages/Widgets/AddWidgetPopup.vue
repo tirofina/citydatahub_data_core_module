@@ -490,7 +490,8 @@ export default {
     },
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
-      return !chartAttribute || !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
+      if (!chartAttribute) return false;
+      return !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
     },
     isEntityIdMultiple() {
       return this.formData['dataType'] === 'last';
@@ -831,6 +832,8 @@ export default {
       }
       // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
       if (this.formData.chartType === 'histogram') {
+        this.chartUnit = null;
+        this.formData['chartAttribute'] = null;
         const displayOption = {
           chartType: true,
           typeUri: true,

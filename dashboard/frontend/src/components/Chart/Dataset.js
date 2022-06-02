@@ -98,9 +98,10 @@ export const lineChartOptions = (option) => {
 
 // Histogram Chart options
 // TODO 확인 필요
-export const histogramChartOptions = (option, chartUnit, totalCount) => {
+export const histogramChartOptions = (option, chartUnit, maxX) => {
   // https://www.chartjs.org/docs/latest/getting-started/v3-migration.html
   // TODO tooltip 적용 필요
+  // TODO totalCount: 값이 제대로 오지 않아 별도 설정.
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -120,7 +121,7 @@ export const histogramChartOptions = (option, chartUnit, totalCount) => {
         display: false,
         ticks: {
           autoSkip: true,
-          max: totalCount - chartUnit, // 최종 값 - 기준 값 (ex- 0~100 / 10 단위면 90까지)
+          max: maxX - chartUnit, // 최종 값 - 기준 값 (ex- 0~100 / 10 단위면 90까지)
         },
       },
         {
@@ -128,7 +129,7 @@ export const histogramChartOptions = (option, chartUnit, totalCount) => {
           display: true,
           ticks: {
             autoSkip: true,
-            max: totalCount, // 최종 값 - 기준 값 (ex- 0~100)
+            max: maxX, // 최종 값 - 기준 값 (ex- 0~100)
           }
         }
       ],
@@ -299,7 +300,7 @@ export const setHistogramChartHistory = (histogramData) => {
 // Histogram Last Chart dateset data binding
 // TODO 데이터 받아서 확인 필요
 // TODO x를 중간값이 아닌 시작 값으로 API 변경 요청 필요
-export const setHistogramChartHistory = (histogramData, chartUnit) => {
+export const setHistogramNumberChart = (histogramData, chartUnit) => {
   let randomIndex = Math.floor(Math.random() * 13);
   let labels = [0]; // TODO 항상 0으로 시작?
   let datasets = [];

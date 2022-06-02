@@ -195,7 +195,7 @@ import {
   setBarChartLast,
   setBarChartHistory,
   setLineChart,
-  setHistogramChartHistory,
+  setHistogramNumberChart,
   setHistogramChartLast,
   chartOptions,
   barChartOptions,
@@ -285,8 +285,8 @@ export default {
     socketConnect() {
       if (!this.websocket) {
         // TODO process.env - subtract it as an environmental variable.
-        // const serverURL = 'ws://localhost:8084/widgetevents'
-        const serverURL = `ws://${window.location.host}/widgetevents`;
+        const serverURL = 'ws://localhost:8084/widgetevents'
+        // const serverURL = `ws://${window.location.host}/widgetevents`;
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
@@ -340,14 +340,16 @@ export default {
       }
 
       if (socketData.chartType === 'histogram') {
-        if (socketData.dataType === 'last') {
-          resultData = setHistogramChartLast(socketData);
-        } else {
-          resultData = setHistogramChartHistory(socketData);
-        }
+        // if (socketData.dataType === 'last') {
+        //   resultData = setHistogramChartLast(socketData);
+        // } else {
+          const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
+          const {chartUnit} = this.layout[index];
+          resultData = setHistogramNumberChart(socketData, chartUnit);
+        // }
       }
 
-      this.layout.some(item => {
+      this.layout.forEach(item => {
         if (item.widgetId === socketData.widgetId) {
           item.data = resultData;
           if (item.chartType === 'bar') {
@@ -355,7 +357,11 @@ export default {
           } else if (item.chartType === 'line') {
             item.options = lineChartOptions(item);
           } else if (item.chartType === 'histogram') {
-            item.options = histogramChartOptions(item, socketData.data.length);
+            const {chartUnit} = item;
+            // 차트의 max xAxis 설정 위함
+            const N = socketData.data.length;
+            const maxX = N > 0 ? socketData.data[N-1].x + (chartUnit / 2) : 10;
+            item.options = histogramChartOptions(item, chartUnit, maxX);
           } else {
             item.options = chartOptions(item);
           }
@@ -547,6 +553,13 @@ export default {
                 mapSearchConditionId: mapSearchConditionId
               });
 
+              // TODO websocket에 실어 달라고 말씀드리기
+              if (chartType === 'histogram') {
+                const {extention1} = item;
+                this.layout[this.index].chartUnit = extention1;
+                console.log(`new logic: ${extention1}`)
+              }
+
               if (chartType === 'custom_text') {
                 const {extention1, extention2} = item;
                 this.layout[this.index].data = {
@@ -563,101 +576,101 @@ export default {
             });
           }
         })
-      .finally(() => {
-
-        // TODO 더미데이터 셋팅
-        /*
-        const socketData = {
-          // entityIds: ["AAA", "BBB", "CCC"],
-          entityIds: ["AAA"],
-          data: [
-            // TODO 예제로 주신건 chartjs 3버전이라서 2 버전으로 하고자 하면 chartValue 단일 리스트 필요
-            // x가 나누고자 하던 항목 단위에서, 종료 값? 으로 변경 필요
-            // https://www.educative.io/edpresso/chartjs---create-a-histogram
-            // https://stackoverflow.com/questions/51880101/make-a-histogram-in-chart-js
-            {id: 'AAA', chartValue: {x: 1, y: 100}},
-            {id: 'AAA', chartValue: {x: 2, y: 100}},
-            {id: 'AAA', chartValue: {x: 3, y: 300}},
-            {id: 'AAA', chartValue: {x: 4, y: 200}},
-            {id: 'AAA', chartValue: {x: 5, y: 200}},
-            {id: 'AAA', chartValue: {x: 6, y: 200}},
-            {id: 'AAA', chartValue: {x: 7, y: 200}},
-            {id: 'AAA', chartValue: {x: 8, y: 200}},
-            {id: 'AAA', chartValue: {x: 9, y: 200}},
-            {id: 'AAA', chartValue: {x: 10, y: 200}},
-            {id: 'AAA', chartValue: {x: 11, y: 200}},
-            {id: 'AAA', chartValue: {x: 12, y: 200}},
-            {id: 'AAA', chartValue: {x: 13, y: 200}},
-            {id: 'AAA', chartValue: {x: 14, y: 200}},
-            {id: 'AAA', chartValue: {x: 15, y: 200}},
-            {id: 'AAA', chartValue: {x: 16, y: 200}},
-            // {id: 'BBB', chartValue: 300},
-            // {id: 'CCC', chartValue: 200},
-          ]
-        }
-         */
-        const socketData = {
-          "totalCount": 100,
-          "widgetId": "89c21dad-09ca-481c-910b-6a2b13975e62",
-          "chartType": "histogram",
-          "dataType": "history",
-          "attributeId": "availableSpotNumber",
-          "data": [
-            {
-              "x": 5,
-              "y": 0
-            },
-            {
-              "x": 15,
-              "y": 0
-            },
-            {
-              "x": 25,
-              "y": 4
-            },
-            {
-              "x": 35,
-              "y": 5
-            },
-            {
-              "x": 45,
-              "y": 5
-            },
-            {
-              "x": 55,
-              "y": 7
-            },
-            {
-              "x": 65,
-              "y": 6
-            },
-            {
-              "x": 75,
-              "y": 8
-            },
-            {
-              "x": 85,
-              "y": 9
-            },
-            {
-              "x": 95,
-              "y": 2
-            }
-          ],
-          "entityIds": [
-            "urn:datahub:OffStreetParking:yt_lot_2"
-          ]
-        }
-        // const chartUnit = this.formData.extention1; // TODO 실제 해당 값으로 설정 필요
-        const chartUnit = 10; // 데미데이터
-        const resultData = setHistogramChartHistory(socketData, chartUnit);
-        this.layout.forEach(item => {
-          if (item.chartType === 'histogram') {
-            item.data = resultData;
-            item.options = histogramChartOptions(item, chartUnit, socketData.totalCount);
-          }
-        });
-      });
+      // .finally(() => {
+      //
+      //   // TODO 더미데이터 셋팅
+      //   /*
+      //   const socketData = {
+      //     // entityIds: ["AAA", "BBB", "CCC"],
+      //     entityIds: ["AAA"],
+      //     data: [
+      //       // TODO 예제로 주신건 chartjs 3버전이라서 2 버전으로 하고자 하면 chartValue 단일 리스트 필요
+      //       // x가 나누고자 하던 항목 단위에서, 종료 값? 으로 변경 필요
+      //       // https://www.educative.io/edpresso/chartjs---create-a-histogram
+      //       // https://stackoverflow.com/questions/51880101/make-a-histogram-in-chart-js
+      //       {id: 'AAA', chartValue: {x: 1, y: 100}},
+      //       {id: 'AAA', chartValue: {x: 2, y: 100}},
+      //       {id: 'AAA', chartValue: {x: 3, y: 300}},
+      //       {id: 'AAA', chartValue: {x: 4, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 5, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 6, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 7, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 8, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 9, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 10, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 11, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 12, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 13, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 14, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 15, y: 200}},
+      //       {id: 'AAA', chartValue: {x: 16, y: 200}},
+      //       // {id: 'BBB', chartValue: 300},
+      //       // {id: 'CCC', chartValue: 200},
+      //     ]
+      //   }
+      //    */
+      //   const socketData = {
+      //     "totalCount": 100,
+      //     "widgetId": "89c21dad-09ca-481c-910b-6a2b13975e62",
+      //     "chartType": "histogram",
+      //     "dataType": "history",
+      //     "attributeId": "availableSpotNumber",
+      //     "data": [
+      //       {
+      //         "x": 5,
+      //         "y": 0
+      //       },
+      //       {
+      //         "x": 15,
+      //         "y": 0
+      //       },
+      //       {
+      //         "x": 25,
+      //         "y": 4
+      //       },
+      //       {
+      //         "x": 35,
+      //         "y": 5
+      //       },
+      //       {
+      //         "x": 45,
+      //         "y": 5
+      //       },
+      //       {
+      //         "x": 55,
+      //         "y": 7
+      //       },
+      //       {
+      //         "x": 65,
+      //         "y": 6
+      //       },
+      //       {
+      //         "x": 75,
+      //         "y": 8
+      //       },
+      //       {
+      //         "x": 85,
+      //         "y": 9
+      //       },
+      //       {
+      //         "x": 95,
+      //         "y": 2
+      //       }
+      //     ],
+      //     "entityIds": [
+      //       "urn:datahub:OffStreetParking:yt_lot_2"
+      //     ]
+      //   }
+      //   // const chartUnit = this.formData.extention1; // TODO 실제 해당 값으로 설정 필요
+      //   const chartUnit = 10; // 데미데이터
+      //   const resultData = setHistogramChartHistory(socketData, chartUnit);
+      //   this.layout.forEach(item => {
+      //     if (item.chartType === 'histogram') {
+      //       item.data = resultData;
+      //       item.options = histogramChartOptions(item, chartUnit, socketData.totalCount);
+      //     }
+      //   });
+      // });
     },
     getBase64Image(index, file, name) {
       const url = `data:image/png;base64,${file}`
