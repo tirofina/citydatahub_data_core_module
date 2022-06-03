@@ -1044,6 +1044,12 @@ export default {
         return;
       }
 
+      // 3. Required verification of chartAttribute
+      if (this.display['chartType'] && !this.formData.chartAttribute) {
+        this.$alert(this.$i18n.t('message.selectChartAttribute'));
+        return;
+      }
+
       if (!this.isEditImage && this.isModify && chartType === 'Image') {
         this.editImageWidget();
         return;
@@ -1148,6 +1154,9 @@ export default {
               };
             } else if (this.formData.chartType === 'map_latest') {
               item.mapSearchConditionId = mapSearchConditionId;
+            } else if (chartType === 'histogram') {
+              item.chartUnit = this.formData.extention1;
+              item.valueType = this.formData.extention2;
             } else {
               item.options = chartOptions(item);
             }
@@ -1202,6 +1211,9 @@ export default {
             item.data = {
               file: URL.createObjectURL(file)
             }
+          } else if (chartType === 'histogram') {
+            item.chartUnit = this.formData.extention1;
+            item.valueType = this.formData.extention2;
           } else {
             item.options = chartOptions(item);
           }

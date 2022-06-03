@@ -67,6 +67,7 @@
     "deleted": "Deleted.",
     "selectDataModels": "Select Data Model(s).",
     "selectDataEntityIds": "Select Data Entity ID(s).",
+    "selectChartAttribute": "Select Attribute to Display.",
     "notSupportStringType": "해당 차트 유형에서는 String 타입의 차트 값을 선택할 수 없습니다."
   },
   "search": {
