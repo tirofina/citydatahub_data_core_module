@@ -96,12 +96,18 @@ export const lineChartOptions = (option) => {
   };
 };
 
-// Histogram Chart options
+// Histogram String Chart options
+export const histogramStrChartOptions = (option) => {
+  const result = barChartOptions(option);
+  result.legend = {display: false};
+  return result;
+};
+
+// Histogram Number Chart options
 // TODO 확인 필요
-export const histogramChartOptions = (option, chartUnit, maxX) => {
+export const histogramNumberChartOptions = (option, chartUnit, maxX) => {
   // https://www.chartjs.org/docs/latest/getting-started/v3-migration.html
   // TODO tooltip 적용 필요
-  // TODO totalCount: 값이 제대로 오지 않아 별도 설정.
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -298,11 +304,9 @@ export const setHistogramChartHistory = (histogramData) => {
  */
 
 // Histogram Last Chart dateset data binding
-// TODO 데이터 받아서 확인 필요
-// TODO x를 중간값이 아닌 시작 값으로 API 변경 요청 필요
 export const setHistogramNumberChart = (histogramData, chartUnit) => {
   let randomIndex = Math.floor(Math.random() * 13);
-  let labels = [0]; // TODO 항상 0으로 시작?
+  let labels = [0]; // 항상 0으로 시작
   let datasets = [];
   let data = [];
   let bgColor = [];
@@ -332,8 +336,8 @@ export const setHistogramNumberChart = (histogramData, chartUnit) => {
 // Histogram Last Chart dateset data binding
 // TODO Last, History가 아니라, Integer, String으로 나누어야 할듯?
 // TODO 데이터 받아서 확인 필요
-export const setHistogramChartLast = (histogramData) => {
-  const rendomIndex = Math.floor(Math.random() * 13);
+export const setHistogramStrChart = (histogramData) => {
+  const randomIndex = Math.floor(Math.random() * 13);
   let labels = [];
   let datasets = [];
   let data = [];
@@ -341,20 +345,18 @@ export const setHistogramChartLast = (histogramData) => {
   let borderColor = [];
 
   // Setting the data according to the received array value.
-  histogramData.data.forEach((item, index) => {
-    labels.push(item.id);
-    data.push(item.chartValue);
-    bgColor.push(transparentize(color(rendomIndex + index), 0.5));
-    borderColor.push(color(rendomIndex + index));
+  histogramData.data.map((item, index) => {
+    labels.push(item.x);
+    data.push(item.y);
+    bgColor.push(transparentize(color(randomIndex + index), 0.5));
+    borderColor.push(color(randomIndex + index));
   });
   datasets.push({
     label: histogramData.attributeId,
     data: data,
     borderColor: borderColor,
     backgroundColor: bgColor,
-    borderWidth: 1,
-    barPercentage: 1, // 공백 없게
-    categoryPercentage: 1, // 공백 없게
+    borderWidth: 1
   });
   return { labels: labels, datasets: datasets };
 };

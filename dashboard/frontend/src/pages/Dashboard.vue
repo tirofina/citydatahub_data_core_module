@@ -196,11 +196,11 @@ import {
   setBarChartHistory,
   setLineChart,
   setHistogramNumberChart,
-  setHistogramChartLast,
+  setHistogramStrChart,
   chartOptions,
   barChartOptions,
   lineChartOptions,
-  histogramChartOptions,
+  histogramNumberChartOptions, histogramStrChartOptions,
 } from '@/components/Chart/Dataset';
 
 const GridLayout = VueGridLayout.GridLayout;
@@ -340,13 +340,13 @@ export default {
       }
 
       if (socketData.chartType === 'histogram') {
-        // if (socketData.dataType === 'last') {
-        //   resultData = setHistogramChartLast(socketData);
-        // } else {
-          const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
-          const {chartUnit} = this.layout[index];
+        const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
+        const {chartUnit, valueType} = this.layout[index];
+        if (valueType && valueType.toUpperCase() === 'STRING') {
+          resultData = setHistogramStrChart(socketData);
+        } else {
           resultData = setHistogramNumberChart(socketData, chartUnit);
-        // }
+        }
       }
 
       this.layout.forEach(item => {
@@ -357,11 +357,15 @@ export default {
           } else if (item.chartType === 'line') {
             item.options = lineChartOptions(item);
           } else if (item.chartType === 'histogram') {
-            const {chartUnit} = item;
+            const {chartUnit, valueType} = item;
             // 차트의 max xAxis 설정 위함
             const N = socketData.data.length;
             const maxX = N > 0 ? socketData.data[N-1].x + (chartUnit / 2) : 10;
-            item.options = histogramChartOptions(item, chartUnit, maxX);
+            if (valueType && valueType.toUpperCase() === 'STRING') {
+              item.options = histogramStrChartOptions(item);
+            } else {
+              item.options = histogramNumberChartOptions(item, chartUnit, maxX);
+            }
           } else {
             item.options = chartOptions(item);
           }
@@ -555,8 +559,9 @@ export default {
 
               // TODO websocket에 실어 달라고 말씀드리기
               if (chartType === 'histogram') {
-                const {extention1} = item;
+                const {extention1, extention2} = item;
                 this.layout[this.index].chartUnit = extention1;
+                this.layout[this.index].valueType = extention2;
                 console.log(`new logic: ${extention1}`)
               }
 

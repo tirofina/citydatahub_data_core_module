@@ -1094,6 +1094,7 @@ export default {
 
       if (chartType === 'histogram') {
         this.formData.extention1 = this.chartUnit;
+        this.formData.extention2 = this.validation.chartAttribute; // 차트 값 valueType 저장
       }
 
       // Save the chart size location.
