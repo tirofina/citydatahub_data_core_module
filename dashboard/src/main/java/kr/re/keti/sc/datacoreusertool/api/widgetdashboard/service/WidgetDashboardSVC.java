@@ -1718,10 +1718,11 @@ public class WidgetDashboardSVC {
 		// If the x-axis values ​​are numeric, repositions the values ​​in units of the x-axis.
 		if(isNumberXAxisValue) {
 			double factor = 0.0;
+			double lowestValue = 0;
+			
 			if(xAxisUnit > 0) { 
 				factor = minValue/xAxisUnit;
 			}
-			double lowestValue = 0;
 			
 			if(factor < 0) {
 				lowestValue = xAxisUnit * Integer.valueOf(String.format("%.0f", factor));
@@ -1731,6 +1732,7 @@ public class WidgetDashboardSVC {
 			}
 			
 			int greatestValue = ((int)(maxValue / xAxisUnit) + 1) * xAxisUnit;
+			
 			if(lowestValue > 0) {
 				lowestValue = 0;
 			}
@@ -1745,13 +1747,14 @@ public class WidgetDashboardSVC {
 				}
 				
 				String strKey = String.valueOf(key);
+				double xValue;
+				
 				if(Double.valueOf(strKey) >= 0) {
-					double xValue = (((int)(Integer.valueOf(strKey) / xAxisUnit) + 1) * xAxisUnit) - (xAxisUnit / 2.0);
-					resultMap.replace(xValue, resultMap.get(xValue) + 1);
+					xValue = (((int)(Double.valueOf(strKey) / xAxisUnit) + 1) * xAxisUnit) - (xAxisUnit / 2.0);
 				} else {
-					double xValue = ((int)(Integer.valueOf(strKey) / xAxisUnit) * xAxisUnit) - (xAxisUnit / 2.0);
-					resultMap.replace(xValue, resultMap.get(xValue) + 1);
+					xValue = ((int)(Double.valueOf(strKey) / xAxisUnit) * xAxisUnit) - (xAxisUnit / 2.0);
 				}
+				resultMap.replace(xValue, resultMap.get(xValue) + 1);
 			}
 			chartValueMap = resultMap;
 		}
