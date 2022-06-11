@@ -133,7 +133,7 @@
                             name="addButton"
                             @click="(event) => onDelivery(event, result)"
                         >
-                          추가
+                          {{ $t('comm.add') }}
                         </button>
                         <button
                             v-if="result.isDelButton"
@@ -142,7 +142,7 @@
                             name="deleteButton"
                             @click="(event) => onDelivery(event, result)"
                         >
-                          삭제
+                          {{ $t('comm.delete') }}
                         </button>
                       </div>
                       <input
