@@ -10,6 +10,8 @@ import router from './router/index';
 import axios from 'axios';
 import store from './store';
 
+import i18n from './modules/i18n'
+
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import 'expose-loader?exposes[]=$&exposes[]=jQuery!jquery';
 import '@/assets/js/common-ui';
@@ -26,9 +28,12 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 axios.defaults.headers.timeout = 60000;
 Vue.prototype.$http = axios;
 
+locale.use(lang);
+
 new Vue({
   router,
   store,
   render: h => h(App),
-  components: { App }
+  components: { App },
+  i18n
 }).$mount('#app');

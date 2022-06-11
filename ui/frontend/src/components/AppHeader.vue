@@ -24,7 +24,7 @@
         <a class="breadcrumb__list--home" href="#none">
           <span class="hidden">Home</span>
         </a><span class="breadcrumb__list">{{ $route.meta.breadcrumb[0] }}</span>
-        <span class="breadcrumb__list--current">{{ $route.meta.breadcrumb[1] }}</span>
+<!--        <span class="breadcrumb__list&#45;&#45;current">{{ $route.meta.breadcrumb[1] }}</span>-->
       </div>
     </header>
     <AppModal
