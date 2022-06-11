@@ -77,6 +77,18 @@
     "provisionServer": "Provision 서버유형",
     "storageType": "저장소유형"
   },
+  "provision": {
+    "title": "Provision 서버",
+    "popupTitle": "Provision Server 검색",
+    "serverId": "서버 아이디",
+    "serverType": "서버유형",
+    "uri": "URI",
+    "protocol": "Protocol",
+    "isActive": "사용여부",
+    "provisionServerInfo": "Provision Server Information",
+    "provisionServerDetail": "Provision Server 상세",
+    "description": "설명"
+  },
   "comm": {
     "total": "총",
     "detailSearch": "상세검색",
@@ -111,6 +123,8 @@
     "saveCheck": "저장하시겠습니까?",
     "deleteCheck": "삭제하시겠습니까?",
     "datasetModifyMessage": "데이터 셋 수정을 통해\n플로우 등록 해주셔야 데이터가 저장 됩니다.",
-    "provisionDuplicateMessage": "Provision 서버유형이 중복된 데이터가 있습니다."
+    "provisionDuplicateMessage": "Provision 서버유형이 중복된 데이터가 있습니다.",
+    "active": "사용",
+    "inactive": "미사용"
   }
 }

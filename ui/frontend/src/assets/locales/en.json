@@ -77,6 +77,18 @@
     "provisionServer": "Provision Server",
     "storageType": "Storage Type"
   },
+  "provision": {
+    "title": "Provision Server",
+    "popupTitle": "Provision Server Search",
+    "serverId": "Server ID",
+    "serverType": "Server Type",
+    "uri": "URI",
+    "protocol": "Protocol",
+    "isActive": "Is Active",
+    "provisionServerInfo": "Provision Server Information",
+    "provisionServerDetail": "Provision Server Detail",
+    "description": "Description"
+  },
   "comm": {
     "total": "Total",
     "detailSearch": "Search",
@@ -111,6 +123,8 @@
     "saveCheck": "Do you want to save?",
     "deleteCheck": "Do you want to delete?",
     "datasetModifyMessage": "By modifying the data set\nYou must register the flow to save the data.",
-    "provisionDuplicateMessage": "Duplicate data found in Provision server."
+    "provisionDuplicateMessage": "Duplicate data found in Provision server.",
+    "active": "Active",
+    "inactive": "Inactive"
   }
 }
