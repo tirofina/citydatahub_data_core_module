@@ -1,20 +1,23 @@
 package kr.re.keti.sc.datacoreui.controller.web;
 
-import kr.re.keti.sc.datacoreui.api.menu.vo.MenuBaseVO;
-import kr.re.keti.sc.datacoreui.security.service.DataCoreUiSVC;
-import kr.re.keti.sc.datacoreui.security.vo.UserVO;
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
+import kr.re.keti.sc.datacoreui.api.menu.vo.MenuBaseVO;
+import kr.re.keti.sc.datacoreui.security.service.DataCoreUiSVC;
+import kr.re.keti.sc.datacoreui.security.vo.UserVO;
 
 /**
  * Class of data core view controller
@@ -111,8 +114,9 @@ public class DataCoreViewController implements ErrorController {
      * @throws IOException	Throw an exception when an IO error occurs.
      */
     @GetMapping("/accessmenu")
-    public ResponseEntity<List<MenuBaseVO>> getAccessMenu(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	return dataCoreUiSVC.getAccessMenu(request);
+    public ResponseEntity<List<MenuBaseVO>> getAccessMenu(HttpServletRequest request, HttpServletResponse response, 
+    		@RequestParam(value="langCd", defaultValue="en") String langCd) throws Exception {
+    	return dataCoreUiSVC.getAccessMenu(request, langCd);
     }
     
     /**
