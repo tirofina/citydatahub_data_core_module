@@ -135,6 +135,17 @@
     "level": "레벨",
     "isActive": "사용여부"
   },
+  "role": {
+    "title": "메뉴 권한 관리",
+    "menuAuth": "메뉴 권한",
+    "unAuthMenu": "권한 미부여 메뉴 리스트",
+    "authMenu": "권한 부여 메뉴 리스트",
+    "popupTitle": "메뉴 권한 유형 상세",
+    "id": "메뉴권한 아이디",
+    "name": "메뉴권한명",
+    "isActive": "사용여부",
+    "description": "메뉴 권한 설명"
+  },
   "comm": {
     "total": "총",
     "valid": "정상",

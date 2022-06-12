@@ -135,6 +135,17 @@
     "level": "Level",
     "isActive": "Is Active"
   },
+  "role": {
+    "title": "Menu Authorization",
+    "menuAuth": "Auth ID",
+    "unAuthMenu": "Unauthorized Menu",
+    "authMenu": "Authorized Menu",
+    "popupTitle": "Menu Authorization Information",
+    "id": "ID",
+    "name": "Name",
+    "isActive": "Is Active",
+    "description": "Description"
+  },
   "comm": {
     "total": "Total",
     "valid": "Valid",
