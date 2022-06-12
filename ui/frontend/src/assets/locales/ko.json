@@ -89,6 +89,24 @@
     "provisionServerDetail": "Provision Server 상세",
     "description": "설명"
   },
+  "platform": {
+    "title": "외부 플랫폼 인증",
+    "dataSourceId": "외부 연동 플랫폼 ID",
+    "dataSourceName": "외부 연동 플랫폼 Name",
+    "description": "설명",
+    "id": "외부 플랫폼 ID",
+    "name": "외부 플랫폼 명",
+    "allowedIp": "수신가능 IP",
+    "allowedDataset": "수신가능 데이터셋 ID",
+    "selectAll": "전체",
+    "allowedClient": "수신가능 Client ID",
+    "instanceIdPrefix": "인스턴스 Prefix",
+    "datasetSearch": "데이터셋 ID 검색",
+    "dataset": "데이터 셋",
+    "datasetId": "데이터 셋 아이디",
+    "datasetName": "데이터 셋 이름",
+    "detailTitle": "외부 플랫폼 인증 상세"
+  },
   "comm": {
     "total": "총",
     "detailSearch": "상세검색",

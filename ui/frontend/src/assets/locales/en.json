@@ -89,6 +89,24 @@
     "provisionServerDetail": "Provision Server Detail",
     "description": "Description"
   },
+  "platform": {
+    "title": "Data Source Platform",
+    "dataSourceId": "Data Source ID",
+    "dataSourceName": "Data Source Name",
+    "description": "Description",
+    "id": "ID",
+    "name": "Name",
+    "allowedIp": "Allowed IP",
+    "allowedDataset": "Allowed Dataset",
+    "selectAll": "Select All",
+    "allowedClient": "Allowed Client",
+    "instanceIdPrefix": "Instance ID Prefix",
+    "datasetSearch": "Dataset Search",
+    "dataset": "Dataset ID",
+    "datasetId": "Dataset ID",
+    "datasetName": "Dataset Name",
+    "detailTitle": "Data Source Platform Information"
+  },
   "comm": {
     "total": "Total",
     "detailSearch": "Search",
