@@ -205,6 +205,25 @@
     "provisionDuplicateMessage": "Provision 서버유형이 중복된 데이터가 있습니다.",
     "active": "사용",
     "inactive": "미사용",
-    "menuCheckMessage": "메뉴 등록은 2레벨까지 가능합니다."
+    "menuCheckMessage": "메뉴 등록은 2레벨까지 가능합니다.",
+    "welcome": "님 환영합니다.",
+    "userInfo": "사용자 정보",
+    "logout": "로그아웃",
+    "userId": "사용자 아이디",
+    "userName": "사용자 명",
+    "contact": "사용자 연락처",
+    "userPopupTitle": "사용자 정보"
+  },
+  "leftMenu": {
+    "DATACORE_100": "데이터 모델 관리",
+    "DATACORE_200": "데이터 셋 관리",
+    "DATACORE_300": "데이터 접근 제어 관리",
+    "DATACORE_400": "Provision 서버 관리",
+    "DATACORE_500": "외부 플랫폼 인증 관리",
+    "DATACORE_600": "품질 모니터링",
+    "DATACORE_700": "시스템 관리",
+    "DATACORE_701": "코드 관리",
+    "DATACORE_702": "메뉴 관리",
+    "DATACORE_703": "메뉴 권한 관리"
   }
 }

@@ -205,6 +205,25 @@
     "provisionDuplicateMessage": "Duplicate data found in Provision server.",
     "active": "Active",
     "inactive": "Inactive",
-    "menuCheckMessage": "You can register up to level 2 for the menu."
+    "menuCheckMessage": "You can register up to level 2 for the menu.",
+    "welcome": "Welcome.",
+    "userInfo": "User Info",
+    "logout": "Logout",
+    "userId": "ID",
+    "userName": "Name",
+    "contact": "Contact",
+    "userPopupTitle": "User Information"
+  },
+  "leftMenu": {
+    "DATACORE_100": "Data Model",
+    "DATACORE_200": "Dataset",
+    "DATACORE_300": "Access Control",
+    "DATACORE_400": "Provision Server",
+    "DATACORE_500": "Data Source Platform",
+    "DATACORE_600": "Data Validation",
+    "DATACORE_700": "Setting",
+    "DATACORE_701": "Code",
+    "DATACORE_702": "Menu",
+    "DATACORE_703": "Menu Auth"
   }
 }
