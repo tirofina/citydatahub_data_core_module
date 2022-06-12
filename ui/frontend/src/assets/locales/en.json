@@ -123,6 +123,18 @@
     "errorMessage": "Error Message",
     "originalData": "Original Data"
   },
+  "menu": {
+    "systemManage": "Setting",
+    "title": "Menu",
+    "menuConf": "Menu Configuration",
+    "menuInfo": "Menu Information",
+    "id": "ID",
+    "name": "Name",
+    "parentMenuId": "Parent Menu ID",
+    "order": "Order",
+    "level": "Level",
+    "isActive": "Is Active"
+  },
   "comm": {
     "total": "Total",
     "valid": "Valid",
@@ -131,9 +143,11 @@
     "create": "Create",
     "creator": "Creator",
     "creationTime": "Creation Time",
+    "creationDate": "Creation Date",
     "createTime": "Creation Time",
     "modifier": "Modifier",
     "modifierTime": "Modification Time",
+    "modifierDate": "Modification Date",
     "cancel":  "Cancel",
     "ok": "OK",
     "id": "ID",
@@ -161,6 +175,7 @@
     "datasetModifyMessage": "By modifying the data set\nYou must register the flow to save the data.",
     "provisionDuplicateMessage": "Duplicate data found in Provision server.",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "menuCheckMessage": "You can register up to level 2 for the menu."
   }
 }

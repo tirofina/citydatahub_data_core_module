@@ -123,6 +123,18 @@
     "errorMessage": "상세오류메시지",
     "originalData": "실패원본데이터"
   },
+  "menu": {
+    "systemManage": "시스템관리",
+    "title": "메뉴관리",
+    "menuConf": "메뉴구성",
+    "menuInfo": "메뉴정보",
+    "id": "메뉴 ID",
+    "name": "메뉴명",
+    "parentMenuId": "상위메뉴 ID",
+    "order": "순번",
+    "level": "레벨",
+    "isActive": "사용여부"
+  },
   "comm": {
     "total": "총",
     "valid": "정상",
@@ -131,9 +143,11 @@
     "create": "등록",
     "creator": "생성자",
     "creationTime": "생성시간",
+    "creationDate": "생성일시",
     "createTime": "생성시각",
     "modifier": "수정자",
     "modifierTime": "수정시간",
+    "modifierDate": "수정일시",
     "cancel":  "취소",
     "ok": "확인",
     "id": "아이디",
@@ -161,6 +175,7 @@
     "datasetModifyMessage": "데이터 셋 수정을 통해\n플로우 등록 해주셔야 데이터가 저장 됩니다.",
     "provisionDuplicateMessage": "Provision 서버유형이 중복된 데이터가 있습니다.",
     "active": "사용",
-    "inactive": "미사용"
+    "inactive": "미사용",
+    "menuCheckMessage": "메뉴 등록은 2레벨까지 가능합니다."
   }
 }
