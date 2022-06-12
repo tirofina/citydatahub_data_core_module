@@ -107,8 +107,26 @@
     "datasetName": "데이터 셋 이름",
     "detailTitle": "외부 플랫폼 인증 상세"
   },
+  "validation": {
+    "title": "품질 모니터링",
+    "title2": "품질 검증 이력",
+    "detailTitle": "품질 모니터링 상세",
+    "popupTitle": "상세 조건 검색",
+    "validationId": "품질검증이력일련번호",
+    "datasetId": "데이터셋ID",
+    "dataModelId": "데이터모델ID",
+    "dataModelType": "데이터모델유형",
+    "entityId": "엔티티ID",
+    "verified": "정상여부",
+    "validationTime": "품질검사시간",
+    "errorCode": "품질검사오류코드",
+    "errorMessage": "상세오류메시지",
+    "originalData": "실패원본데이터"
+  },
   "comm": {
     "total": "총",
+    "valid": "정상",
+    "invalid": "비정상",
     "detailSearch": "상세검색",
     "create": "등록",
     "creator": "생성자",

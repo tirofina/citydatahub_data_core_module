@@ -107,8 +107,26 @@
     "datasetName": "Dataset Name",
     "detailTitle": "Data Source Platform Information"
   },
+  "validation": {
+    "title": "Data Validation",
+    "title2": "Data Validation History",
+    "detailTitle": "Data Validation Record",
+    "popupTitle": "Validation Search",
+    "validationId": "Validation ID",
+    "datasetId": "Dataset ID",
+    "dataModelId": "Data Model ID",
+    "dataModelType": "Data Model Type",
+    "entityId": "Entity ID",
+    "verified": "Validity",
+    "validationTime": "Validation Time",
+    "errorCode": "Error Code",
+    "errorMessage": "Error Message",
+    "originalData": "Original Data"
+  },
   "comm": {
     "total": "Total",
+    "valid": "Valid",
+    "invalid": "Invalid",
     "detailSearch": "Search",
     "create": "Create",
     "creator": "Creator",

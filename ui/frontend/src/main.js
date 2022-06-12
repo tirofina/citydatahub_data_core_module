@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 import ElementUI from 'element-ui';
-import lang from 'element-ui/lib/locale/lang/ko'
+import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import App from './App.vue';
 import router from './router/index';
@@ -19,7 +19,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 
 import 'es6-promise/auto';
 
-locale.use(lang);
+// locale.use(lang);
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 

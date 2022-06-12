@@ -86,8 +86,6 @@
                       <el-date-picker
                           v-model="formData[result.name]"
                           type="datetimerange"
-                          start-placeholder="시작시간"
-                          end-placeholder="종료시간"
                           :default-time="['00:00:00']"
                           size="mini"
                       >
