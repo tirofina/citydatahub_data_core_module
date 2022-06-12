@@ -164,6 +164,19 @@
     "groupDetail": "코드그룹 상세",
     "codeDetail": "코드 상세"
   },
+  "accessControl": {
+    "title": "데이터 접근제어 관리",
+    "id": "접근제어 ID",
+    "resourceId": "리소스 ID",
+    "resourceType": "리소스 유형",
+    "userId": "사용자 ID",
+    "condition": "condition",
+    "operation": "operation",
+    "popupTitle": "데이터 접근제어 검색",
+    "clientId": "Client ID",
+    "provisioningId": "프로비저닝 요청 ID",
+    "provisioningTime": "프로비저닝이벤트시간"
+  },
   "comm": {
     "total": "총",
     "valid": "정상",
@@ -212,7 +225,8 @@
     "userId": "사용자 아이디",
     "userName": "사용자 명",
     "contact": "사용자 연락처",
-    "userPopupTitle": "사용자 정보"
+    "userPopupTitle": "사용자 정보",
+    "saveSuccess": "저장되었습니다."
   },
   "leftMenu": {
     "DATACORE_100": "데이터 모델 관리",

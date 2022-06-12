@@ -164,6 +164,19 @@
     "groupDetail": "Code Group Detail",
     "codeDetail": "Code Detail"
   },
+  "accessControl": {
+    "title": "Access Control",
+    "id": "Access Control ID",
+    "resourceId": "Resource ID",
+    "resourceType": "Resource Type",
+    "userId": "User ID",
+    "condition": "Condition",
+    "operation": "Operation",
+    "popupTitle": "Access Control Search",
+    "clientId": "Client ID",
+    "provisioningId": "Provisioning ID",
+    "provisioningTime": "Provisioning Time"
+  },
   "comm": {
     "total": "Total",
     "valid": "Valid",
@@ -212,7 +225,8 @@
     "userId": "ID",
     "userName": "Name",
     "contact": "Contact",
-    "userPopupTitle": "User Information"
+    "userPopupTitle": "User Information",
+    "saveSuccess": "Saved."
   },
   "leftMenu": {
     "DATACORE_100": "Data Model",
