@@ -146,6 +146,24 @@
     "isActive": "Is Active",
     "description": "Description"
   },
+  "code": {
+    "title": "Code",
+    "subTitle": "Code Group",
+    "groups": "Groups",
+    "groupId": "Group ID",
+    "groupName": "Group Name",
+    "isActive": "Is Active",
+    "description": "Description",
+    "code": "Code",
+    "codes": "Codes",
+    "codeId": "Code ID",
+    "codeName": "Code Name",
+    "order": "Order",
+    "groupCreate": "New Code Group",
+    "codeCreate": "New Code",
+    "groupDetail": "Code Group Detail",
+    "codeDetail": "Code Detail"
+  },
   "comm": {
     "total": "Total",
     "valid": "Valid",
