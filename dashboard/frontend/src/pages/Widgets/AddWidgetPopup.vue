@@ -661,8 +661,8 @@ export default {
     tabClick(tab, event, active) {
       this.activeName = active;
     },
-    async getEntityList(dataModelId) {
-      this.$http.post('/entityIds', {dataModelId: this.dataModel})
+    async getEntityList(dataModelId, typeUri) {
+      this.$http.post('/entityIds', {dataModelId, typeUri})
         .then(response => {
           const status = response.status;
           const items = response.data;
@@ -774,8 +774,8 @@ export default {
             }
 
             if (['donut', 'pie'].indexOf(chartType) > -1) {
-              this.entityId = null;
-            } else if (['line', 'bar'].indexOf(chartType) > -1) {
+              this.entityId = entityRetrieveVO.id.split(',');
+            } else if (['line', 'bar'].indexOf(chartType) > -1) { // TODO histogram 추가?
               this.entityId = dataType === 'history' ? entityRetrieveVO.id : entityRetrieveVO.id.split(',');
             } else {
               this.entityId = entityRetrieveVO.id;
@@ -853,7 +853,12 @@ export default {
         this.initDisplay(displayOption);
       }
     },
-    onTypeUriChange(value) {
+    async onTypeUriChange(value) {
+      if (!this.dataModelDisabled['dataModelId']) {
+        this.entityId = null
+      }
+      await this.getEntityList(null, value);
+
       this.dataModelDisabled = {dataModelId: true, typeUri: false};
     },
     ontimerelChange(value) {
@@ -867,28 +872,17 @@ export default {
       if (!this.dataModelDisabled['dataModelId']) {
         this.entityId = null
       }
-      await this.getEntityList(value);
+      await this.getEntityList(value, null);
 
       this.dataModelDisabled = {dataModelId: this.isModify, typeUri: true};
     },
     onSelectedEntity(array) {
       // TODO 확인필요
-      if (this.dataType === 'history') {
-        let newArr = [];
-        let text = null;
-        array.some(item => {
-          if (item === '') {
-            text = 'ALL';
-            return newArr.push(item);
-          } else {
-            newArr.push(item);
-          }
-        });
-
-        if (text === 'ALL') {
-          this.entityId = this.entityIds.map(item => item.value);
+      if (this.formData.dataType === 'last') {
+        if (array.indexOf('') >= 0) {
+          this.entityId = this.entityIds.filter(_ => _.value !== '').map(item => item.value);
         } else {
-          this.entityId = newArr;
+          this.entityId = array;
         }
       }
     },
@@ -906,7 +900,7 @@ export default {
         this.dataModel = null;
         this.entityId = null;
         this.typeUri = null;
-        this.typeUris = [];
+        // this.typeUris = [];
         this.dataModelDisabled = {dataModelId: false, typeUri: false};
         this.treeData = [];
       }
@@ -914,10 +908,13 @@ export default {
       // Display setting according to chart type.
       switch (value) {
         case 'donut' :
+          this.formData.dataType = 'last';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
             updateInterval: true,
+            entityId: true,
+            typeUri: true,
           });
           break;
         case 'bar' :
@@ -935,10 +932,13 @@ export default {
           });
           break;
         case 'pie' :
+          this.formData.dataType = 'last';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
             updateInterval: true,
+            entityId: true,
+            typeUri: true,
           });
           break;
         case 'line' :
