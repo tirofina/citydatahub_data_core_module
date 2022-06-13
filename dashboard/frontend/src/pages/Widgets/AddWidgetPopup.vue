@@ -891,7 +891,10 @@ export default {
       this.display['chartType'] = !(value === 'custom_text' || value === 'Image' || value === 'latestMap');
 
       // TODO 2차고도화 변경 과업에 따른 테스트 필요
-      // this.isDataTypeDisabled = value !== 'bar';
+      if (value === 'bar' || value === 'line') {
+        this.isDataTypeDisabled = true;
+        this.formData.dataType = 'last';
+      }
 
       // Data to be reset.
       if (!type) {
@@ -928,7 +931,8 @@ export default {
             timerel: true,
             entityId: true,
             time: true,
-            yaxisRange: true
+            yaxisRange: true,
+            typeUri: true,
           });
           break;
         case 'pie' :
@@ -953,7 +957,8 @@ export default {
             timerel: true,
             entityId: true,
             time: true,
-            yaxisRange: true
+            yaxisRange: true,
+            typeUri: true,
           });
           break;
         case 'text' :
@@ -1121,6 +1126,10 @@ export default {
           i: this.index
         });
         this.formData.chartOrder = this.index;
+      }
+
+      if (chartType === 'line') { // line is only history
+        this.formData.dataType = 'history';
       }
 
       // add modify logic
