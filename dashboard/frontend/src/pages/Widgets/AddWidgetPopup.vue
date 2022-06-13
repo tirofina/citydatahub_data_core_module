@@ -786,10 +786,12 @@ export default {
             // Changing the data type to set detailed search conditions.
             if (entityRetrieveVO.q) {
               const query = [...entityRetrieveVO.q];
-              query.map(item => {
+              query.map((item, i) => {
                 const key = item.attr;
                 if (item.condition === ';') {
                   item.temp = 'AND';
+                } else if (i === 0) {
+                  item.temp = null; // first Option
                 } else {
                   item.temp = 'OR';
                 }
@@ -813,7 +815,8 @@ export default {
       this.addList = [];
       Object.keys(this.dynamicQuery).some(key => {
         if (key === data.fullId) {
-          this.addList = this.dynamicQuery[key]
+          this.dynamicQuery[key].map(_ => _.valueType = data.valueType);
+          this.addList = this.dynamicQuery[key];
         }
       });
     },
