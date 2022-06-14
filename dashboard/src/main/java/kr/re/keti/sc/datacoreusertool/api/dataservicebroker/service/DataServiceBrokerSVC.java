@@ -128,7 +128,7 @@ public class DataServiceBrokerSVC {
 			saveHttpServletRequest(request);
 		}
 		
-		DataModelVO dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+		DataModelVO dataModel = getDataModel(entityRetrieveVO);
 		if(dataModel == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
@@ -197,7 +197,7 @@ public class DataServiceBrokerSVC {
 		for(EntityRetrieveVO entityRetrieveVO : entityRetrieveVOs) {
 			headers.remove(Constants.HTTP_HEADER_LINK);
 			
-			DataModelVO dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+			DataModelVO dataModel = getDataModel(entityRetrieveVO);
 			if(dataModel == null) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
@@ -267,7 +267,7 @@ public class DataServiceBrokerSVC {
 		
 		DataModelVO dataModel = null;
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getDataModelId())) {
-			dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+			dataModel = getDataModel(entityRetrieveVO);
 			
 			if(dataModel == null) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -307,7 +307,7 @@ public class DataServiceBrokerSVC {
 			saveHttpServletRequest(request);
 		}
 		
-		DataModelVO dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+		DataModelVO dataModel = getDataModel(entityRetrieveVO);
 		if(dataModel == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
@@ -380,7 +380,7 @@ public class DataServiceBrokerSVC {
 		
 		DataModelVO dataModel = null;
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getDataModelId())) {
-			dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+			dataModel = getDataModel(entityRetrieveVO);
 			
 			if(dataModel == null) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -684,7 +684,7 @@ public class DataServiceBrokerSVC {
 	 * @param params				Request parameter
 	 */
 	private void addSearchValue(EntityRetrieveVO entityRetrieveVO, Map<String, Object> params) {
-		DataModelVO dataModelVO = dataModelSVC.getDataModel(entityRetrieveVO.getDataModelId()).getBody();
+		DataModelVO dataModelVO = dataModelSVC.getDataModelbyId(entityRetrieveVO.getDataModelId()).getBody();
 		Map<String, String> attrsType = new LinkedHashMap<String, String>();
 		String q = null;
 		
@@ -719,7 +719,7 @@ public class DataServiceBrokerSVC {
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getQ())) {
 			String q = null;
 			
-			DataModelVO dataModelVO = dataModelSVC.getDataModel(entityRetrieveVO.getDataModelId()).getBody();
+			DataModelVO dataModelVO = dataModelSVC.getDataModelbyId(entityRetrieveVO.getDataModelId()).getBody();
 			Map<String, String> attrsType = new LinkedHashMap<String, String>();
 			
 			if (!ValidateUtil.isEmptyData(dataModelVO)) {
@@ -1005,7 +1005,7 @@ public class DataServiceBrokerSVC {
 	 */
 	public ResponseEntity<List<String>> getEntityIds(EntityRetrieveVO entityRetrieveVO, HttpServletRequest request) {
 		
-		DataModelVO dataModel = getDataModel(entityRetrieveVO.getDataModelId());
+		DataModelVO dataModel = getDataModel(entityRetrieveVO);
 		if(dataModel == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
@@ -1055,8 +1055,14 @@ public class DataServiceBrokerSVC {
 	 * @param dataModelId	Data model ID
 	 * @return				Data model
 	 */
-	private DataModelVO getDataModel(String dataModelId) {
-		ResponseEntity<DataModelVO> dataModel = dataModelSVC.getDataModel(dataModelId);
+	private DataModelVO getDataModel(EntityRetrieveVO entityRetrieveVO) {
+		ResponseEntity<DataModelVO> dataModel = null;
+		if(entityRetrieveVO.getDataModelId() != null) {
+			dataModel = dataModelSVC.getDataModelbyId(entityRetrieveVO.getDataModelId());
+		} 
+		else if(entityRetrieveVO.getTypeUri() != null) {
+			dataModel = dataModelSVC.getDataModelbyTypeUri(entityRetrieveVO.getTypeUri());
+		}
 		
 		if(dataModel == null || dataModel.getBody() == null) {
 			return null;

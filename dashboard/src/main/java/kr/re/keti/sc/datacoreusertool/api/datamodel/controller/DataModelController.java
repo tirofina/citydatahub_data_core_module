@@ -47,7 +47,7 @@ public class DataModelController {
 			@RequestParam(value="id") String id) throws Exception {
 		
 		// 1. Retrieve data model
-		ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModel(id);
+		ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModelbyId(id);
 		
 		return dataModelVO;
 	}

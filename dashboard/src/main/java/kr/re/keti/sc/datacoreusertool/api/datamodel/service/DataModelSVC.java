@@ -49,7 +49,7 @@ public class DataModelSVC {
 	 * @param id	Data model ID
 	 * @return		Data model information retrieved by data model ID.
 	 */
-	public ResponseEntity<DataModelVO> getDataModel(String id) {
+	public ResponseEntity<DataModelVO> getDataModelbyId(String id) {
 		String pathUri = DEFAULT_PATH_URL + "/" + id.trim();
 		Map<String, String> header = new HashMap<String, String>();
 		header.put(Constants.HTTP_HEADER_KEY_ACCEPT, Constants.ACCEPT_TYPE_APPLICATION_JSON);
@@ -57,6 +57,29 @@ public class DataModelSVC {
 		ResponseEntity<DataModelVO> response = dataCoreRestSVC.get(datamodelUrl, pathUri, header, null, null, DataModelVO.class);
 		
 		return response;
+	}
+	
+	/**
+	 * Retrieve data model
+	 * @param typeUri	Data model TypeUri
+	 * @return			Data model information retrieved by data model TypeUri.
+	 */
+	public ResponseEntity<DataModelVO> getDataModelbyTypeUri(String typeUri) {
+		ResponseEntity<DataModelVO> result = null;
+		Map<String, String> header = new HashMap<String, String>();
+		Map<String, Object> param = new HashMap<String, Object>();
+		header.put(Constants.HTTP_HEADER_KEY_ACCEPT, Constants.ACCEPT_TYPE_APPLICATION_JSON);
+		param.put("typeUri", typeUri);
+		
+		ResponseEntity<List<DataModelVO>> response = dataCoreRestSVC.getList(datamodelUrl, DEFAULT_PATH_URL, header, null, param, new ParameterizedTypeReference<List<DataModelVO>>() {});
+		
+		if(response != null && response.getBody() != null) {
+			result = ResponseEntity.status(response.getStatusCode()).body(response.getBody().get(0)); 
+		} else {
+			result = ResponseEntity.status(response.getStatusCode()).build();
+		}
+		
+		return result;
 	}
 	
 	/**
@@ -120,7 +143,7 @@ public class DataModelSVC {
 	 * @return			List of attribute name retrieved by data model ID and attribute type.
 	 */
 	public ResponseEntity<List<String>> getDataModelAttrs(String id, String attrType) {
-		ResponseEntity<DataModelVO> response = getDataModel(id);
+		ResponseEntity<DataModelVO> response = getDataModelbyId(id);
 		DataModelVO dataModelVO = null;
 		
 		List<String> attributeList = new ArrayList<String>();
@@ -219,7 +242,7 @@ public class DataModelSVC {
 	 * @return		Attributes in the tree structure
 	 */
 	public ResponseEntity<List<UiTreeVO>> getAttrsTree(String id) {
-		ResponseEntity<DataModelVO> response = getDataModel(id);
+		ResponseEntity<DataModelVO> response = getDataModelbyId(id);
 		DataModelVO dataModelVO = null;
 		
 		List<UiTreeVO> treeStructure = new ArrayList<UiTreeVO>();
