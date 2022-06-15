@@ -378,8 +378,8 @@
       >
         <template v-slot:popover-content="{node}">
           <el-radio-group v-model="chartOptRadio" >
-            <el-radio :label="1">{{ $t('widget.XaxisSetting') }}</el-radio>
-            <el-radio :label="2">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="1" @change="setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="2" @change="setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
             <el-radio :label="3" @change="setLegendDisplay(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
@@ -391,7 +391,7 @@
       <input
         type="text"
         class="form-control"
-        v-model="formData['chartAttribute']"
+        v-model="selectedAttrsText"
         disabled
       />
       <div v-if="display['legendDisplay']" class="mt-2">
@@ -531,6 +531,9 @@ export default {
     legendText() {
       const {chartType, dataType} = this.formData;
       return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
+    },
+    selectedAttrsText() {
+      return this.visibleTreeOption ? `${this.attrs.x}, ${this.attrs.y}` : this.formData['chartAttribute'];
     }
   },
   data() {
@@ -560,6 +563,9 @@ export default {
       chartUnit: null,
       chartOptRadio: null,
       legendDisplay: 'ID', // default ID
+      attrs: {
+        x: null, y: null,
+      },
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
@@ -854,10 +860,12 @@ export default {
       });
     },
     onChartClick(data, node) {
-      const {fullId, valueType} = data;
-      this.formData.chartAttribute = fullId;
-      this.validation.chartAttribute = valueType;
-      this.chartUnit = null; // x chartUnit TODO 확인 필요 - attribute 값 변할 때마다 비워주기
+      if (!this.visibleTreeOption) {
+        const {fullId, valueType} = data;
+        this.formData.chartAttribute = fullId;
+        this.validation.chartAttribute = valueType;
+        this.chartUnit = null;
+      }
     },
     onDataTypeChange(value) {
       this.entityId = null;
@@ -1081,12 +1089,19 @@ export default {
         return;
       }
 
-      // 3. Required verification of chartAttribute
-      if (this.display['chartType'] && !this.formData.chartAttribute) {
+      // 3. Required verification of X, Y axis at Line/Bar
+      if (this.visibleTreeOption && !(this.attrs.x && this.attrs.y)) {
+        this.$alert(this.$i18n.t('message.selectXandYaxis'));
+        return;
+      }
+
+      // 4. Required verification of chartAttribute
+      if (this.display['chartType'] && !this.visibleTreeOption && !this.formData.chartAttribute) {
         this.$alert(this.$i18n.t('message.selectChartAttribute'));
         return;
       }
 
+      // 5. Required verification of imageFile
       if (!this.isEditImage && this.isModify && chartType === 'Image') {
         this.editImageWidget();
         return;
@@ -1106,7 +1121,7 @@ export default {
         this.formData.entityRetrieveVO = {
           dataModelId: this.dataModel,
           typeUri: this.typeUri,
-          attrs: [this.formData['chartAttribute']],
+          attrs: this.visibleTreeOption ? [this.attrs.x, this.attrs.y] : [this.formData['chartAttribute']],
           id: entityId,
           timerel: this.timerel,
           time: this.timerel === 'between' ? this.times.at(0) : this.time,
@@ -1321,6 +1336,11 @@ export default {
     setLegendDisplay(node) {
       if (node) {
         this.legendDisplay = node.data.fullId;
+      }
+    },
+    setAttrs(key, node) {
+      if (node) {
+        this.attrs[key] = node.data.fullId;
       }
     }
   }
