@@ -43,19 +43,19 @@ datacoreusertool:
   widget.url: http://119.192.118.100:8084/widgetnotification
   
 dataservicebroker:
-# local
-#  url: http://localhost:8082
+  # local
+  url: http://localhost:8082
 # v1.0 dev
 #  url: http://203.253.128.181:14408
 # v2.0 dev
-  url: http://3.39.99.82:49082
+#  url: http://182.162.141.108:49082
 datamanager:
-# local
-#  url: http://localhost:8080
-# v1.0 dev
-#  url: http://203.253.128.181:16908
-# v2.0 dev
-  url: http://3.39.99.82:49080
+  # local
+  url: http://localhost:8080
+  # v1.0 dev
+  #  url: http://203.253.128.181:16908
+  # v2.0 dev
+  #  url: http://182.162.141.108:49080
   
 cityhub:
   client:

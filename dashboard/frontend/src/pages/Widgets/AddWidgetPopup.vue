@@ -130,7 +130,6 @@
                 size="small"
                 style="width: 100%;"
                 @change="onDataTypeChange"
-                :disabled="isDataTypeDisabled"
               >
                 <el-option
                   v-for="item in dataTypes"
@@ -551,7 +550,6 @@ export default {
       searchId: null,
       activeName: 'first',
       dataModel: null,
-      isDataTypeDisabled: false,
       isRealtimeDisabled: false,
       isModify: false,
       treeData: [],
@@ -924,12 +922,6 @@ export default {
     onChartTypeChange(value, type) {
       // Form information exposed according to chart type.
       this.display['chartType'] = !(value === 'custom_text' || value === 'Image' || value === 'latestMap');
-
-      // TODO 2차고도화 변경 과업에 따른 테스트 필요
-      if (value === 'bar' || value === 'line') {
-        this.isDataTypeDisabled = true;
-        this.formData.dataType = 'last';
-      }
 
       // Data to be reset.
       if (!type) {
