@@ -374,6 +374,7 @@
         nodeKey="chart"
         :checkList="{}"
         :option="visibleTreeOption"
+        :optionFiltering="formData.chartType === 'scatter'"
         @popover-show="chartOptRadio = null"
       >
         <template v-slot:popover-content="{node}">
@@ -386,14 +387,15 @@
       </ElementTree>
     </template>
     <template v-slot:addAttr>
-      <label class="control-label mb-2">{{ $t('widget.selectedAttribute') }}
-      </label>
-      <input
-        type="text"
-        class="form-control"
-        v-model="selectedAttrsText"
-        disabled
-      />
+      <div v-if="!display['chartAttributeXY']" class="mt-2">
+        <label class="control-label mb-2">{{ $t('widget.selectedAttribute') }}</label>
+        <input
+          type="text"
+          class="form-control"
+          v-model="selectedAttrsText"
+          disabled
+        />
+      </div>
       <div v-if="display['legendDisplay']" class="mt-2">
         <label class="control-label mb-2">{{ treeOptionLegendText }}</label>
         <div>
@@ -414,6 +416,24 @@
           class="form-control"
           v-model="chartUnit"
           :disabled="isChartAttributeString"
+        />
+      </div>
+      <div v-if="display['chartAttributeXY']" class="mt-2">
+        <label class="control-label mb-2">{{ $t('widget.valueOfXaxis') }}</label>
+        <input
+          type="text"
+          class="form-control legend-display ml-2"
+          v-model="attrsXText"
+          disabled
+        />
+      </div>
+      <div v-if="display['chartAttributeXY']" class="mt-2">
+        <label class="control-label mb-2">{{ $t('widget.valueOfYaxis') }}</label>
+        <input
+          type="text"
+          class="form-control legend-display ml-2"
+          v-model="attrsYText"
+          disabled
         />
       </div>
     </template>
@@ -506,7 +526,7 @@ export default {
     },
     visibleSearchOption() {
       const {chartType, dataType} = this.formData;
-      return chartType === 'pie' || chartType === 'donut' || (chartType === 'histogram' && dataType === 'last');
+      return ['pie', 'donut'].indexOf(chartType) >= 0 || (chartType === 'histogram' && dataType === 'last') || (chartType === 'scatter' && dataType === 'history');
     },
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
@@ -522,18 +542,24 @@ export default {
     },
     visibleTreeOption() {
       const {chartType} = this.formData;
-      return chartType === 'line' || chartType === 'bar';
+      return ['line', 'bar', 'scatter'].indexOf(chartType) >= 0
     },
     treeOptionLegendText() {
       const {chartType} = this.formData;
-      return chartType === 'line' ? this.$i18n.t('widget.legendDisplay') : this.$i18n.t('widget.XaxisDisplay');
+      return ['line', 'scatter'].indexOf(chartType) >= 0 ? this.$i18n.t('widget.legendDisplay') : this.$i18n.t('widget.XaxisDisplay');
     },
     legendText() {
       const {chartType, dataType} = this.formData;
       return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
     },
     selectedAttrsText() {
-      return this.visibleTreeOption ? `${this.attrs.x}, ${this.attrs.y}` : this.formData['chartAttribute'];
+      return this.visibleTreeOption ? `${this.attrs.x.fullId}, ${this.attrs.y.fullId}` : this.formData['chartAttribute'];
+    },
+    attrsXText() {
+      return this.attrs.x && Object.hasOwn(this.attrs.x, 'fullId') ? this.attrs.x.fullId : '';
+    },
+    attrsYText() {
+      return this.attrs.y && Object.hasOwn(this.attrs.y, 'fullId') ? this.attrs.y.fullId : '';
     }
   },
   data() {
@@ -569,7 +595,7 @@ export default {
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
-        yaxisRange: false, custom_text: false, image: false, latestMap: false,
+        yaxisRange: false, custom_text: false, image: false, latestMap: false, chartAttributeXY: false,
       },
       dataTypes: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -599,6 +625,7 @@ export default {
         {value: 'Image', text: 'Image', disabled: false},
         {value: 'map_latest', text: 'Latest Map', disabled: false},
         {value: 'histogram', text: 'Histogram', disabled: false},
+        {value: 'scatter', text: 'Scatter', disabled: false},
       ],
       dateOptions: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -787,7 +814,7 @@ export default {
 
       widgetApi.fetch(this.dashboardId, widgetId)
         .then(data => {
-          const {chartType, entityRetrieveVO, file, extention1, dataType} = data;
+          const {chartType, entityRetrieveVO, file, extention1, dataType, chartAttribute} = data;
           this.formData = data;
 
           if (chartType === 'histogram') {
@@ -814,13 +841,27 @@ export default {
 
             if (['donut', 'pie'].indexOf(chartType) > -1) {
               this.entityId = entityRetrieveVO.id.split(',');
-            } else if (['line', 'bar'].indexOf(chartType) > -1) { // TODO histogram 추가?
+            } else if (['line', 'bar', 'scatter'].indexOf(chartType) > -1) {
               this.entityId = dataType === 'history' ? entityRetrieveVO.id : entityRetrieveVO.id.split(',');
             } else {
-              this.entityId = entityRetrieveVO.id;
+              this.entityId = entityRetrieveVO.id; // histogram...
             }
 
             this.onDataModelChange(this.dataModel);
+
+            if (entityRetrieveVO.attrs.length > 1 && chartAttribute) {
+              const ids = chartAttribute.split(', ');
+              this.attrs.x = {
+                fullId: entityRetrieveVO.attrs[0],
+                id: ids[0],
+                valueType: 'NUMBER'
+              };
+              this.attrs.y = {
+                fullId: entityRetrieveVO.attrs[1],
+                id: ids[1],
+                valueType: 'NUMBER'
+              };
+            }
 
             // Changing the data type to set detailed search conditions.
             if (entityRetrieveVO.q) {
@@ -869,13 +910,13 @@ export default {
     },
     onDataTypeChange(value) {
       this.entityId = null;
+      const {dataType, chartType} = this.formData;
       if (this.entityIds.length > 0) {
         // TODO 검증 필요
-        const {dataType, chartType} = this.formData;
         this.entityIds.at(0).disabled = dataType === 'history' && (chartType === 'bar' || chartType === 'histogram');
       }
       // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
-      if (this.formData.chartType === 'histogram') {
+      if (chartType === 'histogram') {
         this.chartUnit = null;
         this.formData['chartAttribute'] = null;
         const displayOption = {
@@ -892,6 +933,11 @@ export default {
           this.dynamicQuery = {};
         }
         this.initDisplay(displayOption);
+      }
+      if (chartType === 'scatter') {
+        const visible = !!(dataType === 'last');
+        this.display['timerel'] = visible;
+        this.display['time'] = visible;
       }
     },
     async onTypeUriChange(value) {
@@ -1047,6 +1093,17 @@ export default {
             chartUnit: true,
           });
           break;
+        case 'scatter' :
+          this.formData.dataType = this.formData.dataType || 'history';
+          this.initDisplay({
+            chartType: true,
+            typeUri: true,
+            entityId: true,
+            displayData: true,
+            chartTitle: true,
+            chartAttributeXY: true,
+          });
+          break;
       }
     },
     handleRemove() {
@@ -1095,6 +1152,13 @@ export default {
         return;
       }
 
+      // 3-1. Number value only can be selected for scatter widgets.
+      const isNumberType = (data) => (['INTEGER', 'DOUBLE', 'NUMBER'].indexOf(data.valueType) < 0);
+      if (chartType === 'scatter' && (isNumberType(this.attrs.x) || isNumberType(this.attrs.y))) {
+        this.$alert(this.$i18n.t('message.onlySupportNumberType'));
+        return;
+      }
+
       // 4. Required verification of chartAttribute
       if (this.display['chartType'] && !this.visibleTreeOption && !this.formData.chartAttribute) {
         this.$alert(this.$i18n.t('message.selectChartAttribute'));
@@ -1121,7 +1185,7 @@ export default {
         this.formData.entityRetrieveVO = {
           dataModelId: this.dataModel,
           typeUri: this.typeUri,
-          attrs: this.visibleTreeOption ? [this.attrs.x, this.attrs.y] : [this.formData['chartAttribute']],
+          attrs: this.visibleTreeOption ? [this.attrs.x.fullId, this.attrs.y.fullId] : [this.formData['chartAttribute']],
           id: entityId,
           timerel: this.timerel,
           time: this.timerel === 'between' ? this.times.at(0) : this.time,
@@ -1144,15 +1208,13 @@ export default {
       } else if (chartType === 'Image') {
         this.formData.chartAttribute = 'Image';
         this.formData.extention1 = this.imageFile.name;
-      }
-
-      if (chartType === 'map_latest') {
+      } else if (chartType === 'map_latest') {
         this.formData.chartAttribute = 'map_latest';
-      }
-
-      if (chartType === 'histogram') {
+      } else if (chartType === 'histogram') {
         this.formData.extention1 = this.chartUnit;
         this.formData.extention2 = this.validation.chartAttribute;
+      } else if (chartType === 'scatter') {
+        this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
       }
 
       if (this.legendDisplay !== 'ID') { // not default Legend
@@ -1227,7 +1289,7 @@ export default {
         return null;
       }
 
-      if (chartType !== 'line' && chartType !== 'bar' && chartType !== 'custom_text' && chartType !== 'histogram') {
+      if (['line', 'bar', 'custom_text', 'histogram', 'scatter'].indexOf(chartType) < 0) {
         this.formData.dataType = 'last';
       }
 
@@ -1305,6 +1367,7 @@ export default {
       this.imageFiles = [];
       this.imageFile = null;
       this.chartUnit = null;
+      this.attrs = {x: null, y: null};
 
       this.formData = {
         dashboardId: null,
@@ -1340,7 +1403,8 @@ export default {
     },
     setAttrs(key, node) {
       if (node) {
-        this.attrs[key] = node.data.fullId;
+        // this.attrs[key] = node.data.fullId;
+        this.attrs[key] = node.data;
       }
     }
   }

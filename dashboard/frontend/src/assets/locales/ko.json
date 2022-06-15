@@ -16,6 +16,8 @@
     "rangeOfYaxis": "Y축 범위",
     "labelOfYaxis": "Y축명",
     "labelOfXaxis": "X축명",
+    "valueOfYaxis": "Y축 값",
+    "valueOfXaxis": "X축 값",
     "time": "일시",
     "autoRefresh": "실시간 갱신",
     "refreshInterval": "갱신주기(초)",
@@ -73,6 +75,7 @@
     "selectDataEntityIds": "Entity ID를 선택해주세요.",
     "selectChartAttribute": "차트 값을 선택해주세요.",
     "notSupportStringType": "해당 차트 유형에서는 String 타입의 차트 값을 선택할 수 없습니다.",
+    "onlySupportNumberType": "해당 차트 유형에서는 Number 타입의 X, y축만 선택할 수 있습니다.",
     "selectXandYaxis": "x축, y축 모두 설정해주세요."
   },
   "search": {
