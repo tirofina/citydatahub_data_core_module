@@ -39,10 +39,12 @@
           <el-popover
             placement="top"
             width="160"
-            trigger="click"
+            v-model="popover.visible[node.id]"
+            @show="() => popoverShow(node.id)"
           >
-            <slot name="popover-content"/>
+            <slot name="popover-content" :node="node"/>
             <el-button
+              @click.stop
               slot="reference"
               type="text"
               size="mini">
@@ -101,6 +103,10 @@
           label: 'label'
         },
         radio: '', // selected radio item (radiobox)
+        popover: {
+          visible: {}, // node popover list
+          activeId: null,
+        },
       }
     },
     methods: {
@@ -154,6 +160,13 @@
               <el-button size="mini" type="text" on-click={ () => this.remove(node, data) }>Delete</el-button>
             </span>
           </span>);
+      },
+      popoverShow(nodeId) {
+        if (this.popover.activeId) {
+          this.popover.visible[this.popover.activeId] = undefined;
+        }
+        this.popover.activeId = nodeId;
+        this.$emit('popover-show');
       },
     },
     mounted() {}

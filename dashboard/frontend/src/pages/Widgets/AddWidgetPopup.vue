@@ -375,12 +375,13 @@
         nodeKey="chart"
         :checkList="{}"
         :option="visibleTreeOption"
+        @popover-show="chartOptRadio = null"
       >
-        <template v-slot:popover-content>
-          <el-radio-group v-model="radio">
-            <el-radio :label="3">{{ $t('widget.XaxisSetting') }}</el-radio>
-            <el-radio :label="6">{{ $t('widget.YaxisSetting') }}</el-radio>
-            <el-radio :label="9">{{ treeOptionLegendText }}</el-radio>
+        <template v-slot:popover-content="{node}">
+          <el-radio-group v-model="chartOptRadio" >
+            <el-radio :label="1">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="2">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="3" @change="setLegendDisplay(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
       </ElementTree>
@@ -394,6 +395,18 @@
         v-model="formData['chartAttribute']"
         disabled
       />
+      <div v-if="display['legendDisplay']" class="mt-2">
+        <label class="control-label mb-2">{{ treeOptionLegendText }}</label>
+        <div>
+          <input
+            type="text"
+            class="form-control legend-display mr-2"
+            v-model="legendDisplay"
+            disabled
+          />
+          <el-button size="small" type="primary" @click="legendDisplay = 'ID'">{{ $t('comm.reset') }}</el-button>
+        </div>
+      </div>
       <div v-if="display['chartUnit']">
         <label class="control-label mb-2">{{ $t('widget.chartUnit') }}
         </label>
@@ -514,7 +527,11 @@ export default {
     },
     treeOptionLegendText() {
       const {chartType} = this.formData;
-      return chartType === 'line' ? this.$i18n.t('widget.legendDisplaySetting') : this.$i18n.t('widget.XaxisDisplaySetting');
+      return chartType === 'line' ? this.$i18n.t('widget.legendDisplay') : this.$i18n.t('widget.XaxisDisplay');
+    },
+    legendText() {
+      const {chartType, dataType} = this.formData;
+      return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
     }
   },
   data() {
@@ -543,6 +560,8 @@ export default {
       latestMaps: [],
       latestValue: null,
       chartUnit: null,
+      chartOptRadio: null,
+      legendDisplay: 'ID', // default ID
       display: {
         chartType: false, chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, displayData: false, time: false,
@@ -949,6 +968,7 @@ export default {
             time: true,
             yaxisRange: true,
             typeUri: true,
+            legendDisplay: true,
           });
           break;
         case 'pie' :
@@ -975,6 +995,7 @@ export default {
             time: true,
             yaxisRange: true,
             typeUri: true,
+            legendDisplay: true,
           });
           break;
         case 'text' :
@@ -1124,7 +1145,12 @@ export default {
 
       if (chartType === 'histogram') {
         this.formData.extention1 = this.chartUnit;
-        this.formData.extention2 = this.validation.chartAttribute; // 차트 값 valueType 저장
+        this.formData.extention2 = this.validation.chartAttribute;
+      }
+
+      if (this.legendDisplay !== 'ID') { // not default Legend
+        this.formData.extention1 = 'legend';
+        this.formData.extention2 = this.legendDisplay;
       }
 
       // Save the chart size location.
@@ -1296,9 +1322,14 @@ export default {
         chartTitle: false, chartXName: false, chartYName: false, updateInterval: false,
         realtimeUpdateEnabled: false, timerel: false, entityId: false, time: false, displayData: false,
         yaxisRange: false, custom_text: false, image: false, latestMap: false,
-        chartUnit: false,
+        chartUnit: false, legendDisplay: false,
         ...obj,
       };
+    },
+    setLegendDisplay(node) {
+      if (node) {
+        this.legendDisplay = node.data.fullId;
+      }
     }
   }
 }
@@ -1314,5 +1345,10 @@ export default {
   position: absolute;
   left: 20%;
   top: 22px;
+}
+
+.legend-display {
+  width: 75%;
+  display: inline-block;
 }
 </style>

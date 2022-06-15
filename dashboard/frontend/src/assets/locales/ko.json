@@ -37,8 +37,8 @@
     "displayLatest": "다수 엔티티 최종 데이터 (Latest)",
     "YaxisSetting": "Y축 설정",
     "XaxisSetting": "X축 설정",
-    "legendDisplaySetting": "범례 표시 항목 설정",
-    "XaxisDisplaySetting": "X축 표시 항목 설정"
+    "legendDisplay": "범례 표시 항목",
+    "XaxisDisplay": "X축 표시 항목"
   },
   "message": {
     "deleteCheck": "삭제하시겠습니까?",
@@ -117,6 +117,7 @@
     "close": "닫기",
     "name": "이름",
     "regDt": "가입일",
-    "option": "선택"
+    "option": "선택",
+    "setting": "설정"
   }
 }
