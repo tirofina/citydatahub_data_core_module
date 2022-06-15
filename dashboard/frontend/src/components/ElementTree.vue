@@ -35,6 +35,21 @@
           @change="onCheckChange($event, node, data)"
           style="margin-bottom: 0;color: #67C23A;"
         >&nbsp;</el-checkbox>
+        <span v-if="option">
+          <el-popover
+            placement="top"
+            width="160"
+            trigger="click"
+          >
+            <slot name="popover-content"/>
+            <el-button
+              slot="reference"
+              type="text"
+              size="mini">
+            {{ $t('comm.option') }}
+          </el-button>
+          </el-popover>
+        </span>
       </label>
       </el-tree>
     </div>
@@ -65,6 +80,7 @@
       radioBox: Boolean, //  use radiobox(default false)
       radioValue: String, // for init selected radio
       chartList: Object, // for init checked List
+      option: Boolean, //  use option(default false)
     },
     computed: {
       normalizedCharacter () {
@@ -138,7 +154,7 @@
               <el-button size="mini" type="text" on-click={ () => this.remove(node, data) }>Delete</el-button>
             </span>
           </span>);
-      }
+      },
     },
     mounted() {}
   }

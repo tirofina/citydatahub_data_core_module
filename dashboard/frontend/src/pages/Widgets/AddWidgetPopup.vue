@@ -374,7 +374,15 @@
         @on-tree-event="onChartClick"
         nodeKey="chart"
         :checkList="{}"
+        :option="visibleTreeOption"
       >
+        <template v-slot:popover-content>
+          <el-radio-group v-model="radio">
+            <el-radio :label="3">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="6">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="9">{{ treeOptionLegendText }}</el-radio>
+          </el-radio-group>
+        </template>
       </ElementTree>
     </template>
     <template v-slot:addAttr>
@@ -499,6 +507,14 @@ export default {
     isEntityIdDisabled() {
       const {chartType, dataType} = this.formData;
       return chartType === 'histogram' && dataType === 'last';
+    },
+    visibleTreeOption() {
+      const {chartType} = this.formData;
+      return chartType === 'line' || chartType === 'bar';
+    },
+    treeOptionLegendText() {
+      const {chartType} = this.formData;
+      return chartType === 'line' ? this.$i18n.t('widget.legendDisplaySetting') : this.$i18n.t('widget.XaxisDisplaySetting');
     }
   },
   data() {
