@@ -552,6 +552,7 @@ export default {
       return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
     },
     selectedAttrsText() {
+      if (!this.visibleTreeOption) return this.formData['chartAttribute'];
       let text = null;
       if (this.attrsXText.length > 0) text = this.attrsXText;
       if (this.attrsYText.length > 0) text = `${text}, ${this.attrsYText}`;
