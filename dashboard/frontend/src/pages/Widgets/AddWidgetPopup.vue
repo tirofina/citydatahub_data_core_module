@@ -378,9 +378,14 @@
       >
         <template v-slot:popover-content="{node}">
           <el-radio-group v-model="chartOptRadio">
-            <el-radio :label="1" @change="() => setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
-            <el-radio :label="2" @change="() => setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
-            <el-radio :label="3" @change="() => setLegendDisplay(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
+            <el-radio :label="1" v-if="formData['chartType'] === 'scatter'"
+                      @change="() => setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="2" v-if="formData['chartType'] === 'scatter'"
+                      @change="() => setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="3" v-if="isLineOrBarChartType"
+                      @change="formData['chartAttribute'] = getAttributeFullId(node)">{{ $t('widget.selectedAttribute') }} {{ $t('comm.setting') }}</el-radio>
+            <el-radio :label="4" v-if="isLineOrBarChartType"
+                      @change="legendDisplay = getAttributeFullId(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
       </ElementTree>
@@ -533,15 +538,19 @@ export default {
       return !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
     },
     isEntityIdMultiple() {
+      if (this.isLineOrBarChartType) return true;
       return this.formData['dataType'] === 'last';
     },
     isEntityIdDisabled() {
       const {chartType, dataType} = this.formData;
       return chartType === 'histogram' && dataType === 'last';
     },
-    visibleTreeOption() {
+    isLineOrBarChartType() {
       const {chartType} = this.formData;
-      return ['line', 'bar', 'scatter'].indexOf(chartType) >= 0
+      return ['line', 'bar'].indexOf(chartType) >= 0
+    },
+    visibleTreeOption() {
+      return this.isLineOrBarChartType || this.formData.chartType === 'scatter';
     },
     treeOptionLegendText() {
       const {chartType} = this.formData;
@@ -552,11 +561,13 @@ export default {
       return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
     },
     selectedAttrsText() {
-      if (!this.visibleTreeOption) return this.formData['chartAttribute'];
-      let text = null;
-      if (this.attrsXText.length > 0) text = this.attrsXText;
-      if (this.attrsYText.length > 0) text = `${text}, ${this.attrsYText}`;
-      return text || '';
+      if (this.formData['chartType'] === 'scatter') {
+        let text = null;
+        if (this.attrsXText.length > 0) text = this.attrsXText;
+        if (this.attrsYText.length > 0) text = `${text}, ${this.attrsYText}`;
+        return text || '';
+      }
+      return this.formData['chartAttribute'];
     },
     attrsXText() {
       return this.attrs.x && Object.hasOwn(this.attrs.x, 'fullId') ? this.attrs.x.fullId : '';
@@ -748,7 +759,7 @@ export default {
           this.entityIds = result;
           // TODO 검증 필요
           const {dataType, chartType} = this.formData;
-          this.entityIds.at(0).disabled = dataType === 'history' && (chartType === 'bar' || chartType === 'histogram');
+          this.entityIds.at(0).disabled = dataType === 'history' && chartType === 'histogram';
 
           return true;
         }).then(hasEntityIds => {
@@ -839,12 +850,12 @@ export default {
               // new Date('2022-03-04T15:00:00.000Z')
               this.times = [new Date(entityRetrieveVO.time), new Date(entityRetrieveVO.endtime)];
             } else {
-              this.time = new Date(entityRetrieveVO.time);
+              this.time = entityRetrieveVO.time ? new Date(entityRetrieveVO.time) : null;
             }
 
-            if (['donut', 'pie'].indexOf(chartType) > -1) {
+            if (['line', 'bar', 'donut', 'pie'].indexOf(chartType) > -1) {
               this.entityId = entityRetrieveVO.id.split(',');
-            } else if (['line', 'bar', 'scatter'].indexOf(chartType) > -1) {
+            } else if (['scatter'].indexOf(chartType) > -1) {
               this.entityId = dataType === 'history' ? entityRetrieveVO.id : entityRetrieveVO.id.split(',');
             } else {
               this.entityId = entityRetrieveVO.id; // histogram...
@@ -917,8 +928,7 @@ export default {
       this.entityId = null;
       const {dataType, chartType} = this.formData;
       if (this.entityIds.length > 0) {
-        // TODO 검증 필요
-        this.entityIds.at(0).disabled = dataType === 'history' && (chartType === 'bar' || chartType === 'histogram');
+        this.entityIds.at(0).disabled = dataType === 'history' && chartType === 'histogram';
       }
       // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
       if (chartType === 'histogram') {
@@ -972,7 +982,7 @@ export default {
     },
     onSelectedEntity(array) {
       // TODO 확인필요
-      if (this.formData.dataType === 'last') {
+      if (this.isEntityIdMultiple) {
         if (array.indexOf('') >= 0) {
           this.entityId = this.entityIds.filter(_ => _.value !== '').map(item => item.value);
         } else {
@@ -1155,7 +1165,7 @@ export default {
       }
 
       // 3. Required verification of X, Y axis at Line/Bar
-      if (this.visibleTreeOption && !(this.attrs.x && this.attrs.y)) {
+      if (chartType === 'scatter' && !(this.attrs.x && this.attrs.y)) {
         this.$alert(this.$i18n.t('message.selectXandYaxis'));
         return;
       }
@@ -1168,7 +1178,7 @@ export default {
       }
 
       // 4. Required verification of chartAttribute
-      if (this.display['chartType'] && !this.visibleTreeOption && !this.formData.chartAttribute) {
+      if (this.display['chartType'] && chartType !== 'scatter' && !this.formData.chartAttribute) {
         this.$alert(this.$i18n.t('message.selectChartAttribute'));
         return;
       }
@@ -1193,7 +1203,7 @@ export default {
         this.formData.entityRetrieveVO = {
           dataModelId: this.dataModel,
           typeUri: this.typeUri,
-          attrs: this.visibleTreeOption ? [this.attrs.x.fullId, this.attrs.y.fullId] : [this.formData['chartAttribute']],
+          attrs: chartType === 'scatter' ? [this.attrs.x.fullId, this.attrs.y.fullId] : [this.formData['chartAttribute']],
           id: entityId,
           timerel: this.timerel,
           time: this.timerel === 'between' ? this.times.at(0) : this.time,
@@ -1221,7 +1231,7 @@ export default {
       } else if (chartType === 'histogram') {
         this.formData.extention1 = this.chartUnit;
         this.formData.extention2 = this.validation.chartAttribute;
-      } else if (['scatter', 'line', 'bar'].indexOf(chartType) >= 0) {
+      } else if (chartType === 'scatter') {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
       }
 
@@ -1404,10 +1414,9 @@ export default {
         ...obj,
       };
     },
-    setLegendDisplay(node) {
-      if (node) {
-        this.legendDisplay = node.data.fullId;
-      }
+    getAttributeFullId(node) {
+      if (node) return node.data.fullId;
+      return null;
     },
     setAttrs(key, node) {
       if (node) {

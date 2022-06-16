@@ -38,7 +38,7 @@
         <span v-if="visibleOption(data)">
           <el-popover
             placement="top"
-            width="160"
+            width="200"
             v-model="popover.visible[node.id]"
             @show="() => popoverShow(node.id)"
           >
