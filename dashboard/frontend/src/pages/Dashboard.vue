@@ -148,6 +148,8 @@
               />
               <HistogramChart class="chartWrapper" v-if="item.chartType === 'histogram'"
                         :options="item.options" :chartData="item.data"/>
+              <ScatterChart class="chartWrapper" v-if="item.chartType === 'scatter'"
+                              :options="item.options" :chartData="item.data"/>
             </div>
           </div>
         </GridItem>
@@ -175,6 +177,7 @@
  * - Doughnut,
  * - LatestMapChart
  * - HistogramChart
+ * - ScatterChart
  * - element-ui
  * @props props { ... }
  * @state data() { ... }
@@ -187,6 +190,7 @@ import PieChart from '@/components/Chart/PieChart';
 import CardChart from '@/components/Chart/CardChart';
 import LatestMapChart from '@/components/Chart/LatestMapChart';
 import HistogramChart from '@/components/Chart/HistogramChart';
+import ScatterChart from '@/components/Chart/ScatterChart';
 import AddWidgetPopup from "@/pages/Widgets/AddWidgetPopup";
 
 import {dashboardApi, widgetApi} from '@/moudules/apis';
@@ -200,7 +204,7 @@ import {
   chartOptions,
   barChartOptions,
   lineChartOptions,
-  histogramNumberChartOptions, histogramStrChartOptions,
+  histogramNumberChartOptions, histogramStrChartOptions, setScatterChart, scatterChartOptions,
 } from '@/components/Chart/Dataset';
 
 const GridLayout = VueGridLayout.GridLayout;
@@ -218,7 +222,8 @@ export default {
     LineChart,
     Doughnut,
     LatestMapChart,
-    HistogramChart
+    HistogramChart,
+    ScatterChart,
   },
   data() {
     return {
@@ -316,30 +321,35 @@ export default {
     async onMessage(event) {
       const socketData = JSON.parse(event.data);
       console.log(socketData);
-      if (socketData.chartType === 'text' || socketData.chartType === 'boolean' || socketData.chartType === 'custom_text') {
+      const {chartType, dataType} = socketData;
+      if (chartType === 'text' || chartType === 'boolean' || chartType === 'custom_text') {
         const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
         this.layout[index].data = {result: JSON.parse(event.data)};
         return null;
       }
 
       let resultData = null;
-      if (socketData.chartType === 'donut' || socketData.chartType === 'pie') {
+      if (chartType === 'donut' || chartType === 'pie') {
         resultData = setDonutChart(socketData);
       }
 
-      if (socketData.chartType === 'bar') {
-        if (socketData.dataType === 'last') {
+      if (chartType === 'bar') {
+        if (dataType === 'last') {
           resultData = setBarChartLast(socketData);
         } else {
           resultData = setBarChartHistory(socketData);
         }
       }
 
-      if (socketData.chartType === 'line') {
+      if (chartType === 'line') {
         resultData = setLineChart(socketData);
       }
 
-      if (socketData.chartType === 'histogram') {
+      if (chartType === 'scatter') {
+        resultData = setScatterChart(socketData);
+      }
+
+      if (chartType === 'histogram') {
         const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
         const {chartUnit, valueType} = this.layout[index];
         if (valueType && valueType.toUpperCase() === 'STRING') {
@@ -366,6 +376,8 @@ export default {
             } else {
               item.options = histogramNumberChartOptions(item, chartUnit, maxX);
             }
+          } else if (item.chartType === 'scatter' && dataType === 'last') {
+            item.options = scatterChartOptions(item);
           } else {
             item.options = chartOptions(item);
           }

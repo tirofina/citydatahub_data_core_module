@@ -1,4 +1,4 @@
-import { Bar, mixins } from 'vue-chartjs';
+import { Scatter, mixins } from 'vue-chartjs';
 const { reactiveProp } = mixins;
 
 /**
@@ -11,7 +11,7 @@ const { reactiveProp } = mixins;
  * @state none
  */
 export default {
-  extends: Bar,
+  extends: Scatter,
   mixins: [reactiveProp], // for autoUpdate
   props: {
     options: {

@@ -103,6 +103,13 @@ export const histogramStrChartOptions = (option) => {
   return result;
 };
 
+// Scatter String Chart options
+export const scatterChartOptions = (option) => {
+  const result = chartOptions(option);
+  result.legend = {display: false};
+  return result;
+};
+
 // Histogram Number Chart options
 // TODO 확인 필요
 export const histogramNumberChartOptions = (option, chartUnit, maxX) => {
@@ -259,6 +266,43 @@ export const setLineChart = (lineData) => {
     datasets.map(d => item.id === d.entityId && d.data.push(item.chartValue));
     labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
   });
+
+  return { labels: labels, datasets: datasets };
+};
+
+
+/**
+ * Data (datasets, label) setting for scatter widget type
+ *
+ * @param scatterData
+ * @returns {{datasets: *[], labels: *[]}}
+ */
+export const setScatterChart = (scatterData) => {
+  const randomIndex = Math.floor(Math.random() * 13);
+  let labels = [];
+  let datasets = [];
+
+  // If you have two entity IDs, you need to create two data sets.
+  let chartLabels = scatterData.entityIds;
+  const hasLegendvalues = !!scatterData.legendvalues;
+  chartLabels.forEach((entityId, index) =>
+    datasets.push({
+      label: hasLegendvalues ? scatterData.legendvalues[index] : entityId,
+      entityId,
+      data: [],
+      fill: false,
+      borderColor: color(randomIndex + index),
+      backgroundColor: color(randomIndex + index),
+    }));
+
+  // Find and map the entity ID corresponding to the created data set.
+  // Data extract
+  // TODO : 범례 별로 데이터 비교 필요할 경우 수정 필요
+  datasets[0].data = scatterData.data;
+  // scatterData.data.forEach((item, index) => {
+  //   datasets.map(d => item.id === d.entityId && d.data.push(item.chartValue));
+  //   labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
+  // });
 
   return { labels: labels, datasets: datasets };
 };
