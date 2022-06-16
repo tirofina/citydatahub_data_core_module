@@ -931,7 +931,7 @@ public class WidgetDashboardSVC {
 			EntityRetrieveVO legendRetrieveVO = createLegendRetrieveVO(entityRetrieveVO, widgetSessionVO.getLegend());
 					
 			ResponseEntity<CommonEntityListResponseVO> legendResult = 
-					dataServiceBrokerSVC.getEntities(false, legendRetrieveVO, null, originalAttributeId);
+					dataServiceBrokerSVC.getEntities(false, legendRetrieveVO, null, widgetSessionVO.getUserId());
 			legends = legendResult.getBody();
 		}
 		
@@ -971,7 +971,8 @@ public class WidgetDashboardSVC {
 	private EntityRetrieveVO createLegendRetrieveVO(EntityRetrieveVO entityRetrieveVO, String legend) {
 		EntityRetrieveVO legendRetrieveVO = new EntityRetrieveVO();
 		List<String> attrs = new ArrayList<String>();
-		attrs.add(legend);
+		String[] attrList = splitAttributeId(legend);
+		attrs.add(attrList[0]);
 		
 		legendRetrieveVO.setAttrs(attrs);
 		legendRetrieveVO.setDataModelId(entityRetrieveVO.getDataModelId());

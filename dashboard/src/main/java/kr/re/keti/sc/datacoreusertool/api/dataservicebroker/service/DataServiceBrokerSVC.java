@@ -163,7 +163,7 @@ public class DataServiceBrokerSVC {
 			commonEntityListResponseVO.setTotalCount(count.getBody().getTotalCount());
 			
 			if(!isMap) {
-				commonEntityListResponseVO.setAttrsLabel(dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), Constants.TOP_LEVEL_ATTR).getBody());
+				commonEntityListResponseVO.setAttrsLabel(dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), entityRetrieveVO.getTypeUri(), Constants.TOP_LEVEL_ATTR).getBody());
 			}
 		}
 		
@@ -362,7 +362,7 @@ public class DataServiceBrokerSVC {
 			}
 			commonEntityListResponseVO.setCommonEntityVOs(renewalcommonEntityVOs);
 			commonEntityListResponseVO.setTotalCount(renewalcommonEntityVOs.size());
-			commonEntityListResponseVO.setAttrsLabel(dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), Constants.OBSERVED_AT_ATTR).getBody());
+			commonEntityListResponseVO.setAttrsLabel(dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), entityRetrieveVO.getTypeUri(), Constants.OBSERVED_AT_ATTR).getBody());
 		}
 		
 		return ResponseEntity.status(response.getStatusCode()).body(commonEntityListResponseVO);
@@ -434,7 +434,7 @@ public class DataServiceBrokerSVC {
 			
 			List<CommonEntityVO> commonEntityVOs = response.getBody();
 			
-			List<String> attrLabels = dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), Constants.TOP_LEVEL_ATTR).getBody();
+			List<String> attrLabels = dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), entityRetrieveVO.getTypeUri(), Constants.TOP_LEVEL_ATTR).getBody();
 			
 			commonEntityListResponseVO = new CommonEntityListResponseVO();
 			commonEntityListResponseVO.setAttrsLabel(attrLabels);
@@ -467,7 +467,7 @@ public class DataServiceBrokerSVC {
 		CommonEntityListResponseVO commonEntityListResponseVO = new CommonEntityListResponseVO();
 		
 		if(!ValidateUtil.isEmptyData(commonEntityVO)) {
-			List<String> attrLabels = dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), Constants.OBSERVED_AT_ATTR).getBody(); 
+			List<String> attrLabels = dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), entityRetrieveVO.getTypeUri(), Constants.OBSERVED_AT_ATTR).getBody(); 
 			
 			List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
 			for(String attrLabel : attrLabels) {
