@@ -116,7 +116,6 @@
               </el-select>
             </div>
           </div>
-          <!--          TODO 데이터 유형 -> 표시 데이터-->
           <div
             class="col-md-4"
             v-if="display['displayData']"
@@ -378,10 +377,10 @@
         @popover-show="chartOptRadio = null"
       >
         <template v-slot:popover-content="{node}">
-          <el-radio-group v-model="chartOptRadio" >
-            <el-radio :label="1" @change="setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
-            <el-radio :label="2" @change="setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
-            <el-radio :label="3" @change="setLegendDisplay(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
+          <el-radio-group v-model="chartOptRadio">
+            <el-radio :label="1" @change="() => setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="2" @change="() => setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="3" @change="() => setLegendDisplay(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
       </ElementTree>
@@ -553,7 +552,10 @@ export default {
       return chartType === 'bar' && dataType === 'last' ? this.$i18n.t('widget.XaxisDisplay') : this.$i18n.t('widget.legendDisplay');
     },
     selectedAttrsText() {
-      return this.visibleTreeOption ? `${this.attrs.x.fullId}, ${this.attrs.y.fullId}` : this.formData['chartAttribute'];
+      let text = null;
+      if (this.attrsXText.length > 0) text = this.attrsXText;
+      if (this.attrsYText.length > 0) text = `${text}, ${this.attrsYText}`;
+      return text || '';
     },
     attrsXText() {
       return this.attrs.x && Object.hasOwn(this.attrs.x, 'fullId') ? this.attrs.x.fullId : '';
@@ -814,7 +816,7 @@ export default {
 
       widgetApi.fetch(this.dashboardId, widgetId)
         .then(data => {
-          const {chartType, entityRetrieveVO, file, extention1, dataType, chartAttribute} = data;
+          const {chartType, entityRetrieveVO, file, extention1, extention2, dataType, chartAttribute} = data;
           this.formData = data;
 
           if (chartType === 'histogram') {
@@ -862,6 +864,8 @@ export default {
                 valueType: 'NUMBER'
               };
             }
+
+            if (extention1 === 'legend') this.legendDisplay = extention2;
 
             // Changing the data type to set detailed search conditions.
             if (entityRetrieveVO.q) {
@@ -941,6 +945,7 @@ export default {
       }
     },
     async onTypeUriChange(value) {
+      this.attrs = {x: null, y: null};
       if (!this.dataModelDisabled['dataModelId']) {
         this.entityId = null
       }
@@ -956,6 +961,7 @@ export default {
       console.log(value);
     },
     async onDataModelChange(value) {
+      this.attrs = {x: null, y: null};
       if (!this.dataModelDisabled['dataModelId']) {
         this.entityId = null
       }
@@ -987,6 +993,7 @@ export default {
         // this.typeUris = [];
         this.dataModelDisabled = {dataModelId: false, typeUri: false};
         this.treeData = [];
+        this.attrs = {x: null, y: null};
       }
 
       // Display setting according to chart type.
@@ -1213,7 +1220,7 @@ export default {
       } else if (chartType === 'histogram') {
         this.formData.extention1 = this.chartUnit;
         this.formData.extention2 = this.validation.chartAttribute;
-      } else if (chartType === 'scatter') {
+      } else if (['scatter', 'line', 'bar'].indexOf(chartType) >= 0) {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
       }
 
@@ -1403,7 +1410,6 @@ export default {
     },
     setAttrs(key, node) {
       if (node) {
-        // this.attrs[key] = node.data.fullId;
         this.attrs[key] = node.data;
       }
     }

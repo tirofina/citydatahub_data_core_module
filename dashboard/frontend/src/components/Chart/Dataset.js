@@ -211,7 +211,7 @@ export const setBarChartHistory = (barData) => {
   // barchart single id
   let chartLabels = barData.entityIds;
   const hasLegendvalues = !!barData.legendvalues;
-  chartLabels.forEach(entityId =>
+  chartLabels.forEach((entityId, index) =>
       datasets.push({
         label: hasLegendvalues ? barData.legendvalues[index] : entityId,
         entityId,
