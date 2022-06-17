@@ -385,7 +385,7 @@
             <el-radio :label="3" v-if="isLineOrBarChartType"
                       @change="formData['chartAttribute'] = getAttributeFullId(node)">{{ $t('widget.selectedAttribute') }} {{ $t('comm.setting') }}</el-radio>
             <el-radio :label="4" v-if="isLineOrBarChartType"
-                      @change="legendDisplay = getAttributeFullId(node)">{{ treeOptionLegendText }} {{ $t('comm.setting') }}</el-radio>
+                      @change="legendDisplay = getAttributeFullId(node)">{{ legendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
       </ElementTree>
@@ -401,7 +401,7 @@
         />
       </div>
       <div v-if="display['legendDisplay']" class="mt-2">
-        <label class="control-label mb-2">{{ treeOptionLegendText }}</label>
+        <label class="control-label mb-2">{{ legendText }}</label>
         <div>
           <input
             type="text"
@@ -764,7 +764,7 @@ export default {
           return true;
         }).then(hasEntityIds => {
         if (hasEntityIds) {
-          dataModelApi.attributes(dataModelId)
+          dataModelApi.attributes({dataModelId, typeUri})
             .then(data => {
               this.treeData = data;
             });
@@ -957,7 +957,7 @@ export default {
     },
     async onTypeUriChange(value) {
       this.attrs = {x: null, y: null};
-      if (!this.dataModelDisabled['dataModelId']) {
+      if (!this.dataModelDisabled['typeUri']) {
         this.entityId = null
       }
       await this.getEntityList(null, value);

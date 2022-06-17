@@ -204,7 +204,11 @@ import {
   chartOptions,
   barChartOptions,
   lineChartOptions,
-  histogramNumberChartOptions, histogramStrChartOptions, setScatterChart, scatterChartOptions,
+  histogramNumberChartOptions,
+  histogramStrChartOptions,
+  setScatterLastChart,
+  scatterChartOptions,
+  setScatterHistoryChart,
 } from '@/components/Chart/Dataset';
 
 const GridLayout = VueGridLayout.GridLayout;
@@ -346,7 +350,8 @@ export default {
       }
 
       if (chartType === 'scatter') {
-        resultData = setScatterChart(socketData);
+        if (dataType === 'last') resultData = setScatterLastChart(socketData);
+        else resultData = setScatterHistoryChart(socketData);
       }
 
       if (chartType === 'histogram') {
@@ -376,8 +381,6 @@ export default {
             } else {
               item.options = histogramNumberChartOptions(item, chartUnit, maxX);
             }
-          } else if (item.chartType === 'scatter' && dataType === 'last') {
-            item.options = scatterChartOptions(item);
           } else {
             item.options = chartOptions(item);
           }
