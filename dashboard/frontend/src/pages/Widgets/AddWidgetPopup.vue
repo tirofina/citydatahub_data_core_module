@@ -861,7 +861,8 @@ export default {
               this.entityId = entityRetrieveVO.id; // histogram...
             }
 
-            this.onDataModelChange(this.dataModel);
+            if (this.dataModel) this.onDataModelChange(this.dataModel);
+            if (this.typeUri) this.onTypeUriChange(this.typeUri);
 
             if (entityRetrieveVO.attrs.length > 1 && chartAttribute) {
               const ids = chartAttribute.split(', ');
@@ -1164,7 +1165,7 @@ export default {
         return;
       }
 
-      // 3. Required verification of X, Y axis at Line/Bar
+      // 3. Required verification of X, Y axis at Scatter
       if (chartType === 'scatter' && !(this.attrs.x && this.attrs.y)) {
         this.$alert(this.$i18n.t('message.selectXandYaxis'));
         return;
@@ -1186,6 +1187,12 @@ export default {
       // 5. Required verification of imageFile
       if (!this.isEditImage && this.isModify && chartType === 'Image') {
         this.editImageWidget();
+        return;
+      }
+
+      // 6. Required verification of time for Line, Bar Widgets
+      if (this.isLineOrBarChartType && (this.entityId || []).length > 0 && !(this.time && this.timerel)) {
+        this.$alert(this.$i18n.t('message.selectTimeAndRel'));
         return;
       }
 
