@@ -572,12 +572,10 @@ export default {
                 mapSearchConditionId: mapSearchConditionId
               });
 
-              // TODO websocket에 실어 달라고 말씀드리기
               if (chartType === 'histogram') {
                 const {extention1, extention2} = item;
                 this.layout[this.index].chartUnit = extention1;
                 this.layout[this.index].valueType = extention2;
-                console.log(`new logic: ${extention1}`)
               }
 
               if (chartType === 'custom_text') {

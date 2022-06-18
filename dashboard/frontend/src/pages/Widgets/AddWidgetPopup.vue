@@ -1248,12 +1248,14 @@ export default {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
       }
 
-      if (this.legendDisplay !== 'ID') { // not default Legend
-        this.formData.extention1 = 'legend';
-        this.formData.extention2 = this.legendDisplay;
-      } else {
-        this.formData.extention1 = null;
-        this.formData.extention2 = null;
+      if (this.visibleTreeOption) {
+        if (this.legendDisplay !== 'ID') { // not default Legend
+          this.formData.extention1 = 'legend';
+          this.formData.extention2 = this.legendDisplay;
+        } else {
+          this.formData.extention1 = null;
+          this.formData.extention2 = null;
+        }
       }
 
       // Save the chart size location.

@@ -117,8 +117,8 @@ export const histogramNumberChartOptions = (option, chartUnit, maxX) => {
     tooltips: {
       callbacks: {
         title: function(tooltipItem, data) {
-          const label = tooltipItem[0]['xLabel'];
-          return `${label}-${label+chartUnit}` ;
+          const label = parseInt(tooltipItem[0]['xLabel']);
+          return `${label}-${(label + parseInt(chartUnit))}` ;
         },
       }
     },
@@ -409,8 +409,6 @@ export const setHistogramNumberChart = (histogramData, chartUnit) => {
 };
 
 // Histogram Last Chart dateset data binding
-// TODO Last, History가 아니라, Integer, String으로 나누어야 할듯?
-// TODO 데이터 받아서 확인 필요
 export const setHistogramStrChart = (histogramData) => {
   const randomIndex = Math.floor(Math.random() * 13);
   let labels = [];
