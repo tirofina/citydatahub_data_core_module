@@ -753,9 +753,9 @@ export default {
             return result.push({value: item, text: item, disabled: false});
           });
           this.entityIds = result;
-          // TODO 검증 필요
+          // TODO 검증 필요å
           const {dataType, chartType} = this.formData;
-          this.entityIds.at(0).disabled = dataType === 'history' && chartType === 'histogram';
+          this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
 
           return true;
         }).then(hasEntityIds => {
@@ -925,7 +925,7 @@ export default {
       this.entityId = null;
       const {dataType, chartType} = this.formData;
       if (this.entityIds.length > 0) {
-        this.entityIds.at(0).disabled = dataType === 'history' && chartType === 'histogram';
+        this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
       }
       // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
       if (chartType === 'histogram') {
