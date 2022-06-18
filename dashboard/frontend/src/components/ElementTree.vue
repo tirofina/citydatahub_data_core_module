@@ -42,7 +42,7 @@
             v-model="popover.visible[node.id]"
             @show="() => popoverShow(node.id)"
           >
-            <slot name="popover-content" :node="node"/>
+            <slot name="popover-content" :node="node" :show="popover.visible[node.id]"/>
             <el-button
               @click.stop
               slot="reference"

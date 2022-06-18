@@ -376,16 +376,12 @@
         :optionFiltering="formData.chartType === 'scatter'"
         @popover-show="chartOptRadio = null"
       >
-        <template v-slot:popover-content="{node}">
-          <el-radio-group v-model="chartOptRadio">
-            <el-radio :label="1" v-if="formData['chartType'] === 'scatter'"
-                      @change="() => setAttrs('x', node)">{{ $t('widget.XaxisSetting') }}</el-radio>
-            <el-radio :label="2" v-if="formData['chartType'] === 'scatter'"
-                      @change="() => setAttrs('y', node)">{{ $t('widget.YaxisSetting') }}</el-radio>
-            <el-radio :label="3" v-if="isLineOrBarChartType"
-                      @change="formData['chartAttribute'] = getAttributeFullId(node)">{{ $t('widget.selectedAttribute') }} {{ $t('comm.setting') }}</el-radio>
-            <el-radio :label="4" v-if="isLineOrBarChartType"
-                      @change="legendDisplay = getAttributeFullId(node)">{{ legendText }} {{ $t('comm.setting') }}</el-radio>
+        <template v-slot:popover-content="{show, node}">
+          <el-radio-group v-model="chartOptRadio" @change="() => onChartOptChange(show, node)">
+            <el-radio :label="1" v-if="formData['chartType'] === 'scatter'">{{ $t('widget.XaxisSetting') }}</el-radio>
+            <el-radio :label="2" v-if="formData['chartType'] === 'scatter'">{{ $t('widget.YaxisSetting') }}</el-radio>
+            <el-radio :label="3" v-if="isLineOrBarChartType">{{ $t('widget.selectedAttribute') }} {{ $t('comm.setting') }}</el-radio>
+            <el-radio :label="4" v-if="isLineOrBarChartType">{{ legendText }} {{ $t('comm.setting') }}</el-radio>
           </el-radio-group>
         </template>
       </ElementTree>
@@ -991,6 +987,16 @@ export default {
         }
       }
     },
+    onChartOptChange(show, node) {
+      if (show && node) {
+        switch (this.chartOptRadio) {
+          case 1: this.attrs.x = node.data; break;
+          case 2: this.attrs.y = node.data; break;
+          case 3: this.formData['chartAttribute'] = node.data.fullId; break;
+          case 4: this.legendDisplay = node.data.fullId; break;
+        }
+      }
+    },
     onChartTypeChange(value, type) {
       // Form information exposed according to chart type.
       this.display['chartType'] = !(value === 'custom_text' || value === 'Image' || value === 'latestMap');
@@ -1191,7 +1197,7 @@ export default {
       }
 
       // 6. Required verification of time for Line, Bar Widgets
-      if (this.isLineOrBarChartType && (this.entityId || []).length > 0 && !(this.time && this.timerel)) {
+      if (this.isLineOrBarChartType && (this.entityId || []).length > 1 && !(this.time && this.timerel)) {
         this.$alert(this.$i18n.t('message.selectTimeAndRel'));
         return;
       }
@@ -1421,15 +1427,6 @@ export default {
         ...obj,
       };
     },
-    getAttributeFullId(node) {
-      if (node) return node.data.fullId;
-      return null;
-    },
-    setAttrs(key, node) {
-      if (node) {
-        this.attrs[key] = node.data;
-      }
-    }
   }
 }
 </script>

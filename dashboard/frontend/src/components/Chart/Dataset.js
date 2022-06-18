@@ -240,54 +240,28 @@ export const setBarChartHistory = (barData) => {
  * @returns {{datasets: *[], labels: *[]}}
  */
 export const setLineChart = (lineData) => {
-  // const rendomIndex = Math.floor(Math.random() * 13);
-  // let labels = [];
-  // let datasets = [];
-  //
-  // // If you have two entity IDs, you need to create two data sets.
-  // let chartLabels = lineData.entityIds;
-  // const hasLegendvalues = !!lineData.legendvalues;
-  // chartLabels.forEach((entityId, index) =>
-  //     datasets.push({
-  //       label: hasLegendvalues ? lineData.legendvalues[index] : entityId,
-  //       entityId,
-  //       data: [],
-  //       fill: false,
-  //       borderColor: color(rendomIndex + index), tension: 0.1
-  //     }));
-  //
-  // // Find and map the entity ID corresponding to the created data set.
-  // // Data extract
-  // lineData.data.forEach((item, index) => {
-  //   datasets.map(d => item.id === d.entityId && d.data.push(item.chartValue));
-  //   labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
-  // });
   const rendomIndex = Math.floor(Math.random() * 13);
-  let labels = [];
+  let labels = new Set();
   let datasets = [];
 
-  //If you have two entity IDs, you need to create two data sets.
-  // barchart single id
-  let chartLabels = barData.entityIds;
-  const hasLegendvalues = !!barData.legendvalues;
+  // If you have two entity IDs, you need to create two data sets.
+  let chartLabels = lineData.entityIds;
+  const hasLegendvalues = !!lineData.legendvalues;
   chartLabels.forEach((entityId, index) =>
-    datasets.push({
-      label: hasLegendvalues ? barData.legendvalues[index] : entityId,
-      entityId,
-      data: [],
-      borderColor: color(rendomIndex),
-      backgroundColor: transparentize(color(rendomIndex), 0.5),
-      borderWidth: 1
-    }));
+      datasets.push({
+        label: hasLegendvalues ? lineData.legendvalues[index] : entityId,
+        entityId,
+        data: [],
+        fill: false,
+        borderColor: color(rendomIndex + index), tension: 0.1
+      }));
 
   // Find and map the entity ID corresponding to the created data set.
   // Data extract
-  barData.data.forEach((item, index) => {
-    datasets.map(d => item.id === d.label && d.data.push(item.chartValue));
-    labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
+  lineData.data.forEach((item, index) => {
+    datasets.map(d => item.id === d.entityId && d.data.push(item.chartValue));
+    labels.add(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
   });
-
-  return { labels: labels, datasets: datasets };
 };
 
 
