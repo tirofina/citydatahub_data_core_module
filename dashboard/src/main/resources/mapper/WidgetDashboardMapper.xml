@@ -128,12 +128,8 @@
 		<if test="file != null">
 			,FILE = #{file}
 		</if>
-		<if test="extention1 != null">
 			,EXTENTION1 = #{extention1}
-		</if>
-		<if test="extention2 != null">
 			,EXTENTION2 = #{extention2}
-		</if>
 		WHERE
 			WIDGET_ID = #{widgetId}
 			AND USER_ID = #{userId}

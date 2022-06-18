@@ -133,6 +133,7 @@ public class DataServiceBrokerSVC {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
 		
+		entityRetrieveVO.setDataModelId(dataModel.getId());
 		entityRetrieveVO.setType(dataModel.getType());
 		entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		
@@ -202,6 +203,7 @@ public class DataServiceBrokerSVC {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
 			
+			entityRetrieveVO.setDataModelId(dataModel.getId());
 			entityRetrieveVO.setType(dataModel.getType());
 			entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 			
@@ -273,6 +275,7 @@ public class DataServiceBrokerSVC {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
 			
+			entityRetrieveVO.setDataModelId(dataModel.getId());
 			entityRetrieveVO.setType(dataModel.getType());
 			entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		}
@@ -312,6 +315,7 @@ public class DataServiceBrokerSVC {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
 		
+		entityRetrieveVO.setDataModelId(dataModel.getId());
 		entityRetrieveVO.setType(dataModel.getType());
 		entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		
@@ -386,6 +390,7 @@ public class DataServiceBrokerSVC {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
 			
+			entityRetrieveVO.setDataModelId(dataModel.getId());
 			entityRetrieveVO.setType(dataModel.getType());
 			entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		}
@@ -1009,6 +1014,7 @@ public class DataServiceBrokerSVC {
 		if(dataModel == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
+		entityRetrieveVO.setDataModelId(dataModel.getId());
 		entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		entityRetrieveVO.setType(dataModel.getType());
 		
