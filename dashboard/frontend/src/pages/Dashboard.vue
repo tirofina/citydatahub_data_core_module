@@ -197,7 +197,7 @@ import {dashboardApi, widgetApi} from '@/moudules/apis';
 import {
   setDonutChart,
   setBarChartLast,
-  setBarChart,
+  setBarChartHistory,
   setLineChart,
   setHistogramNumberChart,
   setHistogramStrChart,
@@ -338,11 +338,11 @@ export default {
       }
 
       if (chartType === 'bar') {
-        // if (dataType === 'last') {
-        //   resultData = setBarChartLast(socketData);
-        // } else {
-          resultData = setBarChart(socketData);
-        // }
+        if (dataType === 'last') {
+          resultData = setBarChartLast(socketData);
+        } else {
+          resultData = setBarChartHistory(socketData);
+        }
       }
 
       if (chartType === 'line') {

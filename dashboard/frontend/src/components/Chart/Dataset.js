@@ -176,33 +176,36 @@ export const setDonutChart = (donutData) => {
 };
 
 // Bar Chart dateset data binding
-// export const setBarChartLast = (barData) => {
-//   const rendomIndex = Math.floor(Math.random() * 13);
-//   let labels = [];
-//   let datasets = [];
-//   let data = [];
-//   let bgColor = [];
-//   let borderColor = [];
-//
-//   // Setting the data according to the received array value.
-//   barData.data.map((item, index) => {
-//     labels.push(item.id);
-//     data.push(item.chartValue);
-//     bgColor.push(transparentize(color(rendomIndex + index), 0.5));
-//     borderColor.push(color(rendomIndex + index));
-//   });
-//   datasets.push({
-//     label: barData.attributeId,
-//     data: data,
-//     borderColor: borderColor,
-//     backgroundColor: bgColor,
-//     borderWidth: 1
-//   });
-//   return { labels: labels, datasets: datasets };
-// };
+export const setBarChartLast = (barData) => {
+  const randomIndex = Math.floor(Math.random() * 13);
+  let labels = [];
+  let datasets = [];
+  let data = [];
+  let bgColor = [];
+  let borderColor = [];
+
+  // Setting the data according to the received array value.
+  let chartLabels = barData.entityIds;
+  const hasLegendvalues = !!barData.legendvalues;
+  barData.data.map((item, index) => {
+    labels.push(hasLegendvalues ? barData.legendvalues[index] : item.id);
+    data.push(item.chartValue);
+    bgColor.push(transparentize(color(randomIndex + index), 0.5));
+    borderColor.push(color(randomIndex + index));
+  });
+  datasets.push({
+    label: barData.attributeId,
+    data: data,
+    borderColor: borderColor,
+    backgroundColor: bgColor,
+    borderWidth: 1
+  });
+
+  return { labels: labels, datasets: datasets };
+};
 
 // Bar History Chart dateset data binding
-export const setBarChart = (barData) => {
+export const setBarChartHistory = (barData) => {
   const rendomIndex = Math.floor(Math.random() * 13);
   let labels = [];
   let datasets = [];
