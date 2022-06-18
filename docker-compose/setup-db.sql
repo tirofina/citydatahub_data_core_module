@@ -880,11 +880,12 @@ CREATE TABLE DATACORE_UI.MENU_BASE
     SORT_ORDER          NUMERIC(5),
     ENABLED             BOOLEAN NOT NULL DEFAULT TRUE,
     LEVEL               NUMERIC(5) NOT NULL,
+    LANG_CD		VARCHAR(5) NOT NULL DEFAULT 'en'
     CREATE_DATETIME     TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CREATOR_ID          VARCHAR(64),
     MODIFY_DATETIME     TIMESTAMP WITHOUT TIME ZONE,
     MODIFIER_ID         VARCHAR(64),
-    CONSTRAINT MENU_BASE_PK PRIMARY KEY (ID)
+    CONSTRAINT MENU_BASE_PK PRIMARY KEY (ID, LANG_CD)
 );
 
 -- 메뉴 역할 기본 테이블 스키마
@@ -1112,12 +1113,24 @@ INSERT INTO datacore_ui.CODE_BASE(CODE_GROUP_ID, CODE_ID, CODE_NAME, SORT_ORDER,
 INSERT INTO datacore_ui.CODE_BASE(CODE_GROUP_ID, CODE_ID, CODE_NAME, SORT_ORDER, ENABLED, DESCRIPTION, CREATE_DATETIME, CREATOR_ID) VALUES('DC101', 'false', '아니오', 2, true, '', now(), 'admin');
 
 -- Menu
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_100', '데이터 모델 관리', '/dataModels', null, 1, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_200', '데이터 셋 관리', '/datasetView', null, 2, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_300', 'Provision 서버 관리', '/provisionServerView', null, 3, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_400', '외부 플랫폼 인증 관리', '/externalPlatformView', null, 4, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_500', '품질 모니터링', '/verificationHistoryView', null, 5, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_600', '시스템 관리', '/', null, 6, true, 1, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_601', '코드 관리', '/codeManageView', 'DATACORE_600', 1, true, 2, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_602', '메뉴 관리', '/menuManageView', 'DATACORE_600', 2, true, 2, now(), 'admin');
-INSERT INTO datacore_ui.MENU_BASE(ID, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_603', '메뉴 권한 관리', '/menuRoleManageView', 'DATACORE_600', 3, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_100', 'kr', '데이터 모델 관리', '/dataModels', null, 1, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_200', 'kr', '데이터 셋 관리', '/datasetView', null, 2, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_300', 'kr', '데이터 접근 제어 관리', '/accessControl', null, 3, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_400', 'kr', 'Provision 서버 관리', '/provisionServerView', null, 4, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_500', 'kr', '외부 플랫폼 인증 관리', '/externalPlatformView', null, 5, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_600', 'kr', '품질 모니터링', '/verificationHistoryView', null, 6, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_700', 'kr', '시스템 관리', '/', null, 7, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_701', 'kr', '코드 관리', '/codeManageView', 'DATACORE_700', 1, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_702', 'kr', '메뉴 관리', '/menuManageView', 'DATACORE_700', 2, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_703', 'kr', '메뉴 권한 관리', '/menuRoleManageView', 'DATACORE_700', 3, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_704', 'kr', '데이터 접근 제어 관리', '/accessControl', 'DATACORE_700', 4, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_100', 'en', 'Data Model', '/dataModels', null, 1, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_200', 'en', 'Dataset', '/datasetView', null, 2, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_400', 'en', 'Provision Server', '/provisionServerView', null, 4, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_500', 'en', 'Data Source Platform', '/externalPlatformView', null, 5, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_600', 'en', 'Data Validation', '/verificationHistoryView', null, 6, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_700', 'en', 'Setting', '/', null, 7, true, 1, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_701', 'en', 'Code', '/codeManageView', 'DATACORE_700', 1, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_702', 'en', 'Menu', '/menuManageView', 'DATACORE_700', 2, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_703', 'en', 'Menu Auth', '/menuRoleManageView', 'DATACORE_700', 3, true, 2, now(), 'admin');
+INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER, ENABLED, LEVEL, CREATE_DATETIME, CREATOR_ID) VALUES('DATACORE_704', 'en', 'Access Control', '/accessControl', 'DATACORE_700', 4, true, 2, now(), 'admin');
