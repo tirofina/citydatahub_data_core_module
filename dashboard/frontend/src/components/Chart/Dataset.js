@@ -262,7 +262,8 @@ export const setLineChart = (lineData) => {
     datasets.map(d => item.id === d.entityId && d.data.push(item.chartValue));
     labels.add(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
   });
-};
+
+  return { labels: Array.from(labels), datasets };};
 
 
 /**
