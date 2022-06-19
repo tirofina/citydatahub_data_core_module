@@ -193,6 +193,10 @@ public class RdbEntitySqlProviderImpl {
                         String columnName = dbColumnInfoVO.getColumnName();
                         DbColumnType dbColumnType = dbColumnInfoVO.getColumnType();
 
+                        if (entityDaoVO.get(daoAttributeId) == null) {
+                            continue;
+                        }
+
                         // property에 포함된 속성인 createdAt 은 null 인 경우만 입력
                         if(dbColumnType == DbColumnType.TIMESTAMP && daoAttributeId.endsWith(Constants.COLUMN_DELIMITER + PropertyKey.CREATED_AT.getCode())) {
                         	SET(columnName + " = COALESCE( " + columnName + ", #{" + DataServiceBrokerCode.DefaultAttributeKey.MODIFIED_AT.getCode() + ", jdbcType=TIMESTAMP})");
