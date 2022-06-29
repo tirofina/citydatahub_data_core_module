@@ -59,11 +59,6 @@
               </el-select>
             </div>
           </div>
-<!--          <div class="col-md-4" v-if="display['chartType']">-->
-<!--            <div class="form-group">-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          TODO TypeURI 내용 확인 필요-->
           <div class="col-md-4" v-if="display['typeUri']">
             <div class="form-group">
               <label class="control-label">{{ $t('widget.typeUri') }}</label>
@@ -753,7 +748,6 @@ export default {
             return result.push({value: item, text: item, disabled: false});
           });
           this.entityIds = result;
-          // TODO 검증 필요å
           const {dataType, chartType} = this.formData;
           this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
 
@@ -927,7 +921,6 @@ export default {
       if (this.entityIds.length > 0) {
         this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
       }
-      // TODO histogram 일때 해당 값 변경에 따라 UI 변경 필요
       if (chartType === 'histogram') {
         this.chartUnit = null;
         this.formData['chartAttribute'] = null;
@@ -978,7 +971,6 @@ export default {
       this.dataModelDisabled = {dataModelId: this.isModify, typeUri: true};
     },
     onSelectedEntity(array) {
-      // TODO 확인필요
       if (this.isEntityIdMultiple) {
         if (array.indexOf('') >= 0) {
           this.entityId = this.entityIds.filter(_ => _.value !== '').map(item => item.value);

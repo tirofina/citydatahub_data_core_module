@@ -104,10 +104,7 @@ export const histogramStrChartOptions = (option) => {
 };
 
 // Histogram Number Chart options
-// TODO 확인 필요
 export const histogramNumberChartOptions = (option, chartUnit, maxX) => {
-  // https://www.chartjs.org/docs/latest/getting-started/v3-migration.html
-  // TODO tooltip 적용 필요
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -328,55 +325,6 @@ export const setScatterHistoryChart = (scatterData) => {
 
   return { labels: labels, datasets: datasets };
 };
-
-/*
-// Histogram History Chart dateset data binding
-// TODO 데이터 받아서 확인 필요
-export const setHistogramChartHistory = (histogramData) => {
-  let randomIndex = Math.floor(Math.random() * 13);
-  let labels = [0];
-  let datasets = [];
-
-  // colors
-
-  //If you have two entity IDs, you need to create two data sets.
-  // barchart single id
-  let chartLabels = histogramData.entityIds;
-  chartLabels.forEach(entityId =>
-    datasets.push({
-      label: entityId,
-      data: [],
-      borderColor: [],
-      // borderColor: color(randomIndex),
-      backgroundColor: [],
-      // backgroundColor: transparentize(color(randomIndex), 0.5),
-      borderWidth: 1,
-      barPercentage: 1, // 공백 없게
-      categoryPercentage: 1, // 공백 없게
-    }));
-
-  // Find and map the entity ID corresponding to the created data set.
-  // Data extract
-  histogramData.data.forEach((item, index) => {
-    datasets.map(d => item.id === d.label && d.data.push(item.chartValue.y));
-    datasets.forEach(d => {
-      if (item.id === d.label) {
-        d.data.push(item.chartValue.y);
-        randomIndex = Math.floor(Math.random() * 13);
-        d.borderColor.push(color(randomIndex));
-        d.backgroundColor.push(transparentize(color(randomIndex), 0.5));
-      }
-    });
-      // datasets.map(d => item.id === d.label && d.data.push(item.chartValue.y));
-    // labels.push(moment(item.observedAt).format('YYYY-MM-DD HH:mm:ss'));
-    labels.push(item.chartValue.x);
-  });
-  return {
-    labels: labels,
-    datasets: datasets
-  };
-};
- */
 
 // Histogram Last Chart dateset data binding
 export const setHistogramNumberChart = (histogramData, chartUnit) => {
