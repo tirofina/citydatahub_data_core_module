@@ -56,4 +56,7 @@ public class Properties {
 	
 	@Value("${google.api.key}")
 	private String googleApiKey;
+	
+	@Value("${language.code}")
+	private String languageCode;
 }

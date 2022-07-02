@@ -92,7 +92,7 @@ export default {
     },
     getMenuList() {
       const locale = this.defaultLocale();
-      this.$http.get(APIHandler.buildUrl([`accessmenu?${locale}`]))
+      this.$http.get(APIHandler.buildUrl([`accessmenu`]))
           .then(response => {
             const items = response.data;
             let rootNodes = [];

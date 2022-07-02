@@ -3,6 +3,7 @@ package kr.re.keti.sc.datacoreui.controller.web;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -12,10 +13,10 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import kr.re.keti.sc.datacoreui.api.menu.vo.MenuBaseVO;
+import kr.re.keti.sc.datacoreui.common.component.Properties;
 import kr.re.keti.sc.datacoreui.security.service.DataCoreUiSVC;
 import kr.re.keti.sc.datacoreui.security.vo.UserVO;
 
@@ -31,7 +32,13 @@ import kr.re.keti.sc.datacoreui.security.vo.UserVO;
 @Controller
 public class DataCoreViewController implements ErrorController {
 	
-	@Autowired DataCoreUiSVC dataCoreUiSVC;
+	@Autowired 
+	DataCoreUiSVC dataCoreUiSVC;
+	
+	@Autowired
+	private Properties properties;
+	
+	final static String LANG_CD = "langCd";
 	
     /**
      * When the page is refreshed In spa development, 
@@ -42,6 +49,10 @@ public class DataCoreViewController implements ErrorController {
      */
     @GetMapping({ "/", "/error" })
     public String redirectRoot(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	Cookie setCookie = new Cookie(LANG_CD, properties.getLangCd());
+		setCookie.setPath("/");
+		response.addCookie(setCookie);
+		
         return "index.html";
     }
 
@@ -114,8 +125,14 @@ public class DataCoreViewController implements ErrorController {
      * @throws IOException	Throw an exception when an IO error occurs.
      */
     @GetMapping("/accessmenu")
-    public ResponseEntity<List<MenuBaseVO>> getAccessMenu(HttpServletRequest request, HttpServletResponse response, 
-    		@RequestParam(value="langCd", defaultValue="en") String langCd) throws Exception {
+    public ResponseEntity<List<MenuBaseVO>> getAccessMenu(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	
+    	String langCd = properties.getLangCd();
+    	// default English
+    	if(langCd == null) {
+    		langCd = "en";
+    	}
+    	
     	return dataCoreUiSVC.getAccessMenu(request, langCd);
     }
     

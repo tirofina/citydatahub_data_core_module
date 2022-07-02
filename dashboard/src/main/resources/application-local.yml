@@ -24,6 +24,9 @@ server:
 ## Logging 설정
 logging.config: classpath:logback-spring.xml
 logging.base.dir: logs
+
+# Language (en: English, kr: Korean)
+language.code: en
   
 # DB연결 정보
 datasource:
