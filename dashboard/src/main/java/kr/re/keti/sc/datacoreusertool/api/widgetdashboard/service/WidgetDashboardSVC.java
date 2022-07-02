@@ -186,7 +186,7 @@ public class WidgetDashboardSVC {
 			WidgetDashboardVO widgetDashboardVO = makeWidgetDashboardVO(userId, widgetDashboardUIVO);
 			
 			try {
-				widgetDashboardDAO.updateWidget(widgetDashboardVO);
+				widgetDashboardDAO.updateWidgetLayout(widgetDashboardVO);
 			} catch(Exception e) {
 				log.error("Fail to updateWidget.", e);
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

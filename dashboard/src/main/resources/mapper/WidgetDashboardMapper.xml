@@ -135,6 +135,21 @@
 			AND USER_ID = #{userId}
 			AND DASHBOARD_ID = #{dashboardId}
 	</update>
+	
+	<update id="updateWidgetLayout" parameterType="kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardVO">
+		UPDATE datacore_usertool.WIDGET_CHART_BASE
+		SET MODIFY_DATETIME = now()
+		<if test="chartOrder != null">
+			,CHART_ORDER = #{chartOrder}
+		</if>
+		<if test="chartSize != null">
+			,CHART_SIZE = #{chartSize}
+		</if>
+		WHERE
+			WIDGET_ID = #{widgetId}
+			AND USER_ID = #{userId}
+			AND DASHBOARD_ID = #{dashboardId}
+	</update>
     
     <delete id="deleteWidget" parameterType="kr.re.keti.sc.datacoreusertool.api.widgetdashboard.vo.WidgetDashboardVO">
     	DELETE FROM datacore_usertool.WIDGET_CHART_BASE
