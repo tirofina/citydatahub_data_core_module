@@ -14,6 +14,7 @@
 
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
+import { getCookie } from './cookieParser'
 
 Vue.use(VueI18n)
 
@@ -31,14 +32,6 @@ function loadLocaleMessages () {
 }
 
 export default new VueI18n({
-  locale: 'ko', // localStorage sync to call defaultLocale()
+  locale: getCookie('langCd') || 'en',
   messages: loadLocaleMessages()
 })
-
-function defaultLocale() {
-  let locale = localStorage.getItem('langCd');
-  if (!locale) {
-    locale = 'en';
-  }
-  return locale;
-}

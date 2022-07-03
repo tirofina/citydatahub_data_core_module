@@ -293,8 +293,6 @@ export default {
     // websocket connection
     socketConnect() {
       if (!this.websocket) {
-        // TODO process.env - subtract it as an environmental variable.
-        // const serverURL = 'ws://localhost:8084/widgetevents'
         const serverURL = `ws://${window.location.host}/widgetevents`;
         this.websocket = new WebSocket(serverURL);
 
