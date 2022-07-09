@@ -485,13 +485,6 @@ public class CsourceRegistrationSVC {
             contextMap = dataModelManager.contextToFlatMap(csourceRegistrationVO.getContext());
         }
 
-        if(csourceRegistrationVO.getLocation() != null && csourceRegistrationVO.getLocation().getValue() != null) {
-            if(contextMap == null || !contextMap.containsKey(Constants.LOCATION_ATTR_DEFAULT_NAME)) {
-                throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER,
-                        "Invalid Parameter. Not exists location in context.");
-            }
-        }
-
         if(!ValidateUtil.isEmptyData(csourceRegistrationVO.getInformation())) {
             for(CsourceRegistrationVO.Information information : csourceRegistrationVO.getInformation()) {
                 // validate entity type
