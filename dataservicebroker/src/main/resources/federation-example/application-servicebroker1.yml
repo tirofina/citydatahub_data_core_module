@@ -35,7 +35,7 @@ data-federation:
     entity-infos:
       - idPattern: 'urn:offstreetparking:.*'
         type: 'http://uri.citydatahub.kr/ngsi-ld/parking/OffStreetParking'
-    location:
+    location: '{"type": "GeoProperty", "value": {"type": "MultiPolygon", "coordinates": [[[[127.11132,37.393653],[127.112554,37.393696],[127.1127577,37.3919996],[127.111459,37.391938],[127.11132,37.393653]],[[127.11012959288209,37.39406942288665],[127.1101210152688,37.395925535644096],[127.11249276673757,37.396031425685074],[127.11251239034895,37.394049159260064],[127.11012959288209,37.39406942288665]]]]}}'
   subscription:
     id: urn:ngsi-ld:CsourceRegistrationSubscription:IoT_01
     endpoint: http://localhost:8082/csourceNotifications

@@ -113,6 +113,9 @@ public class DataFederationService {
 		// 1. data-registry 정보 조회 및 캐싱
 		List<CsourceRegistrationVO> registryCsourceRegistrationVOs = getCsourceRegistrations();
 		if (registryCsourceRegistrationVOs != null) {
+
+			log.info("Retrieve and caching csource by Data-Registry. csourceRegistrationVOs={}", registryCsourceRegistrationVOs);
+
 			for (CsourceRegistrationVO csourceRegistrationVO : registryCsourceRegistrationVOs) {
 				if(csourceRegistrationManager.getCsourceRegistrationCache(csourceRegistrationVO.getId()) == null) {
 					csourceRegistrationManager.putCsourceRegistrationCache(csourceRegistrationVO);

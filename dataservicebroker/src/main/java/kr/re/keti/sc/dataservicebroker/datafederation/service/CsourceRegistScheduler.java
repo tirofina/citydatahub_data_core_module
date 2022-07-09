@@ -2,9 +2,12 @@ package kr.re.keti.sc.dataservicebroker.datafederation.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @Component
 @Slf4j
@@ -13,8 +16,16 @@ public class CsourceRegistScheduler {
 
 	private final DataFederationService dataFederationService;
 
+	@Value("${data-federation.csource.regist-interval-millis:600000}")
+	private String interval;
+
 	public CsourceRegistScheduler(DataFederationService dataFederationService) {
 		this.dataFederationService = dataFederationService;
+	}
+
+	@PostConstruct
+	private void init() {
+		log.info("Initialize CsourceRegistScheduler. run interval {} ms", interval);
 	}
 
 	@Scheduled(
@@ -30,7 +41,7 @@ public class CsourceRegistScheduler {
 			dataFederationService.retrieveAndCachingCsource();
 
 		} catch (Exception e) {
-			log.error("DataFederationService initialize error", e);
+			log.error("CsourceRegistScheduler synchronizeDataRegistryCsource error", e);
 		}
 	}
 }
