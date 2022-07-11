@@ -155,10 +155,10 @@ public class CodeSVC {
 		try {
 			codeDAO.createCode(codeBaseVO);
 		} catch(DuplicateKeyException e) {
-			log.warn("Duplicate Code key. codeGroupId: {}, codeId: {}", codeBaseVO.getCodeGroupId(), codeBaseVO.getCodeId(), e);
+			log.warn("Duplicate Code key. codeGroupId: {}, codeId: {}, langCd: {}", codeBaseVO.getCodeGroupId(), codeBaseVO.getCodeId(), codeBaseVO.getLangCd(), e);
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		} catch(DataIntegrityViolationException e) {
-			log.warn("CodeGroup is not exist. codeGroupId: {}, codeId: {}", codeBaseVO.getCodeGroupId(), codeBaseVO.getCodeId(), e);
+			log.warn("CodeGroup is not exist. codeGroupId: {}, codeId: {}, langCd: {}", codeBaseVO.getCodeGroupId(), codeBaseVO.getCodeId(), codeBaseVO.getLangCd(), e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		} catch(Exception e) {
 			log.error("Fail to createCode.", e);
@@ -175,9 +175,10 @@ public class CodeSVC {
 	 * @param codeBaseVO	CodeBaseVO
 	 * @return				Result of update code.
 	 */
-	public <T> ResponseEntity<T> updateCode(String codeGroupId, String codeId, CodeBaseVO codeBaseVO) {
+	public <T> ResponseEntity<T> updateCode(String codeGroupId, String codeId, String langCd, CodeBaseVO codeBaseVO) {
 		codeBaseVO.setCodeGroupId(codeGroupId);
 		codeBaseVO.setCodeId(codeId);
+		codeBaseVO.setLangCd(langCd);
 
 		try {
 			codeDAO.updateCode(codeBaseVO);
@@ -195,10 +196,11 @@ public class CodeSVC {
 	 * @param codeId		Code ID
 	 * @return				Result of delete code.
 	 */
-	public <T> ResponseEntity<T> deleteCode(String codeGroupId, String codeId) {
+	public <T> ResponseEntity<T> deleteCode(String codeGroupId, String codeId, String langCd) {
 		CodeBaseVO codeBaseVO = new CodeBaseVO();
 		codeBaseVO.setCodeGroupId(codeGroupId);
 		codeBaseVO.setCodeId(codeId);
+		codeBaseVO.setLangCd(langCd);
 		
 		try {
 			codeDAO.deleteCode(codeBaseVO);
@@ -216,11 +218,12 @@ public class CodeSVC {
 	 * @param codeId		Code ID
 	 * @return				Code information 
 	 */
-	public ResponseEntity<CodeBaseVO> getCode(String codeGroupId, String codeId) {
+	public ResponseEntity<CodeBaseVO> getCode(String codeGroupId, String codeId, String langCd) {
 		CodeBaseVO result = null;
 		CodeBaseVO codeBaseVO = new CodeBaseVO();
 		codeBaseVO.setCodeGroupId(codeGroupId);
 		codeBaseVO.setCodeId(codeId);
+		codeBaseVO.setLangCd(langCd);
 		
 		try {
 			result = codeDAO.getCode(codeBaseVO);

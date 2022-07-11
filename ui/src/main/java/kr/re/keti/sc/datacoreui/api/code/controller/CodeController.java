@@ -171,15 +171,16 @@ public class CodeController {
 	 * @return				Code group update result.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@PatchMapping(value="/code/{codeGroupId}/{codeId}")
+	@PatchMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
 	public <T> ResponseEntity<T> updateCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
 			@PathVariable String codeId,
+			@PathVariable String langCd,
 			@RequestBody CodeBaseVO codeBaseVO) throws Exception {
-		log.info("[UI API] updateCode - codeGroupId: {}, codeId: {}, codeGroupBasVO: {}", codeGroupId, codeId, codeBaseVO);
+		log.info("[UI API] updateCode - codeGroupId: {}, codeId: {}, langCd: {}, codeGroupBasVO: {}", codeGroupId, codeId, langCd, codeBaseVO);
 		
 		// 1. Update code
-		ResponseEntity<T> reslt = codeSVC.updateCode(codeGroupId, codeId, codeBaseVO);
+		ResponseEntity<T> reslt = codeSVC.updateCode(codeGroupId, codeId, langCd, codeBaseVO);
 		
 		return reslt;
 	}
@@ -191,14 +192,15 @@ public class CodeController {
 	 * @return				Code group delete result.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@DeleteMapping(value="/code/{codeGroupId}/{codeId}")
+	@DeleteMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
 	public <T> ResponseEntity<T> deleteCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
-			@PathVariable String codeId) throws Exception {
-		log.info("[UI API] deleteCode - codeGroupId: {}, codeId: {}", codeGroupId, codeId);
+			@PathVariable String codeId,
+			@PathVariable String langCd) throws Exception {
+		log.info("[UI API] deleteCode - codeGroupId: {}, codeId: {}, langCd: {}", codeGroupId, codeId, langCd);
 		
 		// 1. Delete code
-		ResponseEntity<T> reslt = codeSVC.deleteCode(codeGroupId, codeId);
+		ResponseEntity<T> reslt = codeSVC.deleteCode(codeGroupId, codeId, langCd);
 		
 		return reslt;
 	}
@@ -210,14 +212,15 @@ public class CodeController {
 	 * @return				Code retrieved by code group ID and code ID.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@GetMapping(value="/code/{codeGroupId}/{codeId}")
+	@GetMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
 	public ResponseEntity<CodeBaseVO> getCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
-			@PathVariable String codeId) throws Exception {
-		log.info("[UI API] getCode - codeGroupId: {}, codeId: {}", codeGroupId, codeId);
+			@PathVariable String codeId,
+			@PathVariable String langCd) throws Exception {
+		log.info("[UI API] getCode - codeGroupId: {}, codeId: {}, langCd: {}", codeGroupId, codeId, langCd);
 		
 		// 1. Retrieve code
-		ResponseEntity<CodeBaseVO> reslt = codeSVC.getCode(codeGroupId, codeId);
+		ResponseEntity<CodeBaseVO> reslt = codeSVC.getCode(codeGroupId, codeId, langCd);
 		
 		return reslt;
 	}
@@ -276,6 +279,7 @@ public class CodeController {
 		
 		if(ValidateUtil.isEmptyData(codeBaseVO.getCodeGroupId())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getCodeId())
+				|| ValidateUtil.isEmptyData(codeBaseVO.getLangCd())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getCodeName())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getSortOrder())) {
 			return false;

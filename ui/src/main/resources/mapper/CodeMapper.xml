@@ -30,6 +30,7 @@
     <resultMap id="code" type="kr.re.keti.sc.datacoreui.api.code.vo.CodeBaseVO">
         <result property="codeGroupId" column="CODE_GROUP_ID"/>
         <result property="codeId" column="CODE_ID"/>
+        <result property="langCd" column="LANG_CD"/>
         <result property="codeName" column="CODE_NAME"/>
         <result property="sortOrder" column="SORT_ORDER"/>
         <result property="enabled" column="ENABLED"/>
@@ -44,6 +45,7 @@
     	<result property="totalCnt" column="TOTAL_COUNT"/>
         <result property="codeGroupId" column="CODE_GROUP_ID"/>
         <result property="codeId" column="CODE_ID"/>
+        <result property="langCd" column="LANG_CD"/>
         <result property="codeName" column="CODE_NAME"/>
         <result property="sortOrder" column="SORT_ORDER"/>
         <result property="enabled" column="ENABLED"/>
@@ -127,6 +129,7 @@
 		INSERT INTO datacore_ui.CODE_BASE  (
 			CODE_GROUP_ID
 			,CODE_ID
+			,LANG_CD
 			,CODE_NAME
 			,SORT_ORDER
 			,ENABLED
@@ -140,6 +143,7 @@
 		) VALUES (
 			#{codeGroupId}
 			,#{codeId}
+			,#{langCd}
 			,#{codeName}
 			,#{sortOrder}
 			,#{enabled}
@@ -173,12 +177,14 @@
 		</if>
 		WHERE CODE_GROUP_ID = #{codeGroupId}
 		AND CODE_ID = #{codeId}
+		AND LANG_CD = #{langCd}
 	</update>
     
     <delete id="deleteCode" parameterType="kr.re.keti.sc.datacoreui.api.code.vo.CodeBaseVO">
     	DELETE FROM datacore_ui.CODE_BASE
     	WHERE CODE_GROUP_ID = #{codeGroupId}
     	AND CODE_ID = #{codeId}
+    	AND LANG_CD = #{langCd}
     </delete>
     
     <select id="selectCode" parameterType="kr.re.keti.sc.datacoreui.api.code.vo.CodeBaseVO" resultMap="code">
@@ -186,6 +192,7 @@
     	FROM datacore_ui.CODE_BASE
     	WHERE CODE_GROUP_ID = #{codeGroupId}
     	AND CODE_ID = #{codeId}
+    	AND LANG_CD = #{langCd}
     </select>
     
     <select id="selectCodes" parameterType="kr.re.keti.sc.datacoreui.api.code.vo.CodeRequestVO" resultMap="codeList">
@@ -195,6 +202,9 @@
     	<where>
     	<if test="codeGroupId != null">
     		CODE_GROUP_ID = #{codeGroupId}
+    	</if>
+    	<if test="langCd != null">
+    		LANG_CD = #{langCd}
     	</if>
     	<if test="searchValue != null">
     		CODE_GROUP_ID LIKE '%' || #{searchValue} || '%'

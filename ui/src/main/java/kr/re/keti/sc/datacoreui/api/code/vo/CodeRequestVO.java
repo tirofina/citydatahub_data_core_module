@@ -24,4 +24,6 @@ public class CodeRequestVO {
 	private String searchValue;
 	/** Code group ID*/
 	private String codeGroupId;
+	/** Language code */
+	private String langCd;
 }

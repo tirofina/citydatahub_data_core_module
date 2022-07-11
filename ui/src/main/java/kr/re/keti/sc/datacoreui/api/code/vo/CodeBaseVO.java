@@ -25,6 +25,8 @@ public class CodeBaseVO {
 	private String codeGroupId;
 	/** Code ID */
 	private String codeId;
+	/** Language code */
+	private String langCd;
 	/** Code name */
 	private String codeName;
 	/** Sort order */
