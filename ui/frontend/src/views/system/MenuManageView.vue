@@ -261,6 +261,8 @@ export default {
             if (items !== null && items !== '') {
               let rootNodes = [];
               items.map((item, index) => {
+                const key = `leftMenu.${item.id}`;
+                item.name = this.$i18n.t(key);
                 if (item.level === 1) {
                   return rootNodes.push(item);
                 }
