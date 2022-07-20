@@ -150,6 +150,7 @@
                         :options="item.options" :chartData="item.data"/>
               <ScatterChart class="chartWrapper" v-if="item.chartType === 'scatter'"
                               :options="item.options" :chartData="item.data"/>
+              <div class="badge" v-show="item.updateCnt > 1"> {{ item.updateCnt > 100 ? '99+' : item.updateCnt - 1 }} </div>
             </div>
           </div>
         </GridItem>
@@ -293,6 +294,7 @@ export default {
     // websocket connection
     socketConnect() {
       if (!this.websocket) {
+        // const serverURL = `ws://localhost:8084/widgetevents`;
         const serverURL = `ws://${window.location.host}/widgetevents`;
         this.websocket = new WebSocket(serverURL);
 
@@ -382,6 +384,7 @@ export default {
           } else {
             item.options = chartOptions(item);
           }
+          item.updateCnt++;
         }
       });
     },
@@ -454,6 +457,7 @@ export default {
         Object.keys(data).forEach(key => {
           this.layout[index][key] = data[key];
         })
+        this.layout[index].updateCnt = 0;
       }
 
       if (chartType !== 'custom_text' && chartType !== 'Image') {
@@ -474,6 +478,7 @@ export default {
     },
     onAddWidget(data) {
       const {chartType, widgetId, userId} = data;
+      data.updateCnt = 0;
       this.layout.push(data);
 
       if (chartType === 'Image') {
@@ -567,7 +572,8 @@ export default {
                 chartYName: chartYName || null,
                 yaxisRange: yaxisRange || null,
                 data: null,
-                mapSearchConditionId: mapSearchConditionId
+                mapSearchConditionId: mapSearchConditionId,
+                updateCnt: 0,
               });
 
               if (chartType === 'histogram') {
@@ -778,4 +784,12 @@ label {
   font-size: 1.4em;
 }
 
+.badge {
+  position: absolute;
+  background: orangered;
+  border-radius: 10px;
+  color: white;
+  margin: -5px;
+  top: 0;
+}
 </style>
