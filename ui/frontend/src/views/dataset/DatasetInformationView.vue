@@ -827,31 +827,51 @@ export default {
     getCommonCodeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC101`)
           .then(response => {
-            this.commonCodeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.commonCodeList.push(item);
+            });
           });
     },
     getIdentifierList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC011`)
           .then(response => {
-            this.identifierList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.identifierList.push(item);
+            });
           });
     },
     getCategoryList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC007`)
           .then(response => {
-            this.categoryList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.categoryList.push(item);
+            });
           });
     },
     getLicenseList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC010`)
           .then(response => {
-            this.licenseList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.licenseList.push(item);
+            });
           });
     },
     getIsProcessedList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC008`)
           .then(response => {
-            this.isProcessedList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.isProcessedList.push(item);
+            });
           });
     }
   },

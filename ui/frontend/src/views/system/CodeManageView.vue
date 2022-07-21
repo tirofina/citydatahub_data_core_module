@@ -168,7 +168,7 @@
                       type="text"
                       name="codeGroupId"
                       v-model="formData['codeGroupId']"
-                      :disabled="isMode === 'mod' ? true : false"
+                      :disabled="isMode === 'mod'"
                       @blur="onPopupFocusoutEvent"
                   />
                   <br>
@@ -295,7 +295,7 @@
                       type="text"
                       name="codeGroupId"
                       v-model="formData['codeGroupId']"
-                      :disabled="isMode === 'mod' ? true : false"
+                      :disabled="isMode === 'mod'"
                       @blur="onPopupFocusoutEvent"
                   />
                   <br>
@@ -310,7 +310,7 @@
                       type="text"
                       name="codeId"
                       v-model="formData['codeId']"
-                      :disabled="isMode === 'mod' ? true : false"
+                      :disabled="isMode === 'mod'"
                       @blur="onPopupFocusoutEvent"
                   />
                   <br>
@@ -585,7 +585,7 @@ export default {
                 return {
                   codeGroupId: item.codeGroupId,
                   codeId: item.codeId,
-                  codeName: item.codeName,
+                  codeName: this.$i18n.t(`codes.${item.codeId}`),
                   enabled: item.enabled ? this.$i18n.t('comm.active') : this.$i18n.t('comm.inactive'),
                   description: item.description
                 }
@@ -669,7 +669,7 @@ export default {
           }
         });
         let checkResult = Object.keys(this.codeGroupError).some(key => {
-          return this.codeGroupError[key] ? true : false;
+          return !!this.codeGroupError[key];
         });
         if (checkResult) {
           return null;

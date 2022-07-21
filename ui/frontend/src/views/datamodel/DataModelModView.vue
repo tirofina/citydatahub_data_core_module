@@ -3,7 +3,7 @@
     <h3 class="content__title">{{ $t('dataModel.dataModelInfo') }}</h3>
     <div style="margin-top: 15px; text-align: right;" v-if="isMode === 'add'">
       <label>
-        <el-select v-model="searchModelValue" filterable :placeholder="$t('dataModal.search')" size="mini" id="choiceModel">
+        <el-select v-model="searchModelValue" filterable size="mini" id="choiceModel">
           <el-option
               size="mini"
               style="font-size: 12px;"

@@ -129,6 +129,7 @@ UPDATE datacore_ui.MENU_BASE SET LANG_CD='ko' where LANG_CD='kr';
 UPDATE datacore_ui.CODE_BASE SET LANG_CD='ko';
 --ALTER TABLE datacore_ui.CODE_BASE DROP CONSTRAINT CODE_BASE_PK;
 --ALTER TABLE datacore_ui.CODE_BASE ADD CONSTRAINT CODE_BASE_PK PRIMARY KEY (CODE_GROUP_ID, CODE_ID, LANG_CD);
+-- 2022-07-22 (db 데이터중 codeId 가 기존에는 한글명으로 표기되어 있고, lan_cd 가 새로 생성 됨에 따라 코드 정보를 아래 정보로 변경 하여야 정상적으로 다국어가 지원 됨)
 INSERT INTO datacore_ui.CODE_BASE(CODE_GROUP_ID, CODE_ID, LANG_CD, CODE_NAME, SORT_ORDER, ENABLED, DESCRIPTION, CREATE_DATETIME, CREATOR_ID) VALUES('DC001', 'Property', 'en', 'Property', 1, true, '', now(), 'admin');
 INSERT INTO datacore_ui.CODE_BASE(CODE_GROUP_ID, CODE_ID, LANG_CD, CODE_NAME, SORT_ORDER, ENABLED, DESCRIPTION, CREATE_DATETIME, CREATOR_ID) VALUES('DC001', 'GeoProperty', 'en', 'GeoProperty', 2, true, '', now(), 'admin');
 INSERT INTO datacore_ui.CODE_BASE(CODE_GROUP_ID, CODE_ID, LANG_CD, CODE_NAME, SORT_ORDER, ENABLED, DESCRIPTION, CREATE_DATETIME, CREATOR_ID) VALUES('DC001', 'Relationship', 'en', 'Relationship', 3, true, '', now(), 'admin');

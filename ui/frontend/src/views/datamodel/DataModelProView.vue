@@ -870,13 +870,20 @@ export default {
       if (attrType) {
         this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=${ attrType }`)
             .then(response => {
-              this.optionList = response.data.codeVOs;
+              const { codeVOs } = response.data;
+              codeVOs.map(item => {
+                item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+                this.optionList.push(item);
+              });
             });
-
       } else {
         this.$http.get('/code?pageSize=999&currentPage=1&codeGroupId=DC001')
             .then(response => {
-              this.attrTypeList = response.data.codeVOs;
+              const { codeVOs } = response.data;
+              codeVOs.map(item => {
+                item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+                this.attrTypeList.push(item);
+              });
             });
       }
     },
@@ -888,19 +895,31 @@ export default {
       }
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=${codeGroupId}`)
           .then(response => {
-            this.objectValueType = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.objectValueType.push(item);
+            });
           });
     },
     getAccessModeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC002`)
           .then(response => {
-            this.accessModeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.accessModeList.push(item);
+            });
           });
     },
     getCommonCodeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC101`)
           .then(response => {
-            this.commonCodeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.commonCodeList.push(item);
+            });
           });
     }
   },

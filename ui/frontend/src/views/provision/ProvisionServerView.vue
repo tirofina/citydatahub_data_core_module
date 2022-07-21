@@ -178,7 +178,7 @@ export default {
                   type: item.type,
                   provisionUri: item.provisionUri,
                   provisionProtocol: item.provisionProtocol,
-                  enabled: item.enabled === true ? '예' : '아니오',
+                  enabled: item.enabled === true ? this.$i18n.t('codes.true') : this.$i18n.t('codes.false'),
                   modifiedAt: item.modifiedAt,
                   createdAt: item.createdAt
                 }

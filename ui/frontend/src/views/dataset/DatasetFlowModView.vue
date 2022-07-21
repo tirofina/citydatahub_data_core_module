@@ -633,25 +633,41 @@ export default {
     getCommonCodeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC101`)
           .then(response => {
-            this.commonCodeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.commonCodeList.push(item);
+            });
           });
     },
     getStoreTypeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC013`)
           .then(response => {
-            this.storeTypeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.storeTypeList.push(item);
+            });
           });
     },
     getServerType() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC014`)
           .then(response => {
-            this.serverTypeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.serverTypeList.push(item);
+            });
           });
     },
     getStorageType() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC015`)
           .then(response => {
-            this.storageTypeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.storageTypeList.push(item);
+            });
           });
     }
   },

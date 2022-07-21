@@ -107,6 +107,9 @@
     getVerificationErrorCode() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC018`)
           .then(response => {
+            const { codeVOs } = response.data;
+            codeVOs.map(item => item.codeName = this.$i18n.t(`codes.${item.codeId}`));
+
             let items = response.data.codeVOs;
             let result = [];
             items.map(item => {

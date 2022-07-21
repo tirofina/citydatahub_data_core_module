@@ -385,19 +385,31 @@ export default {
     getTargetServerType() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC016`)
           .then(response => {
-            this.targetServerTypeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.targetServerTypeList.push(item);
+            });
           });
     },
     getProvisionProtocol() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC017`)
           .then(response => {
-            this.provisionProtocolList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.provisionProtocolList.push(item);
+            });
           });
     },
     getCommonCodeList() {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC101`)
           .then(response => {
-            this.commonCodeList = response.data.codeVOs;
+            const { codeVOs } = response.data;
+            codeVOs.map(item => {
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              this.commonCodeList.push(item);
+            });
           });
     }
   },
