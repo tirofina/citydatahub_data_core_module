@@ -89,7 +89,8 @@ public class NotificationController {
 		String message = null;
 		try {
 			String[] subscriptionIdInfos = notificationVO.getSubscriptionId().split(":");
-			ResponseEntity<WidgetDashboardUIResponseVO> widgetDashboardUIResponseVO = widgetDashboardSVC.getWidget(subscriptionIdInfos[0], subscriptionIdInfos[1], subscriptionIdInfos[2]);
+			// subscriptionIdInfos[0] = "urn"
+			ResponseEntity<WidgetDashboardUIResponseVO> widgetDashboardUIResponseVO = widgetDashboardSVC.getWidget(subscriptionIdInfos[1], subscriptionIdInfos[2], subscriptionIdInfos[3]);
 			
 			notificationVO.setWidgetId(widgetDashboardUIResponseVO.getBody().getWidgetId());
 			notificationVO.setChartType(widgetDashboardUIResponseVO.getBody().getChartType());

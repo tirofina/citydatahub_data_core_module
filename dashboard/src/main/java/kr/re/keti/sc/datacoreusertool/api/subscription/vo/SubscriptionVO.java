@@ -36,6 +36,7 @@ public class SubscriptionVO {
     private Date expires;
     private Integer throttling;
     private SubscriptionCode.Status status;
+    private List<String> context;
 
     public String getId() {
         return id;
@@ -130,7 +131,17 @@ public class SubscriptionVO {
         this.status = statusObj;
     }
 
-    // ETSI GS CIM 009 - 5.2.8 EntityInfo
+    public List<String> getContext() {
+		return context;
+	}
+
+	public void setContext(List<String> context) {
+		this.context = context;
+	}
+
+
+
+	// ETSI GS CIM 009 - 5.2.8 EntityInfo
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class EntityInfo {

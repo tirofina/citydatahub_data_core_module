@@ -56,6 +56,10 @@ public class SubscriptionSVC {
 	private final static String SUBSCRIPTION_URL = "subscriptions";
 	private final static String DEFAULT_SUBSCRIPTION_TYPE = "Subscription";
 	private final static String DEFAULT_NOTIFICATION_FORMAT = "normalized";
+	private final static String LINK_PREFIX = "<";
+	private final static String LINK_SUFFIX = ">";
+	private final static String LINK_REL = "\"http://www.w3.org/ns/json-ld#context\"";
+	private final static String LINK_TYPE = "\"application/ld+json\"";
 	
 	private final DataCoreRestSVC dataCoreRestSVC;
 	
@@ -95,6 +99,8 @@ public class SubscriptionSVC {
 				}
 			}
 		}
+		
+		headers.put(Constants.HTTP_HEADER_LINK, convertLinkFormat(subscriptionVO.getContext()));
 		
 		// 2. Create Subscription
 		ResponseEntity<SubscriptionResponseVO> response = dataCoreRestSVC.post(dataservicebrokerUrl, pathUri, headers, subscriptionVO, null, SubscriptionResponseVO.class);
@@ -142,6 +148,7 @@ public class SubscriptionSVC {
 		NotificationParams notification = new NotificationParams();
 		Endpoint endpoint = new Endpoint();
 		List<EntityInfo> entities = new ArrayList<EntityInfo>();
+		List<String> context = new ArrayList<String>();
 		List<String> attrs = null;
 		String widgetId = null;
 		String dashboardId = null;
@@ -155,6 +162,7 @@ public class SubscriptionSVC {
 			ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModelbyId(subscriptionUIVO.getType());
 			if(dataModelVO.getBody() != null) {
 				entityInfo.setType(dataModelVO.getBody().getTypeUri());
+				context.addAll(dataModelVO.getBody().getContext());
 			} else {
 				entityInfo.setType(subscriptionUIVO.getType());
 			}
@@ -171,7 +179,7 @@ public class SubscriptionSVC {
 		endpoint.setAccept(Constants.ACCEPT_TYPE_APPLICATION_JSON);
 		if(!ValidateUtil.isEmptyData(dashboardId) && !ValidateUtil.isEmptyData(widgetId)) {
 			endpoint.setUri(datacoreusertoolWidgetUrl);
-			subscriptionVO.setId(userId + ":" + dashboardId + ":" + widgetId);
+			subscriptionVO.setId("urn" + ":" + userId + ":" + dashboardId + ":" + widgetId);
 			if(!ValidateUtil.isEmptyData(attrs)) {
 				notification.setAttributes(attrs);
 			}
@@ -181,6 +189,7 @@ public class SubscriptionSVC {
 		notification.setFormat(DEFAULT_NOTIFICATION_FORMAT);
 		notification.setEndpoint(endpoint);
 		subscriptionVO.setNotification(notification);
+		subscriptionVO.setContext(context);
 		
 		// Default Expiration Time (1 day)
 		subscriptionVO.setExpires(afterOneDay());
@@ -199,5 +208,23 @@ public class SubscriptionSVC {
         cal.add(Calendar.DATE, 1);
         
         return cal.getTime();
+	}
+	
+	/**
+	 * Convert link format
+	 * @param contexts	List of context
+	 * @return	Link format context
+	 */
+	private String convertLinkFormat(List<String> contexts) {
+		String link = "";
+		for(String context : contexts) {
+			
+			if(!ValidateUtil.isEmptyData(link)) {
+				link += ", ";
+			}
+			
+			link += LINK_PREFIX + context + LINK_SUFFIX + " rel=" + LINK_REL + "; type=" + LINK_TYPE;
+		}
+		return link;
 	}
 }
