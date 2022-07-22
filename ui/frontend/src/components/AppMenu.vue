@@ -108,7 +108,7 @@ export default {
           });
     },
     goMenu() {
-      // this.$router.go(this.$router.currentRoute);
+      this.$router.go(this.$router.currentRoute);
     }
   },
   mounted() {
