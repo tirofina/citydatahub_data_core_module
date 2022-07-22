@@ -127,7 +127,7 @@ INSERT INTO datacore_ui.MENU_BASE(ID, LANG_CD, NAME, URL, UP_MENU_ID, SORT_ORDER
 -- 2022-07-22 (db 데이터중 codeId 가 기존에는 한글명으로 표기되어 있고, lan_cd 가 새로 생성 됨에 따라 코드 정보를 아래 정보로 변경 하여야 정상적으로 다국어가 지원 됨)
 -- 위 내용이 필요시 아래 업데이트문 실행
 -- UPDATE datacore_ui.CODE_BASE SET CODE_ID = 'Traffic' WHERE CODE_GROUP_ID = 'DC007' AND code_id = '교통';
--- UPDATE datacore_ui.CODE_BASE SET CODE_ID = 'Traffic' WHERE CODE_GROUP_ID = 'DC007' AND code_id = '환경';
+-- UPDATE datacore_ui.CODE_BASE SET CODE_ID = 'Environment' WHERE CODE_GROUP_ID = 'DC007' AND code_id = '환경';
 -- UPDATE datacore_ui.CODE_BASE SET CODE_ID = 'Source data' WHERE CODE_GROUP_ID = 'DC008' AND code_id = '원천데이터';
 -- UPDATE datacore_ui.CODE_BASE SET CODE_ID = 'Processing data' WHERE CODE_GROUP_ID = 'DC008' AND code_id = '가공데이터';
 
