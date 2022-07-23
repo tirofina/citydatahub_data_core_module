@@ -939,11 +939,6 @@ export default {
         }
         this.initDisplay(displayOption);
       }
-      if (chartType === 'scatter') {
-        const visible = !!(dataType === 'last');
-        this.display['timerel'] = visible;
-        this.display['time'] = visible;
-      }
     },
     async onTypeUriChange(value) {
       this.attrs = {x: null, y: null};
@@ -1119,6 +1114,8 @@ export default {
             displayData: true,
             chartTitle: true,
             chartAttributeXY: true,
+            timerel: true,
+            time: true,
           });
           break;
       }
@@ -1213,6 +1210,7 @@ export default {
           timerel: this.timerel,
           time: this.timerel === 'between' ? this.times.at(0) : this.time,
           endtime: this.timerel === 'between' ? this.times.at(1) : null,
+          timeproperty: this.time && this.timerel === 'after' ? 'modifiedAt' : null,
           q: query
         };
       } else {
