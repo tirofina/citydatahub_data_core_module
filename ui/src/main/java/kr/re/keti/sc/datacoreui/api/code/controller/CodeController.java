@@ -3,6 +3,7 @@ package kr.re.keti.sc.datacoreui.api.code.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.re.keti.sc.datacoreui.common.component.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,9 @@ public class CodeController {
 	
 	@Autowired
 	private CodeSVC codeSVC;
+
+	@Autowired
+	private Properties properties;
 
 	/**
 	 * Create code group
@@ -242,7 +246,14 @@ public class CodeController {
 				|| codeRequestVO.getPageSize() == null || codeRequestVO.getPageSize() < 1) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		
+
+		String langCd = properties.getLangCd();
+		// default English
+		if(langCd == null) {
+			langCd = "en";
+		}
+		codeRequestVO.setLangCd(langCd);
+
 		// 2. Retrieve multiple code
 		ResponseEntity<CodeResponseVO> reslt = codeSVC.getCodes(codeRequestVO);
 		

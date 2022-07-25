@@ -204,7 +204,7 @@
     		CODE_GROUP_ID = #{codeGroupId}
     	</if>
     	<if test="langCd != null">
-    		LANG_CD = #{langCd}
+    		AND LANG_CD = #{langCd}
     	</if>
     	<if test="searchValue != null">
     		CODE_GROUP_ID LIKE '%' || #{searchValue} || '%'
