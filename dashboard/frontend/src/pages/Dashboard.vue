@@ -299,20 +299,20 @@ export default {
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
-          console.log('websocket open');
-          console.log(event);
+          // console.log('websocket open');
+          // console.log(event);
           this.onOpen();
         };
 
         this.websocket.onmessage = (event) => {
-          console.log('websocket onMessage');
-          console.log(event);
+          // console.log('websocket onMessage');
+          // console.log(event);
           this.onMessage(event);
         };
 
         this.websocket.onclose = (event) => {
-          console.log('websocket close');
-          console.log(event);
+          // console.log('websocket close');
+          // console.log(event);
           this.websocket = null;
         };
       }
@@ -325,7 +325,7 @@ export default {
     },
     async onMessage(event) {
       const socketData = JSON.parse(event.data);
-      console.log(socketData);
+      // console.log(socketData);
       const {chartType, dataType} = socketData;
       if (chartType === 'text' || chartType === 'boolean' || chartType === 'custom_text') {
         const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
