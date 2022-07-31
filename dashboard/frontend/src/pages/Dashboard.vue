@@ -313,7 +313,6 @@ export default {
         this.websocket.onclose = (event) => {
           // console.log('websocket close');
           // console.log(event);
-          this.websocket = null;
         };
       }
     },
@@ -392,41 +391,16 @@ export default {
     disconnect() {
       if (this.websocket) {
         this.websocket.close();
-        // this.websocket = null;
+        this.websocket = null;
       }
     },
-    reconnect() {
-      return new Promise((resolve, reject) => {
-        if (!this.websocket) {
-          this.socketConnect();
-          resolve();
-        } else {
-          this.disconnect();
-          const vm = this;
-          const waitForDisconnectPromise = new Promise((_resolve, _reject) => {
-            let interval = setInterval(() => {
-              if (!vm.websocket) {
-                clearInterval(interval);
-                _resolve();
-              }
-            }, 500);
-            setTimeout(() => {
-              clearInterval(interval);
-              _reject();
-            }, 10000);
-          });
-
-          waitForDisconnectPromise.then(() => {
-            this.socketConnect();
-            resolve();
-          }).catch(() => {
-            this.reconnect();
-            reject();
-          });
-
-          // this.socketConnect();
-        }
-      });
+    async reconnect() {
+      if (!this.websocket) {
+        this.socketConnect();
+      } else {
+        await this.disconnect();
+        await this.socketConnect();
+      }
     },
     onChartEdit(item) {
       this.editItem = item;
@@ -466,7 +440,7 @@ export default {
       this.layout = [];
       this.messageVisible = false
       await this.reconnect();
-      this.getWidgetList();
+      setTimeout(() => this.getWidgetList(), 700);
     },
     onCloseAddWidget() {
       this.dialogVisible = false;
@@ -654,13 +628,10 @@ export default {
   },
   mounted() {
     // Reconnect the page in case it does not refresh or close.
-    this.reconnect().then(() => {
-      this.index = this.layout.length > 0 ? this.layout.length - 1 : 0;
-      this.getDashboard();
-    });
+    this.reconnect();
 
-    // this.index = this.layout.length > 0 ? this.layout.length - 1 : 0;
-    // this.getDashboard();
+    this.index = this.layout.length > 0 ? this.layout.length - 1 : 0;
+    this.getDashboard();
   },
 }
 </script>
