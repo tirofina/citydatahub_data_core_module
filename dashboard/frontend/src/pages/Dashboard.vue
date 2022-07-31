@@ -403,15 +403,17 @@ export default {
         } else {
           this.disconnect();
           const vm = this;
-          const waitForDisconnectPromise = new Promise((resolve, reject) => {
+          const waitForDisconnectPromise = new Promise((_resolve, _reject) => {
             let interval = setInterval(() => {
-              let count = 1;
               if (!vm.websocket) {
                 clearInterval(interval);
-                if (count >= 10) reject();
-                resolve();
-              } else count++;
+                _resolve();
+              }
             }, 500);
+            setTimeout(() => {
+              clearInterval(interval);
+              _reject();
+            }, 10000);
           });
 
           waitForDisconnectPromise.then(() => {
@@ -463,9 +465,8 @@ export default {
     async onDashboardChange(selected) {
       this.layout = [];
       this.messageVisible = false
-      // TODO
       await this.reconnect();
-      await this.getWidgetList();
+      this.getWidgetList();
     },
     onCloseAddWidget() {
       this.dialogVisible = false;
