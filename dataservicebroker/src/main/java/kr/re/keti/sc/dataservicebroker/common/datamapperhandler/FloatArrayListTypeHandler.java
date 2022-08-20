@@ -14,6 +14,7 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * Float Array 형태의 DB 컬럼에 데이터 입력/조회를 위한 TypeHandler 클래스
  */
+@Deprecated
 public class FloatArrayListTypeHandler extends BaseTypeHandler<ArrayList<Float>> {
 
 	@Override

@@ -920,7 +920,7 @@ public class RdbEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
         DbConditionVO dbConditionVO = new DbConditionVO();
 
         dbConditionVO.setTableName(Constants.SCHEMA_NAME + ".\"" + dataModelCacheVO.getDataModelStorageMetadataVO().getRdbTableName() + "\"");
-        dbConditionVO.setHistTableName(getHistoryTableName(dataModelCacheVO.getDataModelStorageMetadataVO().getRdbTableName()));
+        dbConditionVO.setHistTableName(Constants.SCHEMA_NAME + ".\"" + getHistoryTableName(dataModelCacheVO.getDataModelStorageMetadataVO().getRdbTableName()) + "\"");
         if(isSelectCount != null && !isSelectCount ) {
         	if(queryVO.getLimit() == null) {
             	dbConditionVO.setLimit(defaultLimit);

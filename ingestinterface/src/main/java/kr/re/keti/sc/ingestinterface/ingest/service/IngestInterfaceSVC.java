@@ -3,6 +3,7 @@ package kr.re.keti.sc.ingestinterface.ingest.service;
 import static kr.re.keti.sc.ingestinterface.common.code.IngestInterfaceCode.Operation.CREATE_ENTITY_OR_REPLACE_ENTITY_ATTRIBUTES;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -182,7 +183,7 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
 
                             Object value = object.get(objectMember.getName());
                             // 세부 파라미터 유효성 체크
-                            checkArrayObjectType(objectMember.getName(), objectMember.getValueType(), value, objectMember);
+                            checkObjectType(objectMember.getName(), objectMember.getValueType(), value, objectMember);
 
                             if (value == null) {
                                 continue;
@@ -324,123 +325,15 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
     }
 
 
-    private static boolean checkArrayObjectType(String id, AttributeValueType valueType, Object value, ObjectMember attribute) throws BadRequestException {
-
-        Boolean required = attribute.getIsRequired();
-        String minLength = attribute.getMinLength();
-        String maxLength = attribute.getMaxLength();
-        Double greaterThanOrEqualTo = attribute.getGreaterThanOrEqualTo();
-        Double greaterThan = attribute.getGreaterThan();
-        Double lessThanOrEqualTo = attribute.getLessThanOrEqualTo();
-        Double lessThan = attribute.getLessThan();
-        List<Object> valueEnum = attribute.getValueEnum();
-
-        if (required != null && required) {
-            if (value == null) {
-                throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER, "Invalid Request Content. attributeId=" + id + " is null");
-            }
-        } else {
-            if (value == null) {
-                return true;
-            }
-        }
-
-        switch (valueType) {
-            case STRING:
-                if (!ValidateUtil.isStringObject(value)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidStringMinLength(value, minLength)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "underflow Attribute MinLength. attributeId=" + id + ", valueType=" + valueType + ", minLength=" + minLength + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidStringMaxLength(value, maxLength)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Overflow Attribute MaxLength. attributeId=" + id + ", valueType=" + valueType + ", maxLength=" + maxLength + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidStringEnum(value, valueEnum)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
-                            "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
-                }
-                break;
-            case INTEGER:
-                if (!ValidateUtil.isIntegerObject(value)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidIntegerGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidIntegerGreaterThan(value, greaterThan)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
-                }
-
-                if (!ValidateUtil.isValidIntegerLessThanOrEqualTo(value, lessThanOrEqualTo)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidIntegerLessThan(value, lessThan)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidIntegerEnum(value, valueEnum)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
-                            "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
-                }
-                break;
-            case DOUBLE:
-                if (!ValidateUtil.isDoubleObject(value)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidDoubleGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidDoubleGreaterThan(value, greaterThan)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
-                }
-
-                if (!ValidateUtil.isValidDoubleLessThanOrEqualTo(value, lessThanOrEqualTo)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidDoubleLessThan(value, lessThan)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
-                }
-                if (!ValidateUtil.isValidDoubleEnum(value, valueEnum)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
-                            "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
-                }
-                break;
-            case DATE:
-                if (!ValidateUtil.isDateObject(value)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-                }
-                break;
-            case BOOLEAN:
-                if (!ValidateUtil.isBooleanObject(value)) {
-                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-                }
-                break;
-            default:
-                throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_TYPE, "Invalid Attribute valueType. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
-        }
-        return true;
-    }
-
-
     private static boolean checkObjectType(String id, AttributeValueType valueType, Object value, ObjectMember attribute) throws BadRequestException {
 
         Boolean required = attribute.getIsRequired();
         String minLength = attribute.getMinLength();
         String maxLength = attribute.getMaxLength();
-        Double greaterThanOrEqualTo = attribute.getGreaterThanOrEqualTo();
-        Double greaterThan = attribute.getGreaterThan();
-        Double lessThanOrEqualTo = attribute.getLessThanOrEqualTo();
-        Double lessThan = attribute.getLessThan();
+        BigDecimal greaterThanOrEqualTo = attribute.getGreaterThanOrEqualTo();
+        BigDecimal greaterThan = attribute.getGreaterThan();
+        BigDecimal lessThanOrEqualTo = attribute.getLessThanOrEqualTo();
+        BigDecimal lessThan = attribute.getLessThan();
         List<Object> valueEnum = attribute.getValueEnum();
 
         if (required != null && required) {
@@ -466,7 +359,7 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Overflow Attribute MaxLength. attributeId=" + id + ", valueType=" + valueType + ", maxLength=" + maxLength + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidStringEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }
@@ -475,50 +368,76 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
                 if (!ValidateUtil.isIntegerObject(value)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidIntegerGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                if (!ValidateUtil.isValidGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidIntegerGreaterThan(value, greaterThan)) {
+                if (!ValidateUtil.isValidGreaterThan(value, greaterThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
                 }
 
-                if (!ValidateUtil.isValidIntegerLessThanOrEqualTo(value, lessThanOrEqualTo)) {
+                if (!ValidateUtil.isValidLessThanOrEqualTo(value, lessThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidIntegerLessThan(value, lessThan)) {
+                if (!ValidateUtil.isValidLessThan(value, lessThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidIntegerEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidEnum(value, valueEnum)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
+                            "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
+                }
+                break;
+            case LONG:
+                if (!ValidateUtil.isLongObject(value)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidGreaterThan(value, greaterThan)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
+                }
+
+                if (!ValidateUtil.isValidLessThanOrEqualTo(value, lessThanOrEqualTo)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidLessThan(value, lessThan)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }
                 break;
             case DOUBLE:
-                if (!ValidateUtil.isDoubleObject(value)) {
+                if (!ValidateUtil.isBigDecimalObject(value)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidDoubleGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                if (!ValidateUtil.isValidGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidDoubleGreaterThan(value, greaterThan)) {
+                if (!ValidateUtil.isValidGreaterThan(value, greaterThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
                 }
 
-                if (!ValidateUtil.isValidDoubleLessThanOrEqualTo(value, lessThanOrEqualTo)) {
+                if (!ValidateUtil.isValidLessThanOrEqualTo(value, lessThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
+                            "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidDoubleLessThan(value, lessThan)) {
+                if (!ValidateUtil.isValidLessThan(value, lessThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
-                            "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
+                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidDoubleEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }
@@ -545,7 +464,7 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Overflow Attribute MaxLength. attributeId=" + id + ", valueType=" + valueType + ", maxLength=" + maxLength + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayStringEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidArrayEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }
@@ -554,49 +473,75 @@ public class IngestInterfaceSVC extends IngestProcessor<DynamicEntityFullVO> {
                 if (!ValidateUtil.isArrayIntegerObject(value)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayIntegerGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                if (!ValidateUtil.isValidArrayGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayIntegerGreaterThan(value, greaterThan)) {
+                if (!ValidateUtil.isValidArrayGreaterThan(value, greaterThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater  Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
                 }
 
-                if (!ValidateUtil.isValidArrayIntegerLessOrEqualTo(value, lessThanOrEqualTo)) {
+                if (!ValidateUtil.isValidArrayLessThenOrEqualTo(value, lessThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayIntegerLessThan(value, lessThan)) {
+                if (!ValidateUtil.isValidArrayLessThan(value, lessThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayIntegerEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidArrayEnum(value, valueEnum)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
+                            "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
+                }
+                break;
+            case ARRAY_LONG:
+                if (!ValidateUtil.isArrayLongObject(value)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidArrayGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidArrayGreaterThan(value, greaterThan)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Greater  Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
+                }
+
+                if (!ValidateUtil.isValidArrayLessThenOrEqualTo(value, lessThanOrEqualTo)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidArrayLessThan(value, lessThan)) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
+                            "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
+                }
+                if (!ValidateUtil.isValidArrayEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }
                 break;
             case ARRAY_DOUBLE:
-                if (!ValidateUtil.isArrayDoubleObject(value)) {
+                if (!ValidateUtil.isArrayBigDecimalObject(value)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE, "Invalid Attribute Type. attributeId=" + id + ", valueType=" + valueType + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayDoubleGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
+                if (!ValidateUtil.isValidArrayGreaterThanOrEqualTo(value, greaterThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThanOrEqualTo=" + greaterThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayDoubleGreaterThan(value, greaterThan)) {
+                if (!ValidateUtil.isValidArrayGreaterThan(value, greaterThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Greater Attribute value. attributeId=" + id + ", valueType=" + valueType + ", greaterThan=" + greaterThan + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayDoubleLessThanOrEqualTo(value, lessThanOrEqualTo)) {
+                if (!ValidateUtil.isValidArrayLessThenOrEqualTo(value, lessThanOrEqualTo)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less or equal to Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThanOrEqualTo=" + lessThanOrEqualTo + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayDoubleLessThan(value, lessThan)) {
+                if (!ValidateUtil.isValidArrayLessThan(value, lessThan)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_RANGE,
                             "Less Attribute value. attributeId=" + id + ", valueType=" + valueType + ", lessThan=" + lessThan + ", value=" + value);
                 }
-                if (!ValidateUtil.isValidArrayDoubleEnum(value, valueEnum)) {
+                if (!ValidateUtil.isValidArrayEnum(value, valueEnum)) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER_VALUE,
                             "Not match Attribute valueEnum. attributeId=" + id + ", valueType=" + valueType + ", valueEnum=" + valueEnum + ", value=" + value);
                 }

@@ -389,7 +389,7 @@ public class DataModelManager {
 			dataModelCacheVO.setCreatedStorageTypes(dataModelBaseVO.getCreatedStorageTypes());
 
 		} catch (IOException e) {
-			throw new BadRequestException(ErrorCode.INVALID_DATAMODEL, "StorageMetadata parsing error. storageMetadata=" + dataModelBaseVO.getStorageMetadata());
+			throw new BadRequestException(ErrorCode.INVALID_DATAMODEL, "StorageMetadata parsing error. storageMetadata=" + dataModelBaseVO.getStorageMetadata(), e);
 		}
 
         // 4. 생성된 CacheVO를 인메모리 Map에 적재
@@ -763,6 +763,8 @@ public class DataModelManager {
                 return DbColumnType.VARCHAR;
             case INTEGER:
                 return DbColumnType.INTEGER;
+            case LONG:
+                return DbColumnType.BIGINT;
             case DOUBLE:
                 return DbColumnType.FLOAT;
             case DATE:
@@ -773,6 +775,8 @@ public class DataModelManager {
                 return DbColumnType.ARRAY_VARCHAR;
             case ARRAY_INTEGER:
                 return DbColumnType.ARRAY_INTEGER;
+            case ARRAY_LONG:
+                return DbColumnType.ARRAY_BIGINT;
             case ARRAY_DOUBLE:
                 return DbColumnType.ARRAY_FLOAT;
             case ARRAY_BOOLEAN:
@@ -796,6 +800,8 @@ public class DataModelManager {
                 return DbColumnType.ARRAY_VARCHAR;
             case INTEGER:
                 return DbColumnType.ARRAY_INTEGER;
+            case LONG:
+                return DbColumnType.ARRAY_BIGINT;
             case DOUBLE:
                 return DbColumnType.ARRAY_FLOAT;
             case DATE:

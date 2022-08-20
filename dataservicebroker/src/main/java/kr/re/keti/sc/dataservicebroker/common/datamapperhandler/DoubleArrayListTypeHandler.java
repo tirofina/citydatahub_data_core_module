@@ -12,29 +12,21 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * Float Array 형태의 DB 컬럼에 데이터 입력/조회를 위한 TypeHandler 클래스
+ * Double Array 형태의 DB 컬럼에 데이터 입력/조회를 위한 TypeHandler 클래스
  */
+@Deprecated
 public class DoubleArrayListTypeHandler extends BaseTypeHandler<ArrayList<Double>> {
 
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, ArrayList<Double> parameterList, JdbcType jdbcType) throws SQLException {
 		StringBuilder str = new StringBuilder();
-		boolean isNotNull = false;
-
-		for (int idx = 0; idx<parameterList.size(); idx++) {
-			Double parameter = parameterList.get(idx);
-
-			if (parameter != null) {
-				isNotNull = true;
-				str.append(parameter.doubleValue()).append(",");
-			}
+		str.append("{");
+		for(int idx=0; idx<parameterList.size(); idx++) {
+			str.append(parameterList.get(idx)).append(",");
 		}
-
-		if (isNotNull) {
-			str.deleteCharAt(str.length() - 1);
-		}
-
-	    ps.setString(i, str.toString());
+		str.deleteCharAt(str.length() - 1);
+		str.append("}");
+		ps.setString(i, str.toString());
 	}
 
 	@Override
@@ -42,19 +34,19 @@ public class DoubleArrayListTypeHandler extends BaseTypeHandler<ArrayList<Double
 		Array array = rs.getArray(columnName);
 		ArrayList<Double> items = new ArrayList<>();
 
-        if (!rs.wasNull()) {
+		if (!rs.wasNull()) {
 
-        	BigDecimal[] arrayItems = (BigDecimal[]) array.getArray();
+			BigDecimal[] arrayItems = (BigDecimal[]) array.getArray();
 
-            for (int i = 0; i < arrayItems.length; i++) {
+			for (int i = 0; i < arrayItems.length; i++) {
 
-                items.add(arrayItems[i].doubleValue());
+				items.add(arrayItems[i].doubleValue());
 
-            }
-            return items;
-        } else {
-            return null;
-        }
+			}
+			return items;
+		} else {
+			return null;
+		}
 	}
 
 	@Override

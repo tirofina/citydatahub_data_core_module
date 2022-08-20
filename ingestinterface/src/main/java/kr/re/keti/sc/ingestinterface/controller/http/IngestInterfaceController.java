@@ -66,18 +66,19 @@ public class IngestInterfaceController {
      * Batch 리소스 upsert (Batch Entity Creation or Update (Upsert))
      * @param request HttpServletRequest
      * @param response HttpServletResponse
-     * @param ingestInterfaceVO upsert entity operation data
+     * @param requestBody upsert entity operation data
      * @param options http reqeust options header
      * @throws Exception upsert error
      */
     @PostMapping("/entityOperations/upsert")
     public void batchEntityUpsert(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  @RequestBody IngestInterfaceVO ingestInterfaceVO,
+                                  @RequestBody String requestBody,
                                   @RequestParam(value = "options", required = false) String options) throws Exception {
 
-        // 1.요청 파라미터 확인
-        log.info("request msg='{}'", ingestInterfaceVO);
+        log.info("EntityOperations upsert Reqeust options={}, body={}", options, requestBody);
+
+        IngestInterfaceVO ingestInterfaceVO = objectMapper.readValue(requestBody, IngestInterfaceVO.class);
 
         String datasetId = ingestInterfaceVO.getDatasetId();
         List<String> entities = ingestInterfaceVO.getEntities();
@@ -121,13 +122,17 @@ public class IngestInterfaceController {
      * Batch 리소스 delete (Batch Entity delete)
      * @param request HttpServletRequest
      * @param response HttpServletResponse
-     * @param ingestInterfaceVO delete entity operation data
+     * @param requestBody delete entity operation data
      * @throws Exception delete error
      */
     @PostMapping("/entityOperations/delete")
     public void batchEntityDelete(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  @RequestBody IngestInterfaceVO ingestInterfaceVO) throws Exception {
+                                  @RequestBody String requestBody) throws Exception {
+
+        log.info("EntityOperations delete Reqeust body={}", requestBody);
+
+        IngestInterfaceVO ingestInterfaceVO = objectMapper.readValue(requestBody, IngestInterfaceVO.class);
 
         // 요청 파라미터 확인
         String datasetId = ingestInterfaceVO.getDatasetId();

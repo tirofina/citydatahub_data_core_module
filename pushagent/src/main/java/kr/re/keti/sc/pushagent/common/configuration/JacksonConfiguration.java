@@ -3,6 +3,7 @@ package kr.re.keti.sc.pushagent.common.configuration;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,6 +23,7 @@ public class JacksonConfiguration {
         objectMapper.setSerializationInclusion(Include.NON_NULL);
         objectMapper.setDateFormat(new SimpleDateFormat(Constants.CONTENT_DATE_FORMAT));
         objectMapper.setTimeZone(TimeZone.getDefault());
+        objectMapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         return objectMapper;
     }
 }

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.postgis.geojson.PostGISModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,7 @@ public class JacksonConfiguration {
         module.addDeserializer(Date.class, new MultiDateDeserializer());
         objectMapper.registerModule(module);
         objectMapper.registerModule(new PostGISModule());
+        objectMapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         return objectMapper;
     }
 }

@@ -333,6 +333,8 @@ public class IngestInterfaceCode {
         STRING("String"),
         @JsonProperty("Integer")
         INTEGER("Integer"),
+        @JsonProperty("Long")
+        LONG("Long"),
         @JsonProperty("Double")
         DOUBLE("Double"),
         @JsonProperty("Object")
@@ -347,6 +349,8 @@ public class IngestInterfaceCode {
         ARRAY_STRING("ArrayString"),
         @JsonProperty("ArrayInteger")
         ARRAY_INTEGER("ArrayInteger"),
+        @JsonProperty("ArrayLong")
+        ARRAY_LONG("ArrayLong"),
         @JsonProperty("ArrayDouble")
         ARRAY_DOUBLE("ArrayDouble"),
         @JsonProperty("ArrayBoolean")

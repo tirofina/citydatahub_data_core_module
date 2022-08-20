@@ -424,8 +424,10 @@ public class DataModelController {
         DataManagerCode.AttributeValueType attributeValueType = attribute.getValueType();
 
         if (attributeValueType.equals(DataManagerCode.AttributeValueType.INTEGER)
+                || attributeValueType.equals(DataManagerCode.AttributeValueType.LONG)
                 || attributeValueType.equals(DataManagerCode.AttributeValueType.DOUBLE)
                 || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_INTEGER)
+                || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_LONG)
                 || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_DOUBLE)) {
         	
             if (attribute.getGreaterThan() != null && attribute.getGreaterThanOrEqualTo() != null) {
@@ -467,12 +469,14 @@ public class DataModelController {
 
                     if (attributeValueType.equals(DataManagerCode.AttributeValueType.STRING)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.INTEGER)
+                            || attributeValueType.equals(DataManagerCode.AttributeValueType.LONG)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.DOUBLE)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.OBJECT)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.DATE)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.BOOLEAN)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_STRING)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_INTEGER)
+                            || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_LONG)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_DOUBLE)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_BOOLEAN)
                             || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_OBJECT)) {
@@ -533,6 +537,7 @@ public class DataModelController {
     		if(objectMember.getValueType() == AttributeValueType.ARRAY_BOOLEAN
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_DOUBLE
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_INTEGER
+    				|| objectMember.getValueType() == AttributeValueType.ARRAY_LONG
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_OBJECT
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_STRING) {
     			throw new BadRequestException(ErrorCode.INVALID_PARAMETER, 

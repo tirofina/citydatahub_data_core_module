@@ -720,8 +720,10 @@ public class DataModelSVC {
         AttributeValueType attributeValueType = attribute.getValueType();
 
         if (attributeValueType.equals(AttributeValueType.INTEGER)
+                || attributeValueType.equals(AttributeValueType.LONG)
                 || attributeValueType.equals(AttributeValueType.DOUBLE)
                 || attributeValueType.equals(AttributeValueType.ARRAY_INTEGER)
+                || attributeValueType.equals(AttributeValueType.ARRAY_LONG)
                 || attributeValueType.equals(AttributeValueType.ARRAY_DOUBLE)) {
 
             if (attribute.getGreaterThan() != null && attribute.getGreaterThanOrEqualTo() != null) {
@@ -761,12 +763,14 @@ public class DataModelSVC {
 
                     if (attributeValueType.equals(AttributeValueType.STRING)
                             || attributeValueType.equals(AttributeValueType.INTEGER)
+                            || attributeValueType.equals(AttributeValueType.LONG)
                             || attributeValueType.equals(AttributeValueType.DOUBLE)
                             || attributeValueType.equals(AttributeValueType.OBJECT)
                             || attributeValueType.equals(AttributeValueType.DATE)
                             || attributeValueType.equals(AttributeValueType.BOOLEAN)
                             || attributeValueType.equals(AttributeValueType.ARRAY_STRING)
                             || attributeValueType.equals(AttributeValueType.ARRAY_INTEGER)
+                            || attributeValueType.equals(AttributeValueType.ARRAY_LONG)
                             || attributeValueType.equals(AttributeValueType.ARRAY_DOUBLE)
                             || attributeValueType.equals(AttributeValueType.ARRAY_BOOLEAN)
                             || attributeValueType.equals(AttributeValueType.ARRAY_OBJECT)) {
@@ -827,6 +831,7 @@ public class DataModelSVC {
     		if(objectMember.getValueType() == AttributeValueType.ARRAY_BOOLEAN
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_DOUBLE
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_INTEGER
+    				|| objectMember.getValueType() == AttributeValueType.ARRAY_LONG
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_OBJECT
     				|| objectMember.getValueType() == AttributeValueType.ARRAY_STRING) {
     			throw new BadRequestException(ErrorCode.INVALID_PARAMETER, 

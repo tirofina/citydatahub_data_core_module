@@ -912,6 +912,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
                 		// String[] -> List<String>, Integer[] -> List<Integer>, Float[] -> List<Float> 변환처리
                         if (dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_VARCHAR
                                 || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_INTEGER
+                                || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_BIGINT
                                 || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_FLOAT) {
                             Object[] valueArr = (Object[]) value;
                             List<Object> valueList = new ArrayList<>(valueArr.length);

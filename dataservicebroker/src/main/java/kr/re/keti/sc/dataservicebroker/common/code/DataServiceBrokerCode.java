@@ -489,6 +489,8 @@ public class DataServiceBrokerCode {
         STRING("String"),
         @JsonProperty("Integer")
         INTEGER("Integer"),
+        @JsonProperty("Long")
+        LONG("Long"),
         @JsonProperty("Double")
         DOUBLE("Double"),
         @JsonProperty("Object")
@@ -503,6 +505,8 @@ public class DataServiceBrokerCode {
         ARRAY_STRING("ArrayString"),
         @JsonProperty("ArrayInteger")
         ARRAY_INTEGER("ArrayInteger"),
+        @JsonProperty("ArrayLong")
+        ARRAY_LONG("ArrayLong"),
         @JsonProperty("ArrayDouble")
         ARRAY_DOUBLE("ArrayDouble"),
         @JsonProperty("ArrayBoolean")
@@ -607,6 +611,7 @@ public class DataServiceBrokerCode {
         VARCHAR("VARCHAR", "VARCHAR"),
         STRING("STRING", "STRING"),
         INTEGER("INTEGER", "INTEGER"),
+        BIGINT("BIGINT", "INTEGER"),
         FLOAT("NUMERIC", "DOUBLE"),
         TIMESTAMP("TIMESTAMP WITH TIME ZONE", "TIMESTAMP"),
         BOOLEAN("BOOLEAN", "BOOLEAN"),
@@ -614,6 +619,7 @@ public class DataServiceBrokerCode {
         GEOMETRY_3857("public.geometry", "GEOMETRY_3857"),
         ARRAY_VARCHAR("VARCHAR[]", "ARRAY<STRING>"),
         ARRAY_INTEGER("INTEGER[]", "ARRAY<INT>"),
+        ARRAY_BIGINT("BIGINT[]", "ARRAY<BIGINT>"),
         ARRAY_FLOAT("NUMERIC[]", "ARRAY<DOUBLE>"),
         ARRAY_BOOLEAN("BOOLEAN[]", "ARRAY<BOOLEAN>"),
         ARRAY_TIMESTAMP("TIMESTAMP WITH TIME ZONE[]", "ARRAY<TIMESTAMP>"),

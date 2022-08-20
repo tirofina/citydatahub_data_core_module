@@ -1,9 +1,11 @@
 package kr.re.keti.sc.dataservicebroker.util;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ValidateUtil {
 
@@ -72,7 +74,7 @@ public class ValidateUtil {
 		return true;
 	}
 
-	public static boolean isValidStringEnum(Object value, List<Object> valueEnum) {
+	public static boolean isValidEnum(Object value, List<Object> valueEnum) {
 		// valueEnum 과 일치 여부 체크
 
 		//1. valueEnum이 없는 경우 true 리턴
@@ -80,150 +82,108 @@ public class ValidateUtil {
 
 		//2. valueEnum 중 하나라도 맞으면 true 리턴
 		if(valueEnum != null) {
+			String strValue = String.valueOf(value);
     		for(Object allowValue : valueEnum) {
-    			if(allowValue.equals(value)) {
-    				return true;
-    			}
+				if(strValue.equals(String.valueOf(allowValue))) {
+					return true;
+				}
     		}
     	}
     	return false;
     }
 
     public static boolean isIntegerObject(Object value) {
-    	if(value instanceof Integer) {
-    		return true;
-    	}
-    	return false;
+		try {
+			Integer integer = new Integer(String.valueOf(value));
+			return true;
+		} catch (NumberFormatException e) {
+
+		}
+		return false;
     }
 
-    public static boolean isValidIntegerGreaterThanOrEqualTo(Object value, Double greaterThanOrEqualTo) {
+	public static boolean isLongObject(Object value) {
+		try {
+			Long l = new Long(String.valueOf(value));
+			return true;
+		} catch (NumberFormatException e) {
+
+		}
+		return false;
+	}
+
+    public static boolean isValidGreaterThanOrEqualTo(Object value, BigDecimal greaterThanOrEqualTo) {
 
 		if (greaterThanOrEqualTo != null) {
-			if (((Integer) value) < greaterThanOrEqualTo.intValue()) {
+			try {
+				BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
+				if (bigDecimal.compareTo(greaterThanOrEqualTo) == -1) {
+					return false;
+				}
+			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
 		return true;
 	}
     
-    public static boolean isValidIntegerGreaterThan(Object value, Double greaterThan) {
+    public static boolean isValidGreaterThan(Object value, BigDecimal greaterThan) {
 
 		if (greaterThan != null) {
-			if (((Integer) value) <= greaterThan.intValue()) {
+			try {
+				BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
+				if (bigDecimal.compareTo(greaterThan) < 1) {
+					return false;
+				}
+			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
 		return true;
 	}
     
-    public static boolean isValidIntegerLessThanOrEqualTo(Object value, Double lessThanOrEqualTo) {
+    public static boolean isValidLessThanOrEqualTo(Object value, BigDecimal lessThanOrEqualTo) {
 
 		if (lessThanOrEqualTo != null) {
-			if (((Integer) value) > lessThanOrEqualTo.intValue()) {
+			try {
+				BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
+				if (bigDecimal.compareTo(lessThanOrEqualTo) == 1) {
+					return false;
+				}
+			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public static boolean isValidIntegerLessThan(Object value, Double lessThan) {
+	public static boolean isValidLessThan(Object value, BigDecimal lessThan) {
 
 		if (lessThan != null) {
-			if (((Integer) value) >= lessThan.intValue()) {
+			try {
+				BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
+				if (bigDecimal.compareTo(lessThan) > -1) {
+					return false;
+				}
+			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public static boolean isValidIntegerEnum(Object value, List<Object> valueEnum) {
-		// valueEnum 과 일치 여부 체크
 
-		//1. valueEnum이 없는 경우 true 리턴
-		if(valueEnum == null) return true;
+    public static boolean isBigDecimalObject(Object value) {
+		try {
+			BigDecimal b = new BigDecimal(String.valueOf(value));
+			return true;
+		} catch (NumberFormatException e) {
 
-		//2. valueEnum 중 하나라도 맞으면 true 리턴
-		if(valueEnum != null) {
-			for(Object allowValue : valueEnum) {
-				if(allowValue.equals(value)) {
-					return true;
-				}
-			}
 		}
 		return false;
-	}
-	
-    public static boolean isDoubleObject(Object value) {
-		if (value instanceof Double) {
-			return true;
-		} else if (value instanceof Float) {
-			return true;
-		} else if (value instanceof Integer) {
-			// 실수형 타입에 Integer 허용 요청 처리
-			//https://doublepkr.monday.com/boards/674155218/pulses/835779284/posts/829087079
-			return true;
-		}
-    	return false;
     }
 
-    public static boolean isValidDoubleGreaterThanOrEqualTo(Object value, Double greaterThanOrEqualTo) {
 
-		if (greaterThanOrEqualTo != null) {
-			if (((Double) value) < greaterThanOrEqualTo) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean isValidDoubleGreaterThan(Object value, Double greaterThan) {
-
-		if (greaterThan != null) {
-			if (((Double) value) <= greaterThan) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-
-	public static boolean isValidDoubleLessThanOrEqualTo(Object value, Double lessThanOrEqualTo) {
-
-		if (lessThanOrEqualTo != null) {
-			if (((Double) value) > lessThanOrEqualTo) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean isValidDoubleLessThan(Object value, Double lessThan) {
-
-		if (lessThan != null) {
-			if (((Double) value) >= lessThan) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean isValidDoubleEnum(Object value, List<Object> valueEnum) {
-		// valueEnum 과 일치 여부 체크
-
-		//1. valueEnum이 없는 경우 true 리턴
-		if(valueEnum == null) return true;
-
-		//2. valueEnum 중 하나라도 맞으면 true 리턴
-		if(valueEnum != null) {
-			for(Object allowValue : valueEnum) {
-				if(allowValue.equals(value)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
     public static boolean isDateObject(Object value) {
     	if(value instanceof String) {
             try {
@@ -317,30 +277,28 @@ public class ValidateUtil {
 		return true;
 	}
 
-    public static boolean isValidArrayStringEnum(Object value, List<Object> valueEnum) {
-		if(!isArrayStringObject(value)) {
+    public static boolean isValidArrayEnum(Object value, List<Object> valueEnum) {
+
+		//1. valueEnum이 없는 경우 true 리턴
+		if(value == null || valueEnum == null) {
+			return true;
+		}
+
+		if(!(value instanceof ArrayList)) {
 			return false;
 		}
 
-
-		//1. valueEnum이 없는 경우 true 리턴
-		if(valueEnum == null) return true;
-
 		// valueEnum 과 일치 여부 체크
-		// valueEnum 과 일치 여부 체크
-		if (valueEnum != null) {
-			@SuppressWarnings("unchecked")
-			ArrayList<String> list = (ArrayList<String>) value;
-			boolean checkFlag = true;
-			for (String listEntity : list) {
-				if (!valueEnum.contains(listEntity)) {
-					checkFlag = false;
-				}
+		List<String> valueStrList = ((List<Object>)value).stream().map( String::valueOf ).collect( Collectors.toList() );
+		List<String> enumStrList = valueEnum.stream().map( String::valueOf ).collect( Collectors.toList() );
+
+		for(String valueStr : valueStrList) {
+			if(!enumStrList.contains(valueStr)) {
+				return false;
 			}
-			return checkFlag;
 		}
 
-		return false;
+		return true;
 	}
 
     public static boolean isArrayIntegerObject(Object value) {
@@ -358,21 +316,31 @@ public class ValidateUtil {
     	return true;
     }
 
-    public static boolean isValidArrayIntegerGreaterThanOrEqualTo(Object value, Double greaterThanOrEqualTo) {
-		if(!isArrayIntegerObject(value)) {
+	public static boolean isArrayLongObject(Object value) {
+		if(!(value instanceof ArrayList)) {
+			return false;
+		}
+
+		@SuppressWarnings("unchecked")
+		ArrayList<Object> list = (ArrayList<Object>)value;
+		for(Object listEntity : list) {
+			if(!isLongObject(listEntity)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+    public static boolean isValidArrayGreaterThanOrEqualTo(Object value, BigDecimal greaterThanOrEqualTo) {
+
+		if(!(value instanceof ArrayList)) {
 			return false;
 		}
 
 		if(!ValidateUtil.isEmptyData(greaterThanOrEqualTo)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer> list = (ArrayList<Integer>)value;
-			for(Integer listEntity : list) {
-				try {
-					if(!isValidIntegerGreaterThanOrEqualTo(listEntity, greaterThanOrEqualTo)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
+			for(Object listEntity : (ArrayList<Object>)value) {
+				if(!isValidGreaterThanOrEqualTo(listEntity, greaterThanOrEqualTo)) {
+					return false;
 				}
 			}
 		}
@@ -380,21 +348,16 @@ public class ValidateUtil {
 	}
 
 
-	public static boolean isValidArrayIntegerGreaterThan(Object value, Double greaterThan) {
-		if(!isArrayIntegerObject(value)) {
+	public static boolean isValidArrayGreaterThan(Object value, BigDecimal greaterThan) {
+
+		if(!(value instanceof ArrayList)) {
 			return false;
 		}
 
 		if(!ValidateUtil.isEmptyData(greaterThan)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer> list = (ArrayList<Integer>)value;
-			for(Integer listEntity : list) {
-				try {
-					if(!isValidIntegerGreaterThan(listEntity, greaterThan)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
+			for(Object listEntity : (ArrayList<Object>)value) {
+				if(!isValidGreaterThan(listEntity, greaterThan)) {
+					return false;
 				}
 			}
 		}
@@ -402,21 +365,16 @@ public class ValidateUtil {
 	}
 
 
-	public static boolean isValidArrayIntegerLessOrEqualTo(Object value, Double lessThanOrEqualTo) {
-		if(!isArrayIntegerObject(value)) {
+	public static boolean isValidArrayLessThenOrEqualTo(Object value, BigDecimal lessThanOrEqualTo) {
+
+		if(!(value instanceof ArrayList)) {
 			return false;
 		}
 
 		if(!ValidateUtil.isEmptyData(lessThanOrEqualTo)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer> list = (ArrayList<Integer>)value;
-			for(Integer listEntity : list) {
-				try {
-					if(!isValidIntegerLessThanOrEqualTo(listEntity, lessThanOrEqualTo)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
+			for(Object listEntity : (ArrayList<Object>)value) {
+				if(!isValidLessThanOrEqualTo(listEntity, lessThanOrEqualTo)) {
+					return false;
 				}
 			}
 		}
@@ -424,21 +382,16 @@ public class ValidateUtil {
 	}
 
 
-	public static boolean isValidArrayIntegerLessThan(Object value, Double lessThan) {
-		if(!isArrayIntegerObject(value)) {
+	public static boolean isValidArrayLessThan(Object value, BigDecimal lessThan) {
+
+		if(!(value instanceof ArrayList)) {
 			return false;
 		}
 
 		if(!ValidateUtil.isEmptyData(lessThan)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer> list = (ArrayList<Integer>)value;
-			for(Integer listEntity : list) {
-				try {
-					if(!isValidIntegerLessThan(listEntity, lessThan)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
+			for(Object listEntity : (ArrayList<Object>)value) {
+				if(!isValidLessThan(listEntity, lessThan)) {
+					return false;
 				}
 			}
 		}
@@ -446,32 +399,7 @@ public class ValidateUtil {
 	}
 
 
-	public static boolean isValidArrayIntegerEnum(Object value, List<Object> valueEnum) {
-		if(!isArrayIntegerObject(value)) {
-			return false;
-		}
-
-
-		//1. valueEnum이 없는 경우 true 리턴
-		if(valueEnum == null) return true;
-
-		// valueEnum 과 일치 여부 체크
-		if (valueEnum != null) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer> list = (ArrayList<Integer>) value;
-			boolean checkFlag = true;
-			for (Integer listEntity : list) {
-				if (!valueEnum.contains(listEntity)) {
-					checkFlag = false;
-				}
-			}
-			return checkFlag;
-		}
-
-		return false;
-	}
-	
-    public static boolean isArrayDoubleObject(Object value) {
+    public static boolean isArrayBigDecimalObject(Object value) {
     	if(!(value instanceof ArrayList)) {
     		return false;
     	}
@@ -479,125 +407,14 @@ public class ValidateUtil {
 		@SuppressWarnings("unchecked")
 		ArrayList<Object> list = (ArrayList<Object>)value;
 		for(Object listEntity : list) {
-			if(!isDoubleObject(listEntity)) {
+			if(!isBigDecimalObject(listEntity)) {
 				return false;
 			}
 		}
     	return true;
     }
 
-    public static boolean isValidArrayDoubleGreaterThanOrEqualTo(Object value, Double greaterThanOrEqualTo) {
-		if(!isArrayDoubleObject(value)) {
-			return false;
-		}
 
-		if(!ValidateUtil.isEmptyData(greaterThanOrEqualTo)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Double> list = (ArrayList<Double>)value;
-			for(Double listEntity : list) {
-				try {
-					if(!isValidDoubleGreaterThanOrEqualTo(listEntity, greaterThanOrEqualTo)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
-				}
-			}
-		}
-		return true;
-	}
-
-
-	public static boolean isValidArrayDoubleGreaterThan(Object value, Double greaterThan) {
-		if(!isArrayDoubleObject(value)) {
-			return false;
-		}
-
-		if(!ValidateUtil.isEmptyData(greaterThan)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Double> list = (ArrayList<Double>)value;
-			for(Double listEntity : list) {
-				try {
-					if(!isValidDoubleGreaterThan(listEntity, greaterThan)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
-				}
-			}
-		}
-		return true;
-	}
-
-
-	public static boolean isValidArrayDoubleLessThanOrEqualTo(Object value, Double lessThanOrEqualTo) {
-		if(!isArrayDoubleObject(value)) {
-			return false;
-		}
-
-		if(!ValidateUtil.isEmptyData(lessThanOrEqualTo)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Double> list = (ArrayList<Double>)value;
-			for(Double listEntity : list) {
-				try {
-					if(!isValidDoubleLessThanOrEqualTo(listEntity, lessThanOrEqualTo)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
-				}
-			}
-		}
-		return true;
-	}
-
-
-	public static boolean isValidArrayDoubleLessThan(Object value, Double lessThan) {
-		if(!isArrayDoubleObject(value)) {
-			return false;
-		}
-
-		if(!ValidateUtil.isEmptyData(lessThan)) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Double> list = (ArrayList<Double>)value;
-			for(Double listEntity : list) {
-				try {
-					if(!isValidDoubleLessThan(listEntity, lessThan)) {
-						return false;
-					}
-				} catch(NumberFormatException e) {
-					continue;
-				}
-			}
-		}
-		return true;
-	}
-
-
-	public static boolean isValidArrayDoubleEnum(Object value, List<Object> valueEnum) {
-		if(!isArrayDoubleObject(value)) {
-			return false;
-		}
-
-		//1. valueEnum이 없는 경우 true 리턴
-		if(valueEnum == null) return true;
-
-		// valueEnum 과 일치 여부 체크
-		if (valueEnum != null) {
-			@SuppressWarnings("unchecked")
-			ArrayList<Double> list = (ArrayList<Double>) value;
-			boolean checkFlag = true;
-			for (Double listEntity : list) {
-				if (!valueEnum.contains(listEntity)) {
-					checkFlag = false;
-				}
-			}
-			return checkFlag;
-		}
-
-		return false;
-	}
-	
     public static boolean isMapObject(Object value) {
     	if(value instanceof Map) {
     		return true;

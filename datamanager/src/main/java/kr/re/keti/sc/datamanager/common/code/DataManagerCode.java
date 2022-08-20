@@ -468,6 +468,8 @@ public class DataManagerCode {
         STRING("String"),
         @JsonProperty("Integer")
         INTEGER("Integer"),
+        @JsonProperty("Long")
+        LONG("Long"),
         @JsonProperty("Double")
         DOUBLE("Double"),
         @JsonProperty("Object")
@@ -482,6 +484,8 @@ public class DataManagerCode {
         ARRAY_STRING("ArrayString"),
         @JsonProperty("ArrayInteger")
         ARRAY_INTEGER("ArrayInteger"),
+        @JsonProperty("ArrayLong")
+        ARRAY_LONG("ArrayLong"),
         @JsonProperty("ArrayDouble")
         ARRAY_DOUBLE("ArrayDouble"),
         @JsonProperty("ArrayBoolean")
@@ -542,77 +546,6 @@ public class DataManagerCode {
             return null;
         }
     }
-
-
-    public static enum DbColumnType {
-        VARCHAR("VARCHAR"),
-        INTEGER("INTEGER"),
-        FLOAT("FLOAT"),
-        TIMESTAMP("TIMESTAMP WITHOUT TIME ZONE"),
-        GEOMETRY_4326("GEOMETRY_4326"),
-        GEOMETRY_3857("GEOMETRY_3857"),
-        ARRAY_VARCHAR("VARCHAR[]"),
-        ARRAY_INTEGER("INTEGER[]"),
-        ARRAY_FLOAT("FLOAT[]"),
-        ARRAY_TIMESTAMP("TIMESTAMP WITHOUT TIME ZONE[]");
-
-        private String code;
-
-        private DbColumnType(String code) {
-            this.code = code;
-        }
-
-        @JsonCreator
-        public String getCode() {
-            return code;
-        }
-
-        @JsonValue
-        public static DbColumnType parseType(String code) {
-            for (DbColumnType dbColumnType : values()) {
-                if (dbColumnType.getCode().equals(code)) {
-                    return dbColumnType;
-                }
-            }
-            return null;
-        }
-    }
-
-
-    public static enum DbConditionType {
-
-        SELECT_COLUMN("selectColumn"),
-        TABLE_NAME("tableName"),
-        HIST_TABLE_NAME("histTableName"),
-        GEO_CONDITION("geoCondition"),
-        Q_QUERY("query"),
-        TIME_CONDITION("timeCondition"),
-
-        LIMIT("limit"),
-        OFFSET("offset");
-
-        private String code;
-
-        private DbConditionType(String code) {
-            this.code = code;
-        }
-
-        @JsonCreator
-        public String getCode() {
-            return code;
-        }
-
-        @JsonValue
-        public static DbConditionType parseType(String code) {
-            for (DbConditionType dbConditionType : values()) {
-                if (dbConditionType.getCode().equals(code)) {
-                    return dbConditionType;
-                }
-            }
-            return null;
-        }
-    }
-
 
     public static enum DefaultErrorKey {
 

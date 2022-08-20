@@ -1,5 +1,6 @@
 package kr.re.keti.sc.datamanager.datamodel.vo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,10 +16,10 @@ public class ObjectMember {
     private String name;
     private String description;
     private Boolean isRequired;
-    private Double greaterThan;
-    private Double greaterThanOrEqualTo;
-    private Double lessThanOrEqualTo;
-    private Double lessThan;
+    private BigDecimal greaterThan;
+    private BigDecimal greaterThanOrEqualTo;
+    private BigDecimal lessThanOrEqualTo;
+    private BigDecimal lessThan;
     private String maxLength;
     private String minLength;
     private AttributeValueType valueType;
