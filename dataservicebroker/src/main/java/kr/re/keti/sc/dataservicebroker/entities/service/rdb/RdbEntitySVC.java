@@ -912,7 +912,7 @@ public class RdbEntitySVC extends DefaultEntitySVC {
                 		// String[] -> List<String>, Integer[] -> List<Integer>, Float[] -> List<Float> 변환처리
                         if (dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_VARCHAR
                                 || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_INTEGER
-                                || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_FLOAT) {
+                                || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_DOUBLE) {
                             Object[] valueArr = (Object[]) value;
                             List<Object> valueList = new ArrayList<>(valueArr.length);
                             for (int i = 0; i < valueArr.length; i++) {

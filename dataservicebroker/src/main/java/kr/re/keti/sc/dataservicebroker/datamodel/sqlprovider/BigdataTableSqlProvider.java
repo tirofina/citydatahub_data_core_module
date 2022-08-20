@@ -336,9 +336,9 @@ public class BigdataTableSqlProvider {
 
 	private boolean hasMaxLengthColumnType(DbColumnType dbColumnType) {
 		if(dbColumnType == DbColumnType.VARCHAR
-				|| dbColumnType == DbColumnType.FLOAT
+				|| dbColumnType == DbColumnType.DOUBLE
 				|| dbColumnType == DbColumnType.ARRAY_VARCHAR
-				|| dbColumnType == DbColumnType.ARRAY_FLOAT) {
+				|| dbColumnType == DbColumnType.ARRAY_DOUBLE) {
 			return true;
 		}
 		return false;
@@ -822,11 +822,11 @@ public class BigdataTableSqlProvider {
 		return (dbColumnType == DbColumnType.ARRAY_TIMESTAMP
 				|| dbColumnType == DbColumnType.ARRAY_INTEGER
 				|| dbColumnType == DbColumnType.ARRAY_VARCHAR
-				|| dbColumnType == DbColumnType.ARRAY_FLOAT
+				|| dbColumnType == DbColumnType.ARRAY_DOUBLE
 				|| dbColumnType == DbColumnType.ARRAY_BOOLEAN
 				|| dbColumnType == DbColumnType.TIMESTAMP
 				|| dbColumnType == DbColumnType.INTEGER
-				|| dbColumnType == DbColumnType.FLOAT
+				|| dbColumnType == DbColumnType.DOUBLE
 				|| dbColumnType == DbColumnType.BOOLEAN
 				|| dbColumnType == DbColumnType.STRING);
 	}
@@ -870,7 +870,7 @@ public class BigdataTableSqlProvider {
 			case INTEGER:
 				return DbColumnType.INTEGER;
 			case DOUBLE:
-				return DbColumnType.FLOAT;
+				return DbColumnType.DOUBLE;
 			case DATE:
 				return DbColumnType.TIMESTAMP;
 			case BOOLEAN:
@@ -880,7 +880,7 @@ public class BigdataTableSqlProvider {
 			case ARRAY_INTEGER:
 				return DbColumnType.ARRAY_INTEGER;
 			case ARRAY_DOUBLE:
-				return DbColumnType.ARRAY_FLOAT;
+				return DbColumnType.ARRAY_DOUBLE;
 			case ARRAY_BOOLEAN:
 				return DbColumnType.ARRAY_BOOLEAN;
 		default:
@@ -900,7 +900,7 @@ public class BigdataTableSqlProvider {
 		case INTEGER:
 			return DbColumnType.ARRAY_INTEGER;
 		case DOUBLE:
-			return DbColumnType.ARRAY_FLOAT;
+			return DbColumnType.ARRAY_DOUBLE;
 		case DATE:
 			return DbColumnType.ARRAY_TIMESTAMP;
 		case BOOLEAN:
