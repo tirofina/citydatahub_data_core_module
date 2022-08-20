@@ -24,6 +24,7 @@ import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelStorageMetadataVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelCacheVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.ObjectMember;
+import kr.re.keti.sc.dataservicebroker.util.StringUtil;
 import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 
 @Component
@@ -303,9 +304,9 @@ public class RdbTableSqlProvider {
 	 */
 	private boolean hasMaxLengthColumnType(DbColumnType dbColumnType) {
 		if(dbColumnType == DbColumnType.VARCHAR
-				|| dbColumnType == DbColumnType.DOUBLE
+				|| dbColumnType == DbColumnType.FLOAT
 				|| dbColumnType == DbColumnType.ARRAY_VARCHAR
-				|| dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				|| dbColumnType == DbColumnType.ARRAY_FLOAT) {
 			return true;
 		}
 		return false;

@@ -65,7 +65,7 @@ public class RdbEntitySqlProviderImpl {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + "}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + "}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + "}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + DateArrayListTypeHandler.class.getName() + "}::TIMESTAMP WITH TIME ZONE[]");
@@ -131,13 +131,13 @@ public class RdbEntitySqlProviderImpl {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=VARCHAR}");
                         } else if (dbColumnType == DbColumnType.INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=INTEGER}");
-                        } else if (dbColumnType == DbColumnType.DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=FLOAT}");
                         } else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + BooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::BOOLEAN[]");
@@ -207,13 +207,13 @@ public class RdbEntitySqlProviderImpl {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=VARCHAR}");
                         } else if (dbColumnType == DbColumnType.INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=INTEGER}");
-                        } else if (dbColumnType == DbColumnType.DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=FLOAT}");
                         } else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + BooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::BOOLEAN[]");
@@ -280,13 +280,13 @@ public class RdbEntitySqlProviderImpl {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", jdbcType=VARCHAR})");
                         } else if (dbColumnType == DbColumnType.INTEGER) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", jdbcType=INTEGER})");
-                        } else if (dbColumnType == DbColumnType.DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.FLOAT) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", jdbcType=FLOAT})");
                         } else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::VARCHAR[])");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::INT[])");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::FLOAT[])");
                         } else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
                             SET(columnName + " = COALESCE( " + columnName + ", #{" + daoAttributeId + ", typeHandler=" + BooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::BOOLEAN[])");
@@ -351,13 +351,13 @@ public class RdbEntitySqlProviderImpl {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", jdbcType=VARCHAR} END");
                         } else if (dbColumnType == DbColumnType.INTEGER) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", jdbcType=INTEGER} END::NUMERIC");
-                        } else if (dbColumnType == DbColumnType.DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.FLOAT) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", jdbcType=FLOAT} END::NUMERIC");
                         } else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::VARCHAR[] END");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::INT[] END");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::FLOAT[] END");
                         } else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
                             SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId + ", typeHandler=" + BooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::BOOLEAN[] END");
@@ -422,13 +422,13 @@ public class RdbEntitySqlProviderImpl {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=VARCHAR}");
                         } else if (dbColumnType == DbColumnType.INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=INTEGER}");
-                        } else if (dbColumnType == DbColumnType.DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", jdbcType=FLOAT}");
                         } else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
                             SET(columnName + " = #{" + daoAttributeId + ", typeHandler=" + BooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}::BOOLEAN[]");
@@ -569,7 +569,7 @@ public class RdbEntitySqlProviderImpl {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + "}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + "}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + "}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
                             VALUES(columnName, "#{" + daoAttributeId + ", typeHandler=" + DateArrayListTypeHandler.class.getName() + "}::TIMESTAMP WITH TIME ZONE[]");
@@ -629,7 +629,7 @@ public class RdbEntitySqlProviderImpl {
                             VALUES(columnName, "#{" + columnName + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + "}::VARCHAR[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
                             VALUES(columnName, "#{" + columnName + ", typeHandler=" + IntegerArrayListTypeHandler.class.getName() + "}::INT[]");
-                        } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                        } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                             VALUES(columnName, "#{" + columnName + ", typeHandler=" + FloatArrayListTypeHandler.class.getName() + "}::FLOAT[]");
                         } else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
                             VALUES(columnName, "#{" + columnName + ", typeHandler=" + DateArrayListTypeHandler.class.getName() + "}::TIMESTAMP WITH TIME ZONE[]");

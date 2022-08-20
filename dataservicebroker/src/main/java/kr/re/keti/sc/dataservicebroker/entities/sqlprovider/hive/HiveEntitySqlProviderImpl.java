@@ -107,7 +107,7 @@ public class HiveEntitySqlProviderImpl {
 							.append(HiveIntegerArrayListTypeHandler.class.getName()).append("}, ',')")
 							.append(COMMA_WITH_SPACE);
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e);
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					valueBuilder.append("split(#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveDoubleArrayListTypeHandler.class.getName()).append("}, ',')")
 							.append(COMMA_WITH_SPACE);
@@ -205,13 +205,13 @@ public class HiveEntitySqlProviderImpl {
 							SET(columnName + " = #{" + daoAttributeId + ", jdbcType=VARCHAR}");
 						} else if (dbColumnType == DbColumnType.INTEGER) {
 							SET(columnName + " = #{" + daoAttributeId + ", jdbcType=INTEGER}");
-						} else if (dbColumnType == DbColumnType.DOUBLE) {
+						} else if (dbColumnType == DbColumnType.FLOAT) {
 							SET(columnName + " = #{" + daoAttributeId + ", jdbcType=FLOAT}");
 						} else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
 							SET(columnName + " = split(#{" + daoAttributeId + ", typeHandler=" + StringArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}, ',')");
 						} else if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
 							SET(columnName + " = ST_ARRAYINT(split(#{" + daoAttributeId + ", typeHandler=" + HiveIntegerArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}, ','))");
-						} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+						} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 							SET(columnName + " = ST_ARRAYDOUBLE(split(#{" + daoAttributeId + ", typeHandler=" + HiveDoubleArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}, ','))");
 						} else if (dbColumnType == DbColumnType.ARRAY_BOOLEAN) {
 							SET(columnName + " = ST_ARRAYBOOLEAN(split(#{" + daoAttributeId + ", typeHandler=" + HiveBooleanArrayListTypeHandler.class.getName() + ", jdbcType=ARRAY}, ','))");
@@ -279,7 +279,7 @@ public class HiveEntitySqlProviderImpl {
 
 				if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e);
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e);
 				} else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYTIMESTAMP(" + columnName + ")" : e);
@@ -323,7 +323,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=VARCHAR}");
 				} else if (dbColumnType == DbColumnType.INTEGER) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=INTEGER}");
-				} else if (dbColumnType == DbColumnType.DOUBLE) {
+				} else if (dbColumnType == DbColumnType.FLOAT) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=DOUBLE}");
 				} else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
 					sql.append("split(").append("#{").append(daoAttributeId).append(", typeHandler=")
@@ -333,7 +333,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("split(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveIntegerArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(", ',')");
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					sql.append("split(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveDoubleArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(", ',')");
@@ -420,7 +420,7 @@ public class HiveEntitySqlProviderImpl {
 
 				if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e);
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e);
 				} else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYTIMESTAMP(" + columnName + ")" : e);
@@ -469,7 +469,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=VARCHAR}");
 				} else if (dbColumnType == DbColumnType.INTEGER) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=INTEGER}");
-				} else if (dbColumnType == DbColumnType.DOUBLE) {
+				} else if (dbColumnType == DbColumnType.FLOAT) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=DOUBLE}");
 				} else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
 					sql.append("array(").append("#{").append(daoAttributeId).append(", typeHandler=")
@@ -478,7 +478,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveIntegerArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(")");
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					sql.append("array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveDoubleArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(")");
@@ -565,7 +565,7 @@ public class HiveEntitySqlProviderImpl {
 
 				if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e);
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e);
 				} else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYTIMESTAMP(" + columnName + ")" : e);
@@ -614,7 +614,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("COALESCE(#{").append(daoAttributeId).append(", jdbcType=VARCHAR})");
 				} else if (dbColumnType == DbColumnType.INTEGER) {
 					sql.append("COALESCE(#{").append(daoAttributeId).append(", jdbcType=INTEGER})");
-				} else if (dbColumnType == DbColumnType.DOUBLE) {
+				} else if (dbColumnType == DbColumnType.FLOAT) {
 					sql.append("COALESCE(#{").append(daoAttributeId).append(", jdbcType=DOUBLE})");
 				} else if (dbColumnType == DbColumnType.ARRAY_VARCHAR) {
 					sql.append("COALESCE(array(").append("#{").append(daoAttributeId).append(", typeHandler=")
@@ -624,7 +624,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("COALESCE(array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveIntegerArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append("))");
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					sql.append("COALESCE(array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveDoubleArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append("))");
@@ -700,7 +700,7 @@ public class HiveEntitySqlProviderImpl {
 						} else if (dbColumnType == DbColumnType.INTEGER) {
 							SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId
 									+ ", jdbcType=INTEGER} END::DOUBLE");
-						} else if (dbColumnType == DbColumnType.DOUBLE) {
+						} else if (dbColumnType == DbColumnType.FLOAT) {
 							SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId
 									+ ", jdbcType=DOUBLE} END::DOUBLE");
 						} else if (dbColumnType == DbColumnType.BOOLEAN) {
@@ -714,7 +714,7 @@ public class HiveEntitySqlProviderImpl {
 							SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId
 									+ ", typeHandler=" + HiveIntegerArrayListTypeHandler.class.getName()
 									+ ", jdbcType=ARRAY}::ARRAY<INTEGER> END");
-						} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+						} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 							SET(columnName + " = CASE WHEN " + columnName + " IS NOT NULL THEN #{" + daoAttributeId
 									+ ", typeHandler=" + HiveDoubleArrayListTypeHandler.class.getName()
 									+ ", jdbcType=ARRAY}::ARRAY<DOUBLE> END");
@@ -804,7 +804,7 @@ public class HiveEntitySqlProviderImpl {
 
 				if (dbColumnType == DbColumnType.ARRAY_INTEGER) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e);
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e);
 				} else if (dbColumnType == DbColumnType.ARRAY_TIMESTAMP) {
 					tableColumns.replaceAll(e -> (e.equals(columnName)) ? "ST_ARRAYTIMESTAMP(" + columnName + ")" : e);
@@ -853,7 +853,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=VARCHAR}");
 				} else if (dbColumnType == DbColumnType.INTEGER) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=INTEGER}");
-				} else if (dbColumnType == DbColumnType.DOUBLE) {
+				} else if (dbColumnType == DbColumnType.FLOAT) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=DOUBLE}");
 				} else if (dbColumnType == DbColumnType.BOOLEAN) {
 					sql.append("#{").append(daoAttributeId).append(", jdbcType=BOOLEAN}");
@@ -864,7 +864,7 @@ public class HiveEntitySqlProviderImpl {
 					sql.append("array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveIntegerArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(")");
-				} else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+				} else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
 					sql.append("array(").append("#{").append(daoAttributeId).append(", typeHandler=")
 							.append(HiveDoubleArrayListTypeHandler.class.getName()).append(", jdbcType=ARRAY}")
 							.append(")");
@@ -1057,7 +1057,7 @@ public class HiveEntitySqlProviderImpl {
                     tableColumns.replaceAll(e ->
                             (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e
                     );
-                } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                     valueBuilder.append("split(#{").append(daoAttributeId).append(", typeHandler=").append(HiveDoubleArrayListTypeHandler.class.getName()).append("}, ',')").append(COMMA_WITH_SPACE);
                     tableColumns.replaceAll(e ->
                             (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e
@@ -1176,7 +1176,7 @@ public class HiveEntitySqlProviderImpl {
                     tableColumns.replaceAll(e ->
                             (e.equals(columnName)) ? "ST_ARRAYINT(" + columnName + ")" : e
                     );
-                } else if (dbColumnType == DbColumnType.ARRAY_DOUBLE) {
+                } else if (dbColumnType == DbColumnType.ARRAY_FLOAT) {
                     valueBuilder.append("split(#{").append(daoAttributeId).append(", typeHandler=").append(HiveDoubleArrayListTypeHandler.class.getName()).append("}, ',')").append(COMMA_WITH_SPACE);
                     tableColumns.replaceAll(e ->
                             (e.equals(columnName)) ? "ST_ARRAYDOUBLE(" + columnName + ")" : e

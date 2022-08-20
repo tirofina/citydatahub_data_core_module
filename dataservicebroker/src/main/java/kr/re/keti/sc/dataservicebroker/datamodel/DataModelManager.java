@@ -18,6 +18,7 @@ import kr.re.keti.sc.dataservicebroker.datasetflow.service.DatasetFlowRetrieveSV
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.service.JsonldContextSVC;
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.vo.JsonldContextBaseVO;
 import kr.re.keti.sc.dataservicebroker.jsonldcontext.vo.JsonldContextCacheVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,8 +34,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kr.re.keti.sc.dataservicebroker.acl.rule.service.AclRuleSVC;
 import kr.re.keti.sc.dataservicebroker.acl.rule.vo.AclRuleVO;
 import kr.re.keti.sc.dataservicebroker.common.code.Constants;
+import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.AttributeType;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.AttributeValueType;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.BigDataStorageType;
@@ -45,6 +48,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.Propert
 import kr.re.keti.sc.dataservicebroker.common.exception.BadRequestException;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdContextNotAvailableException;
 import kr.re.keti.sc.dataservicebroker.common.vo.QueryVO;
+import kr.re.keti.sc.dataservicebroker.datamodel.service.DataModelSVC;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.Attribute;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.ContextVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelBaseVO;
@@ -53,7 +57,9 @@ import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelDbColumnVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelStorageMetadataVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.DataModelVO;
 import kr.re.keti.sc.dataservicebroker.datamodel.vo.ObjectMember;
+import kr.re.keti.sc.dataservicebroker.dataset.service.DatasetSVC;
 import kr.re.keti.sc.dataservicebroker.dataset.vo.DatasetBaseVO;
+import kr.re.keti.sc.dataservicebroker.datasetflow.service.DatasetFlowSVC;
 import kr.re.keti.sc.dataservicebroker.datasetflow.vo.DatasetFlowBaseVO;
 import kr.re.keti.sc.dataservicebroker.util.QueryUtil;
 import kr.re.keti.sc.dataservicebroker.util.StringUtil;
@@ -758,7 +764,7 @@ public class DataModelManager {
             case INTEGER:
                 return DbColumnType.INTEGER;
             case DOUBLE:
-                return DbColumnType.DOUBLE;
+                return DbColumnType.FLOAT;
             case DATE:
                 return DbColumnType.TIMESTAMP;
             case BOOLEAN:
@@ -768,7 +774,7 @@ public class DataModelManager {
             case ARRAY_INTEGER:
                 return DbColumnType.ARRAY_INTEGER;
             case ARRAY_DOUBLE:
-                return DbColumnType.ARRAY_DOUBLE;
+                return DbColumnType.ARRAY_FLOAT;
             case ARRAY_BOOLEAN:
                 return DbColumnType.ARRAY_BOOLEAN;
             case GEO_JSON:
@@ -791,7 +797,7 @@ public class DataModelManager {
             case INTEGER:
                 return DbColumnType.ARRAY_INTEGER;
             case DOUBLE:
-                return DbColumnType.ARRAY_DOUBLE;
+                return DbColumnType.ARRAY_FLOAT;
             case DATE:
                 return DbColumnType.ARRAY_TIMESTAMP;
             case BOOLEAN:
