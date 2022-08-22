@@ -200,16 +200,17 @@
     	SELECT *
     	FROM datacore_ui.CODE_BASE
     	<where>
+    		1=1
     	<if test="codeGroupId != null">
-    		CODE_GROUP_ID = #{codeGroupId}
+    		AND CODE_GROUP_ID = #{codeGroupId}
     	</if>
     	<if test="langCd != null">
     		AND LANG_CD = #{langCd}
     	</if>
     	<if test="searchValue != null">
-    		CODE_GROUP_ID LIKE '%' || #{searchValue} || '%'
+    		AND (CODE_GROUP_ID LIKE '%' || #{searchValue} || '%'
     		OR CODE_ID LIKE '%' || #{searchValue} || '%'
-    		OR CODE_NAME LIKE '%' || #{searchValue} || '%'
+    		OR CODE_NAME LIKE '%' || #{searchValue} || '%')
     	</if>
     	</where>
     	<include refid="common.pagingFooterSql"/>
