@@ -871,8 +871,9 @@ export default {
         this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=${ attrType }`)
             .then(response => {
               const { codeVOs } = response.data;
+              this.optionList.length = 0;
               codeVOs.map(item => {
-                item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+                item.codeName = this.$i18n.t(`codes.${item.codeId}`);                
                 this.optionList.push(item);
               });
             });
@@ -880,6 +881,7 @@ export default {
         this.$http.get('/code?pageSize=999&currentPage=1&codeGroupId=DC001')
             .then(response => {
               const { codeVOs } = response.data;
+              this.attrTypeList.length = 0;
               codeVOs.map(item => {
                 item.codeName = this.$i18n.t(`codes.${item.codeId}`);
                 this.attrTypeList.push(item);
@@ -896,6 +898,7 @@ export default {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=${codeGroupId}`)
           .then(response => {
             const { codeVOs } = response.data;
+            this.objectValueType.length = 0;
             codeVOs.map(item => {
               item.codeName = this.$i18n.t(`codes.${item.codeId}`);
               this.objectValueType.push(item);
@@ -906,8 +909,9 @@ export default {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC002`)
           .then(response => {
             const { codeVOs } = response.data;
+            this.accessModeList.length = 0;
             codeVOs.map(item => {
-              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);              
               this.accessModeList.push(item);
             });
           });
@@ -916,8 +920,9 @@ export default {
       this.$http.get(`/code?pageSize=999&currentPage=1&codeGroupId=DC101`)
           .then(response => {
             const { codeVOs } = response.data;
+            this.commonCodeList.length = 0;
             codeVOs.map(item => {
-              item.codeName = this.$i18n.t(`codes.${item.codeId}`);
+              item.codeName = this.$i18n.t(`codes.${item.codeId}`);              
               this.commonCodeList.push(item);
             });
           });
