@@ -644,7 +644,7 @@ export default {
       this.isMode = 'mod';
       this.isDelBtn = true;
       this.isShow = true;
-      this.$http.get(APIHandler.buildUrl(['code', item.codeGroupId, item.codeId, this.defaultLocale()]))
+      this.$http.get(APIHandler.buildUrl(['code', item.codeGroupId, item.codeId]))
           .then(response => {
             const resultCode = response.status;
             if (resultCode === 200 || 201 || 204) {
@@ -727,7 +727,7 @@ export default {
               this.modalText = result.message + `(${ error.message })`;
         });
       } else {
-        this.$http.patch(APIHandler.buildUrl(['code', this.formData.codeGroupId, this.formData.codeId, this.defaultLocale()]), this.formData)
+        this.$http.patch(APIHandler.buildUrl(['code', this.formData.codeGroupId, this.formData.codeId]), this.formData)
             .then(response => {
               const resultCode = response.status;
               if (resultCode === 200 || 201 || 204) {
@@ -756,7 +756,7 @@ export default {
               this.modalText = result.message + `(${ error.message })`;
         });
       } else {
-        this.$http.delete(APIHandler.buildUrl(['code', this.formData.codeGroupId, this.formData.codeId, this.defaultLocale()]))
+        this.$http.delete(APIHandler.buildUrl(['code', this.formData.codeGroupId, this.formData.codeId]))
             .then(response => {
               const resultCode = response.status;
               if (resultCode === 200 || 201 || 204) {
@@ -780,13 +780,6 @@ export default {
           this.codeError[name] = false;
         }
       }
-    },
-    defaultLocale() {
-      let locale = localStorage.getItem('langCd');
-      if (!locale) {
-        locale = 'en';
-      }
-      return locale;
     }
   },
   mounted() {

@@ -23,6 +23,7 @@ import kr.re.keti.sc.datacoreui.api.menu.vo.MenuRoleBaseVO;
 import kr.re.keti.sc.datacoreui.api.menu.vo.MenuRoleRelationResponseVO;
 import kr.re.keti.sc.datacoreui.api.menu.vo.MenuRoleRetrieveVO;
 import kr.re.keti.sc.datacoreui.common.code.DataCoreUiCode.ErrorCode;
+import kr.re.keti.sc.datacoreui.common.component.Properties;
 import kr.re.keti.sc.datacoreui.common.exception.BadRequestException;
 import kr.re.keti.sc.datacoreui.security.service.DataCoreUiSVC;
 import kr.re.keti.sc.datacoreui.util.ValidateUtil;
@@ -46,6 +47,9 @@ public class MenuController {
 	
 	@Autowired
 	private DataCoreUiSVC dataCoreUiSVC;
+	
+	@Autowired
+	private Properties properties;
 
 	/**
 	 * Create UI menu
@@ -68,6 +72,10 @@ public class MenuController {
 		Object principal = dataCoreUiSVC.getPrincipal(request);
 		if (principal != null) {
 			menuBaseVO.setCreatorId(principal.toString());
+		}
+		
+		if (menuBaseVO.getLangCd() == null) {
+			menuBaseVO.setLangCd(properties.getLangCd());
 		}
 		
 		// 3. Create menu
@@ -109,8 +117,13 @@ public class MenuController {
 	 */
 	@DeleteMapping(value="/menu/{id}")
 	public <T> ResponseEntity<T> deleteMenu(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable String id, @RequestParam(value="langCd", required=true) String langCd) throws Exception {
+			@PathVariable String id, 
+			@RequestParam(value="langCd", required=false) String langCd) throws Exception {
 		log.info("[UI API] deleteMenu - id: {}, langCd: {}", id, langCd);
+		
+		if (langCd == null) {
+			langCd = properties.getLangCd();
+		}
 		
 		// 1. Delete menu
 		ResponseEntity<T> reslt = menuSVC.deleteMenu(id, langCd);
@@ -126,8 +139,14 @@ public class MenuController {
 	 */
 	@GetMapping(value="/menu/{id}")
 	public ResponseEntity<MenuBaseVO> getMenu(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable String id, @RequestParam(value="langCd", defaultValue="en") String langCd) throws Exception {
+			@PathVariable String id, 
+			@RequestParam(value="langCd", required=false) String langCd) throws Exception {
+		
 		log.info("[UI API] getMenu - id: {}, langCd: {}", id, langCd);
+		
+		if (langCd == null) {
+			langCd = properties.getLangCd();
+		}
 		
 		// 1. Retrieve menu
 		ResponseEntity<MenuBaseVO> reslt = menuSVC.getMenu(id, langCd);
@@ -145,6 +164,15 @@ public class MenuController {
 	public ResponseEntity<List<MenuBaseVO>> getMenus(HttpServletRequest request, HttpServletResponse response,
 			MenuRetrieveVO menuRetrieveVO) throws Exception {
 		log.info("[UI API] getMenu - menuRetrieveVO: {}", menuRetrieveVO);
+		
+		if (menuRetrieveVO == null) {
+			menuRetrieveVO = new MenuRetrieveVO();
+		}
+		
+		//TODO: client must fill in langCd if necessary
+		if (menuRetrieveVO.getLangCd() == null) {
+			menuRetrieveVO.setLangCd(properties.getLangCd());
+		}
 		
 		// 1. Retrieve multiple menu
 		ResponseEntity<List<MenuBaseVO>> reslt = menuSVC.getMenus(menuRetrieveVO);

@@ -255,6 +255,7 @@ export default {
   },
   methods: {
     getMenuList() {
+
       this.$http.get(APIHandler.buildUrl(['menu']))
           .then(response => {
             const items = response.data;

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.re.keti.sc.datacoreui.api.code.service.CodeSVC;
@@ -161,6 +162,10 @@ public class CodeController {
 			return new ResponseEntity<>((T)"Missing required value.", HttpStatus.BAD_REQUEST);
 		}
 		
+		if (codeBaseVO.getLangCd() == null) {
+			codeBaseVO.setLangCd(properties.getLangCd());
+		}
+		
 		// 2. Create code
 		ResponseEntity<T> reslt = codeSVC.createCode(codeBaseVO);
 		
@@ -175,13 +180,17 @@ public class CodeController {
 	 * @return				Code group update result.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@PatchMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
+	@PatchMapping(value="/code/{codeGroupId}/{codeId}")
 	public <T> ResponseEntity<T> updateCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
 			@PathVariable String codeId,
-			@PathVariable String langCd,
+			@RequestParam(value="langCd", required=false) String langCd,
 			@RequestBody CodeBaseVO codeBaseVO) throws Exception {
 		log.info("[UI API] updateCode - codeGroupId: {}, codeId: {}, langCd: {}, codeGroupBasVO: {}", codeGroupId, codeId, langCd, codeBaseVO);
+		
+		if (langCd == null) {
+			langCd = properties.getLangCd();
+		}
 		
 		// 1. Update code
 		ResponseEntity<T> reslt = codeSVC.updateCode(codeGroupId, codeId, langCd, codeBaseVO);
@@ -196,12 +205,16 @@ public class CodeController {
 	 * @return				Code group delete result.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@DeleteMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
+	@DeleteMapping(value="/code/{codeGroupId}/{codeId}")
 	public <T> ResponseEntity<T> deleteCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
 			@PathVariable String codeId,
-			@PathVariable String langCd) throws Exception {
+			@RequestParam(value="langCd", required=false) String langCd) throws Exception {
 		log.info("[UI API] deleteCode - codeGroupId: {}, codeId: {}, langCd: {}", codeGroupId, codeId, langCd);
+		
+		if (langCd == null) {
+			langCd = properties.getLangCd();
+		}
 		
 		// 1. Delete code
 		ResponseEntity<T> reslt = codeSVC.deleteCode(codeGroupId, codeId, langCd);
@@ -216,12 +229,16 @@ public class CodeController {
 	 * @return				Code retrieved by code group ID and code ID.
 	 * @throws Exception	Throw an exception when an error occurs.
 	 */
-	@GetMapping(value="/code/{codeGroupId}/{codeId}/{langCd}")
+	@GetMapping(value="/code/{codeGroupId}/{codeId}")
 	public ResponseEntity<CodeBaseVO> getCode(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable String codeGroupId,
 			@PathVariable String codeId,
-			@PathVariable String langCd) throws Exception {
+			@RequestParam(value="langCd", required=false) String langCd) throws Exception {
 		log.info("[UI API] getCode - codeGroupId: {}, codeId: {}, langCd: {}", codeGroupId, codeId, langCd);
+		
+		if (langCd == null) {
+			langCd = properties.getLangCd();
+		}
 		
 		// 1. Retrieve code
 		ResponseEntity<CodeBaseVO> reslt = codeSVC.getCode(codeGroupId, codeId, langCd);
@@ -247,13 +264,11 @@ public class CodeController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
-		String langCd = properties.getLangCd();
-		// default English
-		if(langCd == null) {
-			langCd = "en";
+		//TODO: client must fill in langCd if necessary
+		if (codeRequestVO.getLangCd() == null) {
+			codeRequestVO.setLangCd(properties.getLangCd());
 		}
-		codeRequestVO.setLangCd(langCd);
-
+		
 		// 2. Retrieve multiple code
 		ResponseEntity<CodeResponseVO> reslt = codeSVC.getCodes(codeRequestVO);
 		
@@ -290,7 +305,7 @@ public class CodeController {
 		
 		if(ValidateUtil.isEmptyData(codeBaseVO.getCodeGroupId())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getCodeId())
-				|| ValidateUtil.isEmptyData(codeBaseVO.getLangCd())
+//				|| ValidateUtil.isEmptyData(codeBaseVO.getLangCd())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getCodeName())
 				|| ValidateUtil.isEmptyData(codeBaseVO.getSortOrder())) {
 			return false;
