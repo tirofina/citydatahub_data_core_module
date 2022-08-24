@@ -102,6 +102,10 @@ public abstract class IngestProcessor<T extends CommonEntityFullVO> implements I
                 if (isQualityCheckEnabled && dataModelCacheVO == null) {
                     throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER, "Not Found DataModel");
                 }
+                
+                if (isQualityCheckEnabled && entityFullVO.getType() == null) {
+                    throw new BadRequestException(ErrorCode.VERIFICATION_INVALID_PARAMETER, "Not Found \"type\" Attribute in entities");
+                }
 
                 if(dataModelCacheVO != null) {
                 	entityFullVO.setType(dataModelCacheVO.getType());
