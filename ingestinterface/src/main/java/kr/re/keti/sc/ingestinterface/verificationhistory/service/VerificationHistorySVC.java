@@ -73,10 +73,7 @@ public class VerificationHistorySVC<T extends CommonEntityFullVO> {
         //TODO 품질 이력 저장 로직 추가 xml도, 코드도 정리 필요
         for (EntityProcessVO<T> entityProcessVO : entityProcessVOList) {
             //품질 체크 false일 경우, PASS
-            if (entityProcessVO.getDatasetBaseVO() ==null) {
-                return;
-            }
-            if (!entityProcessVO.getDatasetBaseVO().getQualityCheckEnabled()) {
+            if (entityProcessVO.getDatasetBaseVO() != null && !entityProcessVO.getDatasetBaseVO().getQualityCheckEnabled()) {
                 continue;
             }
 
