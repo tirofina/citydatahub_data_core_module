@@ -87,7 +87,7 @@ export default {
         [{ name: 'dataModelType', displayName: this.$i18n.t('validation.dataModelType'), type: 'text', require: false, isTable: false },
           { name: 'entityId', displayName: this.$i18n.t('validation.entityId'), type: 'text', require: false, isTable: false }],
         [
-          { name: 'verified', displayName: this.$i18n.t('validation.Validity'), type: 'choice',
+          { name: 'verified', displayName: this.$i18n.t('validation.verified'), type: 'choice',
             choices: [
               { value: true, displayName: this.$i18n.t('comm.valid') },
               { value: false, displayName: this.$i18n.t('comm.invalid') }

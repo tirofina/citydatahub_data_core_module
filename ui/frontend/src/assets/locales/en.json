@@ -190,6 +190,7 @@
     "modifier": "Modifier",
     "modifierTime": "Modification Time",
     "modifierDate": "Modification Date",
+    "mandatory": "Mandatory",
     "cancel":  "Cancel",
     "ok": "OK",
     "id": "ID",
@@ -260,7 +261,7 @@
     "DC017": "Provision Protocol",
     "DC018": "Verification Error Code",
     "DC019": "ArrayObject ValueType",
-    "DC101": "여부 코드"
+    "DC101": "Yes or No"
   },
   "codes": {
     "Property": "Property",
