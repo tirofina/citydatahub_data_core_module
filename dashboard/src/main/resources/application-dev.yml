@@ -7,7 +7,7 @@ spring:
     cache: false
 
   security:
-    enabled: true
+    enabled: false
     
   servlet:
     multipart:
@@ -15,7 +15,7 @@ spring:
       max-request-size: 10MB
 
 server:
-  port: 8080
+  port: 8084
   servlet:
     context-path: /
     session.timeout: 60m

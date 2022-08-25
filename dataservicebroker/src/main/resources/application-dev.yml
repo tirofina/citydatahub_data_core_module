@@ -63,6 +63,14 @@ kafka:
       auto.offset.reset.config: latest
       poll.duration.millis: 1000
 
+  notification: 
+    topic: NOTIFICATION_REQUEST
+    producer:
+      client.id: notificationRquest
+      acks.config: 1
+      processor.thread.count: 10 
+      queue.size: 10000
+
 # HTTP retrieve 설정
 datacore:
   http:
@@ -122,7 +130,7 @@ geometry:
     EPSG: 4326
 
 notification: 
-  change.event.use.yn: N
+  change.event.use.yn: Y
   time.interval.use.yn: N
   processor.thread.count: 10
   queue.size: 10000

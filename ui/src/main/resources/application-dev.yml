@@ -7,10 +7,10 @@ spring:
     cache: false
     
   security:
-    enabled: true
+    enabled: false
 
 server:
-  port: 8080
+  port: 8083
   servlet:
     context-path: /
     session.timeout: 60m

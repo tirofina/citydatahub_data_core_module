@@ -42,9 +42,9 @@ public class Properties {
 	@Value("${cityhub.client.redirectUri}") 
 	private String redirectUri;
 	
-	@Value("${spring.security.enabled}") 
+	@Value("${spring.security.enabled:Y}") 
 	private Boolean springSecurityEnabled;
 	
-	@Value("${language.code}") 
+	@Value("${language.code:en}") 
 	private String langCd;
 }

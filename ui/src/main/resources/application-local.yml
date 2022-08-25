@@ -57,19 +57,9 @@ datacore:
           level: 3
 
 datamanager:
-# local
-#  url: http://localhost:8180
-# v1.0 dev
-#  url: http://203.253.128.181:16908
-# v2.0 dev
-  url: http://182.162.141.108:49080
+  url: http://10.12.0.5:8080
 ingestinterface:
-# local
-#  url: http://localhost:8081
-# v1.0 dev
-#  url: http://203.253.128.181:14808
-# v2.0 dev
-  url: http://182.162.141.108:49081
+  url: http://10.12.0.12:8080
   
 cityhub:
   client:
