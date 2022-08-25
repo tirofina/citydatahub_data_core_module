@@ -441,10 +441,10 @@ public class DataModelController {
         } else {
             if (attribute.getGreaterThan() != null
                     || attribute.getGreaterThanOrEqualTo() != null
-                    || attribute.getGreaterThan() != null
-                    || attribute.getGreaterThanOrEqualTo() != null
+                    || attribute.getLessThan() != null
+                    || attribute.getLessThanOrEqualTo() != null
             ) {
-                throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "You should have only lessThan or lessThanOrEqualTo");
+                throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "greaterThan, greaterThanOrEqualTo, lessThan, or lessThanOrEqualTo not allowed for this data type");
             }
         }
     }
@@ -459,7 +459,13 @@ public class DataModelController {
 
         for (Attribute attribute : attributes) {
 
-            String name = attribute.getName();
+            //Attribute 필수 파라미터 누락 체크
+            if(ValidateUtil.isEmptyData(attribute.getName()) || ValidateUtil.isEmptyData(attribute.getName().trim()) || ValidateUtil.isEmptyData(attribute.getValueType()) || ValidateUtil.isEmptyData(attribute.getAttributeType())) {
+                throw new BadRequestException(ErrorCode.INVALID_PARAMETER,
+                    "Invaild Attribute. " + "name=" + attribute.getName() + ", attributeValueType=" + attribute.getValueType()  + ", attributeType=" + attribute.getAttributeType());
+            }
+
+            String name = attribute.getName().trim();
             DataManagerCode.AttributeValueType attributeValueType = attribute.getValueType();
             DataManagerCode.AttributeType attributeType = attribute.getAttributeType();
 
@@ -491,6 +497,18 @@ public class DataModelController {
                             throw new BadRequestException(ErrorCode.INVALID_PARAMETER,
                                     "Not exists ObjectMember. " + "name=" + name + ", attributeType=" + attributeType + ", attributeValueType=" + attributeValueType);
                         }
+
+                        //ObjectMember 필수 파라미터 누락 체크
+                        for (ObjectMember objectMember : attribute.getObjectMembers()) {
+                            if(ValidateUtil.isEmptyData(objectMember.getName()) || ValidateUtil.isEmptyData(objectMember.getName().trim()) || ValidateUtil.isEmptyData(objectMember.getValueType())) {
+                                throw new BadRequestException(ErrorCode.INVALID_PARAMETER,
+                                    "Invaild ObjectMembers. " + "name=" + objectMember.getName() + ", attributeValueType=" + objectMember.getValueType());
+                            }
+
+                            //ObjectMember 이름 trim 처리
+                            objectMember.setName(objectMember.getName().trim());
+                        }
+                        
 
                     } else {
                         if(attribute.getObjectMembers() != null) {

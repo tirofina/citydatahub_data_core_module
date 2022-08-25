@@ -226,7 +226,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 if(retrieveEntityDataModelVO != null) {
                     dataModelCacheVO = dataModelManager.getDataModelVOCacheById(retrieveEntityDataModelVO.getDataModelId());
 
-                    if (!entityFullVO.getType().endsWith(retrieveEntityDataModelVO.getDataModelType())) {
+                    if (entityFullVO.getType() == null || !entityFullVO.getType().endsWith(retrieveEntityDataModelVO.getDataModelType())) {
                         throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
                                 "Invalid Request Content. Invalid dataModel type. request type=" + entityFullVO.getType()
                                         + ", exists entity type=" + retrieveEntityDataModelVO.getDataModelType()
