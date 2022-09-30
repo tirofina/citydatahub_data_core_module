@@ -202,6 +202,7 @@ public class SubscriptionDAO implements SubscriptionDAOInterface {
             	for (SubscriptionEntitiesDaoVO subscriptionEntitiesDaoVO : subscriptionEntitiesDaoVOs) {
                     SubscriptionVO.EntityInfo entityInfo = new SubscriptionVO.EntityInfo();
                     entityInfo.setType(subscriptionEntitiesDaoVO.getType());
+                    entityInfo.setTypeUri(subscriptionEntitiesDaoVO.getTypeUri());
                     entityInfo.setId(subscriptionEntitiesDaoVO.getId());
                     entityInfo.setIdPattern(subscriptionEntitiesDaoVO.getIdPattern());
                     entities.add(entityInfo);

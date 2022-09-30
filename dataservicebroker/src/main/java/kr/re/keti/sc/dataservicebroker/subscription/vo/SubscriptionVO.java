@@ -2,8 +2,12 @@ package kr.re.keti.sc.dataservicebroker.subscription.vo;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,13 +17,13 @@ import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
 import kr.re.keti.sc.dataservicebroker.common.code.SubscriptionCode;
 import kr.re.keti.sc.dataservicebroker.common.code.SubscriptionCode.Timerel;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
+import kr.re.keti.sc.dataservicebroker.common.vo.TermExpandable;
 import lombok.Data;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class SubscriptionVO {
+public class SubscriptionVO implements TermExpandable {
 
     private String id;
     private String type;
@@ -73,6 +77,8 @@ public class SubscriptionVO {
         private String id;
         private String idPattern;
         private String type;
+        @JsonIgnore
+        private String typeUri;
     }
 
     // ETSI GS CIM 009 - 5.2.13 GeoQuery
@@ -141,4 +147,14 @@ public class SubscriptionVO {
             this.timerel = timerelObj;
         }
     }
+
+	@Override
+	public void expandTerm(Map <String, String> contextMap) {
+		//TODO: apply contextMap
+		if (entities != null && contextMap == null) {
+			for (EntityInfo entityInfo : entities) {
+				entityInfo.setType(entityInfo.getTypeUri());
+			}
+		}
+	}
 }

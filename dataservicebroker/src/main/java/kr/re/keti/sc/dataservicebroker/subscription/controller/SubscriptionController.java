@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -34,8 +33,10 @@ import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdNoExistType
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
 import kr.re.keti.sc.dataservicebroker.subscription.service.SubscriptionSVC;
 import kr.re.keti.sc.dataservicebroker.subscription.vo.SubscriptionVO;
+import kr.re.keti.sc.dataservicebroker.subscription.vo.SubscriptionVO.EntityInfo;
 import kr.re.keti.sc.dataservicebroker.util.HttpHeadersUtil;
 import kr.re.keti.sc.dataservicebroker.util.LogExecutionTime;
+import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -53,6 +54,8 @@ public class SubscriptionController {
     private Integer defaultLimit;
     @Value("${entity.default.storage}")
     protected DataServiceBrokerCode.BigDataStorageType bigDataStorageType;
+    @Value("${entity.retrieve.include.context:Y}")
+    private String includeContext;
 
     /**
      * 구독 리스트 조회 (Query Subscriptions)
@@ -82,18 +85,27 @@ public class SubscriptionController {
 
         HttpHeadersUtil.addPaginationLinkHeader(bigDataStorageType, request, response, accept, limit, offset, totalCount, defaultLimit);
 
+        String primaryAccept = HttpHeadersUtil.getPrimaryAccept(accept);
+        
+        //TODO: 요청 내 포함된 link에 값이 들어올 경우 처리 필요
+        
         if(!ValidateUtil.isEmptyData(resultList)) {
-            if(!Constants.APPLICATION_LD_JSON_VALUE.equals(accept)) {
-                List<String> linkHeader = new ArrayList<>();
-                for (SubscriptionVO subscriptionVO : resultList) {
-                    if(subscriptionVO.getContext() != null) {
-                        linkHeader.addAll(subscriptionVO.getContext());
-                    }
-                    subscriptionVO.setContext(null);
+       		if(!Constants.APPLICATION_LD_JSON_VALUE.equals(primaryAccept)) {
+       			//Link에 Context를 넣어야하나 subscription 인스턴스 마다 Context가 다를 수 있어 Link 해더에 넣을 수 없음. URI로 전달
+           		for (SubscriptionVO subscriptionVO : resultList) {
+                		subscriptionVO.expandTerm(null);
+                		subscriptionVO.setContext(null);
                 }
-                HttpHeadersUtil.addContextLinkHeader(response, accept, linkHeader.stream().distinct().collect(Collectors.toList()));
-            }
+            } else {//Accept가 ld+json 일 경우
+            	if (DataServiceBrokerCode.UseYn.NO.getCode().equalsIgnoreCase(includeContext)) {
+            		for (SubscriptionVO subscriptionVO : resultList) {
+            			subscriptionVO.expandTerm(null);
+            			subscriptionVO.setContext(null);
+                    }
+            	}
+        	}  
         }
+
         response.getWriter().print(objectMapper.writeValueAsString(resultList));
     }
 
@@ -123,12 +135,27 @@ public class SubscriptionController {
         if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(isResponseLog)) {
             log.info("response body : " + objectMapper.writeValueAsString(result));
         }
-
-        HttpHeadersUtil.addContextLinkHeader(response, accept, result.getContext());
-
-        if(!Constants.APPLICATION_LD_JSON_VALUE.equals(accept)) {
-            result.setContext(null);
+        
+        String primaryAccept = HttpHeadersUtil.getPrimaryAccept(accept);
+        
+        //TODO: 요청 내 포함된 link에 값이 들어올 경우 처리 필요
+        
+        if(!Constants.APPLICATION_LD_JSON_VALUE.equals(primaryAccept)) {
+        	if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(includeContext)) {//Context를 Link에 넣어 전달
+        		HttpHeadersUtil.addContextLinkHeader(response, primaryAccept, result.getContext());
+        		result.setContext(null);
+           	}
+        	else {// term expansion 이후 전달
+        		result.expandTerm(null);
+        		result.setContext(null);
+        	}
+        } else {//Accept가 ld+json 일 경우
+        	if (DataServiceBrokerCode.UseYn.NO.getCode().equalsIgnoreCase(includeContext)) {
+        		result.expandTerm(null);
+        		result.setContext(null);
+        	}
         }
+
         response.getWriter().print(objectMapper.writeValueAsString(result));
 
     }

@@ -9,18 +9,28 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.re.keti.sc.dataservicebroker.common.vo.QueryVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import kr.re.keti.sc.dataservicebroker.common.code.Constants;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
 
+@Component
 public class HttpHeadersUtil {
 
 	private static Pattern LINK_URI_PATTERN = Pattern.compile("<(?<link>[^<>]*)>");
 	
+    private static String PRIMARY_ACCEPT;
 
+    @Value("${entity.retrieve.primary.accept:application/json}")
+	public void setPrimaryAccept (String primaryAccept) {
+    	HttpHeadersUtil.PRIMARY_ACCEPT = primaryAccept;
+	}
+	
     /**
      *  "application/json" 로 요청한 경우, link에 context 정보 추가
      * @param response
@@ -192,6 +202,28 @@ public class HttpHeadersUtil {
 			result.add(linkStr.replace("<", "").replace(">", ""));
 		}
 		return result;
+    }
+    
+    public static String getPrimaryAccept(String requestAccept) {
+
+        if(ValidateUtil.isEmptyData(requestAccept)) {
+            return requestAccept;
+        }
+
+        // 요청 accept가 다건인 경우
+        if (requestAccept.contains(Constants.ACCEPT_ALL)) {
+            return PRIMARY_ACCEPT;
+        } else if (requestAccept.contains(PRIMARY_ACCEPT)) {
+            return PRIMARY_ACCEPT;
+        } else if (requestAccept.contains(Constants.APPLICATION_LD_JSON_VALUE)) {
+            return Constants.APPLICATION_LD_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_JSON_VALUE)) {
+            return Constants.APPLICATION_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_GEO_JSON_VALUE)) {
+            return Constants.APPLICATION_GEO_JSON_VALUE;
+        }
+
+        return requestAccept;
     }
 
 }

@@ -93,8 +93,8 @@ public class EntityController {
     private String securityAclUseYn;
     @Value("${entity.default.storage:rdb}")
     protected BigDataStorageType defaultStorageType;
-    @Value("${entity.retrieve.primary.accept:application/json}")
-    private String primaryAccept;
+    @Value("${entity.retrieve.include.context:Y}")
+    private String includeContext;
 
     /**
      * 최종 값 건수 조회
@@ -123,7 +123,7 @@ public class EntityController {
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
         queryVO.setLinks(links);
 
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 2. entity Count 조회
         Integer totalCount = entityRetrieveSVC.getEntityCount(queryVO, request.getQueryString(), link);
@@ -172,7 +172,7 @@ public class EntityController {
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
         queryVO.setLinks(links);
 
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 2. 리소스 조회
         EntityRetrieveVO entityRetrieveVO = entityRetrieveSVC.getEntity(queryVO, request.getQueryString(), accept, link);
@@ -222,7 +222,7 @@ public class EntityController {
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
         queryVO.setLinks(links);
 
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 2. 리소스 조회
         CommonEntityVO object = entityRetrieveSVC.getEntityById(queryVO, request.getQueryString(), accept, link);
@@ -679,7 +679,7 @@ public class EntityController {
         log.info("query types request. accept={}, link={}, details={}", accept, link, details);
 
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 1. 가용한 Entity types 상세 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
@@ -745,7 +745,7 @@ public class EntityController {
         log.info("retrieve types request. accept={}, link={}, type={}", accept, link, type);
 
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 1. 가용한 Entity type 정보 조회
         DataModelCacheVO dataModel = dataModelManager.getDataModelVOCacheByContext(links, type);
@@ -790,7 +790,7 @@ public class EntityController {
         log.info("query attributes request. accept={}, link={}, details={}", accept, link, details);
 
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 1. 가용한 Entity 전체 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
@@ -846,7 +846,7 @@ public class EntityController {
         log.info("retrieve attributes request. accept={}, link={}, attrId={}", accept, link, attrId);
 
         List<String> links = HttpHeadersUtil.extractLinkUris(link);
-        accept = getPrimaryAccept(accept);
+        accept = HttpHeadersUtil.getPrimaryAccept(accept);
 
         // 1. 가용한 Entity 전체 조회
         List<DataModelCacheVO> dataModelList = dataModelManager.getDataModelVOListCache();
@@ -1590,28 +1590,6 @@ public class EntityController {
         }
         return dataStorageType;
     }
-
-    private String getPrimaryAccept(String requestAccept) {
-
-        if(ValidateUtil.isEmptyData(requestAccept)) {
-            return requestAccept;
-        }
-
-        if (requestAccept.contains(Constants.ACCEPT_ALL)) {
-            return primaryAccept;
-        } else if (requestAccept.contains(primaryAccept)) {
-            return primaryAccept;
-        } else if (requestAccept.contains(Constants.APPLICATION_LD_JSON_VALUE)) {
-            return Constants.APPLICATION_LD_JSON_VALUE;
-        } else if (requestAccept.contains(Constants.APPLICATION_JSON_VALUE)) {
-            return Constants.APPLICATION_JSON_VALUE;
-        } else if (requestAccept.contains(Constants.APPLICATION_GEO_JSON_VALUE)) {
-            return Constants.APPLICATION_GEO_JSON_VALUE;
-        }
-
-        return requestAccept;
-    }
-
 
     /**
      * batch 처리 시 context 유효성 체크
