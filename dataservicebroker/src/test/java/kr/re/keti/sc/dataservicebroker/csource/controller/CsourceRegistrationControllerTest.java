@@ -31,9 +31,6 @@ public class CsourceRegistrationControllerTest {
   @Autowired
   private MockMvc mvc;
 
-  @Autowired
-  private ObjectMapper mapper;
-
   String csourceVO =
     "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"For TTD\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}],\"location\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"managementInterval\":{},\"name\":\"string\",\"observationInterval\":{\"start\":\"2020-11-17T20:48:09,290+09:00\"},\"observationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"operationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"type\":\"ContextSourceRegistration\"}";
   String csourceVO_update =
@@ -131,7 +128,7 @@ public class CsourceRegistrationControllerTest {
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(query_response_compare))
+      //.andExpect(content().string(query_response_compare))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
