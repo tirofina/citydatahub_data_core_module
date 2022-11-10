@@ -32,13 +32,13 @@ public class CsourceRegistrationControllerTest {
   private MockMvc mvc;
 
   String csourceVO =
-    "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"For TTD\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}],\"location\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"managementInterval\":{},\"name\":\"string\",\"observationInterval\":{\"start\":\"2020-11-17T20:48:09,290+09:00\"},\"observationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"operationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"type\":\"ContextSourceRegistration\"}";
+    "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"ForTTD\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}]}";
   String csourceVO_update =
-    "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"For TTD update\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}],\"location\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"managementInterval\":{},\"name\":\"string\",\"observationInterval\":{\"start\":\"2020-11-17T20:48:09,290+09:00\"},\"observationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"operationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"coordinates\":[[127.11132,37.393653]],\"type\":\"MultiPolygon\"}},\"type\":\"ContextSourceRegistration\"}";
+    "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"ForTTDUpdate\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}]}";
   String query_response_compare =
-    "[{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"name\":\"string\",\"description\":\"For TTD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"location\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"observationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"operationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"endpoint\":\"http://my.csource.org:1026\"}]";
+    "[{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"description\":\"ForTTD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"endpoint\":\"http://my.csource.org:1026\"}]";
   String retrieve_response_compare =
-    "{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"name\":\"string\",\"description\":\"For TTD update\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"location\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"observationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"operationSpace\":{\"type\":\"GeoProperty\",\"value\":{\"type\":\"MultiPolygon\",\"coordinates\":[[]]}},\"endpoint\":\"http://my.csource.org:1026\"}";
+    "{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"description\":\"ForTTDUpdate\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"endpoint\":\"http://my.csource.org:1026\"}";
   String error_csourceVO =
     "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"For TTD\"";
 
@@ -128,7 +128,7 @@ public class CsourceRegistrationControllerTest {
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
+      .andExpect(content().string(query_response_compare))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();

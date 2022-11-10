@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,13 +25,10 @@ public class SubscriptionControllerTest {
   @Autowired
   private MockMvc mvc;
 
-  @Autowired
-  private ObjectMapper mapper;
-
   String csourceVO =
-    "{\"csf\":\"string\",\"description\":\"string\",\"datasetIds\":[\"JangLogSet\"],\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://110.45.181.71/context/ParkingLucyTest#ParkingLucyTest\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"timerel\":\"after\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
+    "{\"csf\":\"string\",\"datasetIds\":[\"Test3\"],\"description\":\"string\",\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://211.253.243.121/context/Test3#Test3\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\",\"timerel\":\"after\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
   String csourceVO_update =
-    "{\"csf\":\"string\",\"description\":\"string\",\"datasetIds\":[\"JangLogSet\"],\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://110.45.181.71/context/ParkingLucyTest#ParkingLucyTest\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string_update\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"timerel\":\"after\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
+    "{\"csf\":\"string\",\"datasetIds\":[\"Test3\"],\"description\":\"stringUpdate\",\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://211.253.243.121/context/Test3#Test3\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\",\"timerel\":\"after\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
 
   @Test
   void testCreateSubscription() throws Exception {

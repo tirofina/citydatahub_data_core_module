@@ -285,14 +285,12 @@ public class EntityControllerTest {
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
-          .delete(
-            "/entities/urn:datahub:Test3:70-b3-d5-67-60-00-5c-1e_test23431"
-          )
+          .delete("/entities/urn:datahub:test4:70-b3-d5-67-60-00-5c-1e_test218")
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
       )
-      .andExpect(status().isOk())
+      .andExpect(status().isNoContent())
       //.andExpect(content().string("{\"id\":\"TDD\"}"))
       .andDo(print());
 
