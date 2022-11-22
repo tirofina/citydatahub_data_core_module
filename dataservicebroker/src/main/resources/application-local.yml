@@ -44,7 +44,7 @@ bulk:
 kafka:
   url: localhost:9092
   message.version: 1.0
-  security.yn: Y
+  security.yn: N
   security.protocol: SASL_PLAINTEXT
   sasl.mechanism: PLAIN
   username: test
@@ -111,7 +111,6 @@ entity:
   retrieve: 
     default.limit: 10000
     include.datasetid: N
-    include.context: N
     primary.accept: application/json
   history:
     # 이력 조회시 full이력 조회 여부, N일 경우 partial이력 조회
@@ -154,7 +153,7 @@ databroker:
 # 접근제어
 security:
   acl:
-    useYn: N
+    useYn: Y
   publicKey: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx4AkUiGyxa7sizeGLFFw\n5lveLj44y1eOSpYqR/EyEtJ4h+3oGlhq/X64lAOxD4Bnca5ONZmHaxF2gUX9yUkD\n9kEMDlF2YHWDNLayN6GDnrDgBYS/q6jsW78+0T8TQ6sjnltpzMlbPATJbHmyup8y\nofhZIBc59wNyRjxGa98I9okvrZERrdF8gh7WDQ15sp6rB0tr+tYVv+klzabtjCgT\nDrAqaT/BNeUDmjSPLtXbt75nbPmVZDzd48rWSNVbUZesE/EETh/lEFZ6ck/VHf7w\nV6GwOhkL8KM6oEE8wW0loXl4HrSAhynEYqBz4QMBaY9sk2Os7DMKnF+P1stoFU7n\nTwIDAQAB\n-----END PUBLIC KEY-----
   headers:
     admin:

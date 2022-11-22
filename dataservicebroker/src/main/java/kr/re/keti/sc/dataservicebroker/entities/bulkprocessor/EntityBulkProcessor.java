@@ -38,6 +38,9 @@ public class EntityBulkProcessor<T1 extends CommonEntityFullVO, T2 extends Commo
 	@Autowired(required = false)
 	@Qualifier("hiveDynamicEntitySVC")
 	private EntitySVCInterface<T1, T2> hiveEntitySVC;
+	@Autowired(required = false)
+	@Qualifier("hbaseDynamicEntitySVC")
+	private EntitySVCInterface<T1, T2> hbaseEntitySVC;
 	@Autowired
 	private NotificationManager notificationManager;
 	@Autowired
@@ -88,8 +91,10 @@ public class EntityBulkProcessor<T1 extends CommonEntityFullVO, T2 extends Commo
 		        storeErrorHistory(processVOList);
 			}
 			// HBASE 적재 (추후 분기하여 구현)
-			if(bigDataStorageTypes.contains(BigDataStorageType.HBASE)) {
-				
+			if (bigDataStorageTypes.contains(BigDataStorageType.HBASE)) {
+				processVOList = hiveEntitySVC.processBulk(requestMessageVOList);
+				// 에러 발생 시 이력 저장
+				storeErrorHistory(processVOList);
 			}
 		}
 

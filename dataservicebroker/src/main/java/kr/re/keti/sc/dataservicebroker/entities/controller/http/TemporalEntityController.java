@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.re.keti.sc.dataservicebroker.common.code.Constants;
+import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -344,6 +346,28 @@ public class TemporalEntityController {
     ) throws Exception {
         throw new NgsiLdOperationNotSupportedException(DataServiceBrokerCode.ErrorCode.OPERATION_NOT_SUPPORTED, "The operation is not supported");
 
+    }
+
+    private String getPrimaryAccept(String requestAccept) {
+
+        if(ValidateUtil.isEmptyData(requestAccept)) {
+            return requestAccept;
+        }
+
+        // 요청 accept가 다건인 경우
+        if (requestAccept.contains(Constants.ACCEPT_ALL)) {
+            return primaryAccept;
+        } else if (requestAccept.contains(primaryAccept)) {
+            return primaryAccept;
+        } else if (requestAccept.contains(Constants.APPLICATION_LD_JSON_VALUE)) {
+            return Constants.APPLICATION_LD_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_JSON_VALUE)) {
+            return Constants.APPLICATION_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_GEO_JSON_VALUE)) {
+            return Constants.APPLICATION_GEO_JSON_VALUE;
+        }
+
+        return requestAccept;
     }
 
 }

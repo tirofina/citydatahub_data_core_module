@@ -44,6 +44,7 @@ import kr.re.keti.sc.dataservicebroker.csource.CsourceRegistrationManager;
 import kr.re.keti.sc.dataservicebroker.csource.vo.CsourceRegistrationVO;
 import kr.re.keti.sc.dataservicebroker.datafederation.service.DataFederationService;
 import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
+import kr.re.keti.sc.dataservicebroker.entities.service.hbase.HbaseEntitySVC;
 import kr.re.keti.sc.dataservicebroker.entities.service.hive.HiveEntitySVC;
 import kr.re.keti.sc.dataservicebroker.entities.service.rdb.RdbEntitySVC;
 import kr.re.keti.sc.dataservicebroker.entities.vo.EntityRetrieveVO;
@@ -59,6 +60,7 @@ public class EntityRetrieveSVC {
 
 	private final RdbEntitySVC rdbEntitySVC;
 	private final HiveEntitySVC hiveEntitySVC;
+	private final HbaseEntitySVC hbaseEntitySVC;
 	private final DataModelManager dataModelManager;
 	private final CsourceRegistrationManager csourceRegistrationManager;
 	private final RestTemplate restTemplate;
@@ -77,6 +79,7 @@ public class EntityRetrieveSVC {
 	public EntityRetrieveSVC(
 			RdbEntitySVC rdbDynamicEntitySVC,
 			@Nullable HiveEntitySVC hiveDynamicEntitySVC,
+			@Nullable HbaseEntitySVC hbaseDynamicEntitySVC,
 			DataModelManager dataModelManager,
 			CsourceRegistrationManager csourceRegistrationManager,
 			RestTemplate restTemplate,
@@ -84,6 +87,7 @@ public class EntityRetrieveSVC {
 	) {
 		this.rdbEntitySVC = rdbDynamicEntitySVC;
 		this.hiveEntitySVC = hiveDynamicEntitySVC;
+		this.hbaseEntitySVC = hbaseDynamicEntitySVC;
 		this.dataModelManager = dataModelManager;
 		this.csourceRegistrationManager = csourceRegistrationManager;
 		this.restTemplate = restTemplate;
@@ -299,7 +303,8 @@ public class EntityRetrieveSVC {
 			entities = hiveEntitySVC.selectAll(queryVO, accept);
 
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
+			// test by yj <--hiveEntitySVC랑 거의 같음
+			entities = hbaseEntitySVC.selectAll(queryVO, accept);
 		} else {
 			// default
 			totalCount = rdbEntitySVC.selectCount(queryVO);
