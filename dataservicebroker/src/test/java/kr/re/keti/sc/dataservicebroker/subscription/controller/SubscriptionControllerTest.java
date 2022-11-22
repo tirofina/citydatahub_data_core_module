@@ -80,6 +80,69 @@ public class SubscriptionControllerTest {
   }
 
   @Test
+  void testUpdateSubscription029_05() throws Exception {
+    String csourceVO =
+      "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"type\":\"Subscription\",\"entities\":[{\"type\":\"TestModel3\"}],\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"keyValues\"},\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"]}";
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/subscriptions")
+          .content(csourceVO)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .patch(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .content(csourceVO_update)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .header("Content-Length", String.valueOf(csourceVO_update.length()))
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+  }
+
+  @Test
   void testRetrieveSubscription030_03() throws Exception {
     String csourceVO =
       "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"type\":\"Subscription\",\"entities\":[{\"type\":\"TestModel3\"}],\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"keyValues\"},\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"]}";
@@ -431,29 +494,6 @@ public class SubscriptionControllerTest {
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Query=====================");
-    System.out.println(mvcResult.getResponse().getContentAsString());
-    System.out.println("=====================End=====================");
-  }
-
-  @Test
-  void testUpdateSubscription() throws Exception {
-    ResultActions resultActions = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .patch(
-            "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
-          )
-          .content(csourceVO_update)
-          .contentType("application/ld+json")
-          .accept(MediaType.APPLICATION_JSON)
-          .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO_update.length()))
-      )
-      .andExpect(status().isNoContent())
-      .andDo(print());
-
-    MvcResult mvcResult = resultActions.andReturn();
-    System.out.println("=====================Post=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
   }
