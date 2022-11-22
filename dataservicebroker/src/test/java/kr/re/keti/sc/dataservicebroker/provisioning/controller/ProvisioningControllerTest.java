@@ -37,9 +37,13 @@ public class ProvisioningControllerTest {
   String csourceVO_datamodel =
     "{\"data\":\"{\\\"attributes\\\":[{\\\"name\\\":\\\"wlobscd\\\",\\\"isRequired\\\":false,\\\"valueType\\\":\\\"String\\\",\\\"attributeType\\\":\\\"Property\\\",\\\"hasObservedAt\\\":false,\\\"hasUnitCode\\\":false,\\\"attributeUri\\\":\\\"http://110.45.181.71/context/JangLog#wlobscd\\\"},{\\\"name\\\":\\\"ymdhm\\\",\\\"isRequired\\\":false,\\\"valueType\\\":\\\"Date\\\",\\\"attributeType\\\":\\\"Property\\\",\\\"hasObservedAt\\\":false,\\\"hasUnitCode\\\":false,\\\"attributeUri\\\":\\\"http://110.45.181.71/context/JangLog#ymdhm\\\"},{\\\"name\\\":\\\"wl\\\",\\\"isRequired\\\":false,\\\"valueType\\\":\\\"Double\\\",\\\"attributeType\\\":\\\"Property\\\",\\\"hasObservedAt\\\":false,\\\"hasUnitCode\\\":false,\\\"attributeUri\\\":\\\"http://110.45.181.71/context/JangLog#wl\\\"},{\\\"name\\\":\\\"fw\\\",\\\"isRequired\\\":false,\\\"valueType\\\":\\\"Double\\\",\\\"attributeType\\\":\\\"Property\\\",\\\"hasObservedAt\\\":false,\\\"hasUnitCode\\\":false,\\\"attributeUri\\\":\\\"http://110.45.181.71/context/JangLog#fw\\\"}],\\\"context\\\":[\\\"http://110.45.181.71:38081/JangLog.jsonld\\\"],\\\"description\\\":\\\"string\\\",\\\"id\\\":\\\"JangLog\\\",\\\"name\\\":\\\"string\\\",\\\"type\\\":\\\"JangLog\\\",\\\"typeUri\\\":\\\"http://110.45.181.71/context/JangLog#JangLog\\\"}\",\"eventTime\":\"9999-11-15T20:10:00.000+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datamodels\"}";
   String csourceVO_dataset =
-    "{\"data\":\"{\\\"id\\\":\\\"JangLogSet\\\",\\\"name\\\":\\\"JangLogSet\\\",\\\"metasetId\\\":\\\"metaW\\\",\\\"classification\\\":\\\"CITY\\\",\\\"ownership\\\":\\\"ADMIN\\\",\\\"qualityCheckEnabled\\\":true,\\\"createdAt\\\":\\\"2022-10-11T16:53:49.711+09:00\\\"}\",\"eventTime\":\"9999-11-15T20:10:00.000+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datamodels/JangLog\"}";
+    /*"{\"data\":\"{\\\"id\\\":\\\"JangLogSet\\\",\\\"name\\\":\\\"JangLogSet\\\",\\\"metasetId\\\":\\\"metaW\\\",\\\"classification\\\":\\\"CITY\\\",\\\"ownership\\\":\\\"ADMIN\\\",\\\"qualityCheckEnabled\\\":true,\\\"createdAt\\\":\\\"2022-10-11T16:53:49.711+09:00\\\"}\",\"eventTime\":\"9999-11-15T20:10:00.000+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datamodels/JangLog\"}";
+     */
+    "{\"data\":\"{\\\"classification\\\":\\\"CITY\\\",\\\"createdAt\\\":\\\"2022-10-11T16:53:49.711+09:00\\\",\\\"id\\\":\\\"TestModel3\\\",\\\"metasetId\\\":\\\"metaW\\\",\\\"name\\\":\\\"TestModel3\\\",\\\"ownership\\\":\\\"ADMIN\\\",\\\"qualityCheckEnabled\\\":true}\",\"eventTime\":\"9999-11-15T20:10:00.000+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datamodels/TestModel3\"}";
   String csourceVO_datasetflow =
-    "{\"data\":\"{\\\"bigDataStorageTypes\\\":[\\\"rdb\\\"],\\\"datasetId\\\":\\\"Test3\\\",\\\"description\\\":\\\"description\\\",\\\"enabled\\\":true,\\\"historyStoreType\\\":\\\"none\\\"}\",\"eventTime\":\"2022-10-11T16:53:49.711+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datasets/Test3/flow\"}";
+    /*"{\"data\":\"{\\\"bigDataStorageTypes\\\":[\\\"rdb\\\"],\\\"datasetId\\\":\\\"Test3\\\",\\\"description\\\":\\\"description\\\",\\\"enabled\\\":true,\\\"historyStoreType\\\":\\\"none\\\"}\",\"eventTime\":\"2022-10-11T16:53:49.711+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datasets/Test3/flow\"}";
+     */
+    "{\"data\":\"{\\\"bigDataStorageTypes\\\":[\\\"rdb\\\"],\\\"datasetId\\\":\\\"TestModel3\\\",\\\"description\\\":\\\"description\\\",\\\"enabled\\\":true,\\\"historyStoreType\\\":\\\"none\\\"}\",\"eventTime\":\"2022-10-11T16:53:49.711+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datasets/TestModel3/flow\"}";
 
   @Test
   void testProvisionDataModels() throws Exception {
@@ -123,5 +127,29 @@ public class ProvisioningControllerTest {
   }
 
   @Test
-  void testProvisionAclRule() {}
+  void testProvisionAclRule() throws Exception {
+    String csourceVO =
+      "{\"data\":\"{\\\"id\\\":\\\"test\\\",\\\"userId\\\":\\\"test\\\",\\\"clientId\\\":\\\"test\\\",\\\"resourceId\\\":\\\"test\\\",\\\"resourceType\\\":\\\"DATASET\\\",\\\"condition\\\":\\\"AND\\\",\\\"operation\\\":[\\\"create\\\"]}\",\"eventTime\":\"2022-10-11T16:53:49.711+09:00\",\"eventType\":\"created\",\"requestId\":\"string\",\"to\":\"/datasets/Test3/flow\"}";
+    /*
+    201 Created TDD
+*/
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/provision/acl/rules")
+          .content(csourceVO)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      //  .andExpect(content().string("{\"id\":\"TDD\"}"))
+      .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+  }
 }

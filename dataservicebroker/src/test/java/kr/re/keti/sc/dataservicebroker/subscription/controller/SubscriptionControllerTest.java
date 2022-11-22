@@ -26,35 +26,395 @@ public class SubscriptionControllerTest {
   private MockMvc mvc;
 
   String csourceVO =
-    "{\"csf\":\"string\",\"datasetIds\":[\"Test3\"],\"description\":\"string\",\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://211.253.243.121/context/Test3#Test3\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\",\"timerel\":\"after\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
+    "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"type\":\"Subscription\",\"entities\":[{\"type\":\"TestModel3\"}],\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"keyValues\"},\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"]}";
+  String Subscript =
+    "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"entities\":[{\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}],\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"isActive\":true,\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"}},\"type\":\"Subscription\"}";
   String csourceVO_update =
-    "{\"csf\":\"string\",\"datasetIds\":[\"Test3\"],\"description\":\"stringUpdate\",\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://211.253.243.121/context/Test3#Test3\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\",\"timerel\":\"after\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
+    "{\"csf\":\"string\",\"datasetIds\":[\"Test3\"],\"description\":\"stringUpdate\",\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://211.253.243.121/context/Test3#Test3\"}],\"expires\":\"9999-11-15T20:10:00.000+09:00\",\"geoQ\":{\"georel\":\"near;maxDistance==2000\"},\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"isActive\":true,\"name\":\"string\",\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"normalized\"},\"q\":\"string\",\"temporalQ\":{\"endTime\":\"9999-11-15T20:10:00.000+09:00\",\"time\":\"9999-11-15T20:10:00.000+09:00\",\"timeproperty\":\"String\",\"timerel\":\"after\"},\"throttling\":1,\"type\":\"Subscription\",\"watchedAttributes\":[\"http://address\"]}";
 
   @Test
-  void testCreateSubscription() throws Exception {
+  void testCreateSubscription028_03() throws Exception {
+    String csourceVO =
+      "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"type\":\"Subscription\",\"entities\":[{\"type\":\"TestModel3\"}],\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"keyValues\"},\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"]}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/subscriptions")
           .content(csourceVO)
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
           .header("Content-Length", String.valueOf(csourceVO.length()))
       )
       .andExpect(status().isCreated())
-      .andExpect(
-        content()
-          .string(
-            "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD\"}"
-          )
-      )
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Post=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+  }
+
+  @Test
+  void testRetrieveSubscription030_03() throws Exception {
+    String csourceVO =
+      "{\"id\":\"urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription\",\"type\":\"Subscription\",\"entities\":[{\"type\":\"TestModel3\"}],\"notification\":{\"attributes\":[\"http://speed\"],\"endpoint\":{\"accept\":\"application/json\",\"uri\":\"http://my.endpoint.org/notify\"},\"format\":\"keyValues\"},\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"]}";
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/subscriptions")
+          .content(csourceVO)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Query=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+  }
+
+  @Test
+  void testDelete032_03() throws Exception {
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/subscriptions")
+          .content(csourceVO)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+  }
+
+  @Test
+  void testCreateSubscription046_01() throws Exception {
+    String csourceVO_entity =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/entities")
+          .content(csourceVO_entity)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .post("/subscriptions")
+            .content(Subscript)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Content-Length", String.valueOf(Subscript.length()))
+        )
+        .andExpect(status().isCreated())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+
+    //pathch entity
+    csourceVO =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
+    /*
+ 204 No Content
+*/
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .patch(
+              "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
+            )
+            .content(csourceVO)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .header("Content-Length", String.valueOf(csourceVO.length()))
+        )
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+  }
+
+  @Test
+  void testCreateSubscription046_04() throws Exception {
+    String csourceVO_entity =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/entities")
+          .content(csourceVO_entity)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .post("/subscriptions")
+            .content(Subscript)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Content-Length", String.valueOf(Subscript.length()))
+        )
+        .andExpect(status().isCreated())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+
+    //pathch entity
+    csourceVO =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
+    /*
+ 204 No Content
+*/
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .patch(
+              "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
+            )
+            .content(csourceVO)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .header("Content-Length", String.valueOf(csourceVO.length()))
+        )
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+  }
+
+  @Test
+  void testCreateSubscription046_09() throws Exception {
+    String csourceVO_entity =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/entities")
+          .content(csourceVO_entity)
+          .contentType("application/ld+json")
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .post("/subscriptions")
+            .content(Subscript)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Content-Length", String.valueOf(Subscript.length()))
+        )
+        .andExpect(status().isCreated())
+        .andDo(print());
+
+    MvcResult mvcResult = resultActions.andReturn();
+    System.out.println("=====================Post=====================");
+    System.out.println(mvcResult.getResponse().getContentAsString());
+    System.out.println("=====================End=====================");
+
+    //pathch entity
+    csourceVO =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
+    /*
+ 204 No Content
+*/
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .patch(
+              "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
+            )
+            .content(csourceVO)
+            .contentType("application/ld+json")
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .header("Content-Length", String.valueOf(csourceVO.length()))
+        )
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
   }
 
   @Test
@@ -76,35 +436,15 @@ public class SubscriptionControllerTest {
   }
 
   @Test
-  void testRetrieveSubscription() throws Exception {
-    ResultActions resultActions = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(
-            "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD"
-          )
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
-      .andDo(print());
-
-    MvcResult mvcResult = resultActions.andReturn();
-    System.out.println("=====================Query=====================");
-    System.out.println(mvcResult.getResponse().getContentAsString());
-    System.out.println("=====================End=====================");
-  }
-
-  @Test
   void testUpdateSubscription() throws Exception {
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .patch(
-            "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD"
+            "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
           )
           .content(csourceVO_update)
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
           .header("Content-Length", String.valueOf(csourceVO_update.length()))
@@ -114,25 +454,6 @@ public class SubscriptionControllerTest {
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Post=====================");
-    System.out.println(mvcResult.getResponse().getContentAsString());
-    System.out.println("=====================End=====================");
-  }
-
-  @Test
-  void testDelete() throws Exception {
-    ResultActions resultActions = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .delete(
-            "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscriptionTDD"
-          )
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isNoContent())
-      .andDo(print());
-
-    MvcResult mvcResult = resultActions.andReturn();
-    System.out.println("=====================Delete=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
   }

@@ -56,6 +56,7 @@ public class CsourceNotificationControllerTest {
           .header("Content-Length", String.valueOf(content.length()))
       )
       .andExpect(status().isOk())
+      .andExpect(content().string(""))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
