@@ -1,7 +1,7 @@
 package kr.re.keti.sc.dataservicebroker.entities.service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.math. BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +37,7 @@ import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestE
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdInternalServerErrorException;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdNoExistTypeException;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
+import kr.re.keti.sc.dataservicebroker.common.vo.CommonEntityFullVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.CommonEntityVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.EntityProcessVO;
 import kr.re.keti.sc.dataservicebroker.common.vo.IngestMessageVO;
@@ -2856,4 +2857,22 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         return totalCommonEntityVOs;
     }
+    
+	 protected boolean validateAttrsFiltering(List<String> attrs, CommonEntityFullVO commonEntityFullVO) {
+	        if(ValidateUtil.isEmptyData(attrs)) {
+	           return false;
+	        }
+
+	        boolean isMatch = false;
+	        for(String attr : attrs) {
+	            if(commonEntityFullVO.containsKey(attr)) {
+	                isMatch = true;
+	                break;
+	            }
+	        }
+	        if(isMatch) {
+	            return false;
+	        }
+	        return true;
+	    }
 }

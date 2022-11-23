@@ -119,24 +119,6 @@ public class RdbEntitySVC extends DefaultEntitySVC {
         return commonEntityFullVO;
     }
 
-    private boolean validateAttrsFiltering(List<String> attrs, CommonEntityFullVO commonEntityFullVO) {
-        if(ValidateUtil.isEmptyData(attrs)) {
-           return false;
-        }
-
-        boolean isMatch = false;
-        for(String attr : attrs) {
-            if(commonEntityFullVO.containsKey(attr)) {
-                isMatch = true;
-                break;
-            }
-        }
-        if(isMatch) {
-            return false;
-        }
-        return true;
-    }
-
 
     /**
      * DB조회 결과 DaoVO 를 entity조회 응답 형태로 변환
@@ -912,7 +894,6 @@ public class RdbEntitySVC extends DefaultEntitySVC {
                 		// String[] -> List<String>, Integer[] -> List<Integer>, Float[] -> List<Float> 변환처리
                         if (dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_VARCHAR
                                 || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_INTEGER
-                                || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_BIGINT
                                 || dbColumnInfoVO.getColumnType() == DbColumnType.ARRAY_FLOAT) {
                             Object[] valueArr = (Object[]) value;
                             List<Object> valueList = new ArrayList<>(valueArr.length);

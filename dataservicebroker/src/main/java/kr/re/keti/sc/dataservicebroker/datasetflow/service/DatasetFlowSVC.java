@@ -162,7 +162,7 @@ public class DatasetFlowSVC {
 				if(useBigDataStorage(datasetFlowBaseVO.getBigDataStorageTypes())) {
 
 					try {
-						createBigdataTable(dataModelCacheVO.getDataModelVO(), datasetFlowBaseVO.getBigDataStorageTypes());
+						createBigdataTable(dataModelCacheVO, datasetFlowBaseVO.getBigDataStorageTypes());
 					} catch (Exception e) {
 						throw new InternalServerErrorException(ErrorCode.CREATE_ENTITY_TABLE_ERROR,
 			                    "Create Bigdata Table error. datasetId=" + datasetId + ", dataModel=" + dataModelBaseVO.getDataModel());
@@ -230,8 +230,8 @@ public class DatasetFlowSVC {
      * @param bigDataStorageTypes 빅데이터 저장 유형 리스트
      * @throws Exception
      */
-    private void createBigdataTable(DataModelVO dataModelVO, List<BigDataStorageType> bigDataStorageTypes) throws Exception {
-    	String ddl = hiveDataModelSqlProvider.generateCreateTableDdl(dataModelVO);
+    private void createBigdataTable(DataModelCacheVO dataModelCacheVO, List<BigDataStorageType> bigDataStorageTypes) throws Exception {
+    	String ddl = hiveDataModelSqlProvider.generateCreateTableDdl(dataModelCacheVO);
 		String[] sqls = ddl.split(" CREATEHIVETABLE ");
 		
 		boolean storeInHbase = false;

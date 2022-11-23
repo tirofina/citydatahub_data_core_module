@@ -93,8 +93,8 @@ public class EntityController {
     private String securityAclUseYn;
     @Value("${entity.default.storage:rdb}")
     protected BigDataStorageType defaultStorageType;
-    @Value("${entity.retrieve.include.context:Y}")
-    private String includeContext;
+    @Value("${entity.retrieve.primary.accept:application/json}")
+    private String primaryAccept;
 
     /**
      * 최종 값 건수 조회
@@ -1590,6 +1590,28 @@ public class EntityController {
         }
         return dataStorageType;
     }
+
+    private String getPrimaryAccept(String requestAccept) {
+
+        if(ValidateUtil.isEmptyData(requestAccept)) {
+            return requestAccept;
+        }
+
+        if (requestAccept.contains(Constants.ACCEPT_ALL)) {
+            return primaryAccept;
+        } else if (requestAccept.contains(primaryAccept)) {
+            return primaryAccept;
+        } else if (requestAccept.contains(Constants.APPLICATION_LD_JSON_VALUE)) {
+            return Constants.APPLICATION_LD_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_JSON_VALUE)) {
+            return Constants.APPLICATION_JSON_VALUE;
+        } else if (requestAccept.contains(Constants.APPLICATION_GEO_JSON_VALUE)) {
+            return Constants.APPLICATION_GEO_JSON_VALUE;
+        }
+
+        return requestAccept;
+    }
+
 
     /**
      * batch 처리 시 context 유효성 체크

@@ -19,6 +19,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.SubscriptionCode.Timerel;
 import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
 import kr.re.keti.sc.dataservicebroker.common.vo.TermExpandable;
 import lombok.Data;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
