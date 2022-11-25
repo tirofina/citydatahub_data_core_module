@@ -510,7 +510,7 @@ public class HiveEntitySqlProviderImpl {
 					select.append("#{" + daoAttributeId + "} as ").append(columnName).append(COMMA_WITH_SPACE);
 				}
 
-				// yj <-- update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
+				// update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
 				if (updateQueryCols.contains(columnName)) {
 					update.append(columnName).append(" = ").append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
