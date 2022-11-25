@@ -566,7 +566,7 @@ public class BigdataTableSqlProvider {
 					dbOperation);
 		}
 
-		// test by yj <-- RdbTableSqlProvider에만 있던 내용 복사. hierarchyAttrNames는 일단 여기에 작성
+		// RdbTableSqlProvider에만 있던 내용 복사. hierarchyAttrNames는 일단 여기에 작성
 		List<String> hierarchyAttrNames = new ArrayList<>();
 		hierarchyAttrNames.add(rootAttribute.getName());
 
@@ -583,7 +583,7 @@ public class BigdataTableSqlProvider {
 		needAddColumn = true;
 	}
 
-	// test by yj <-- rdbTableSqlProvider에서 가져옴
+	// rdbTableSqlProvider에서 가져옴
 	private String getColumnNameByStorageMetadata(List<String> hierarchyAttrNames, String attrName,
 			DataModelStorageMetadataVO storageMetadataVO) {
 

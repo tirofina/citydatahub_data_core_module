@@ -303,7 +303,7 @@ public class EntityRetrieveSVC {
 			entities = hiveEntitySVC.selectAll(queryVO, accept);
 
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// test by yj <--hiveEntitySVC랑 거의 같음
+			// hiveEntitySVC랑 거의 같음
 			entities = hbaseEntitySVC.selectAll(queryVO, accept);
 		} else {
 			// default
