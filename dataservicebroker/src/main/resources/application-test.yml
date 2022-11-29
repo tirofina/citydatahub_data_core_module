@@ -48,7 +48,7 @@ kafka:
   url: 110.45.181.70:29092
   message.version: 1.0
   security.yn: N
-  security.protocol: PLAINTEXT
+  security.protocol: SASL_PLAINTEXT
   sasl.mechanism: PLAIN
   username: test
   password: test
@@ -144,7 +144,7 @@ http.pool:
   defaultMaxPerRoute: 100
   connection.timeout: 5000
   connection.request.timeout: 5000
-  read.timeout: 60000
+  read.timeout: 10000
   validate.after.inactivity: 2000
 
 databroker:
