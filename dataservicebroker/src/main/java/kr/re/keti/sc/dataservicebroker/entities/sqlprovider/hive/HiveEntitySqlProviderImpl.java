@@ -199,7 +199,7 @@ public class HiveEntitySqlProviderImpl {
 					} else if (dbColumnType == DbColumnType.TIMESTAMP) {
 						// valueBuilder.append("from_utc_timestamp('").append(entityDaoVO.get(daoAttributeId)).append("','UTC')")
 						// .append(COMMA_WITH_SPACE);
-						// test by yj <-- 일반 테이블에서 컬럼_createdat, 컬럼_modifiedat 컬럼의 경우 시간이 기록되지 않는 문제 때문에
+						// 일반 테이블에서 컬럼_createdat, 컬럼_modifiedat 컬럼의 경우 시간이 기록되지 않는 문제 때문에
 						// create나 createFullHist에 있는 코드로 변경
 						valueBuilder.append("from_utc_timestamp(#{").append(daoAttributeId).append("},'UTC')")
 								.append(COMMA_WITH_SPACE);
@@ -424,7 +424,7 @@ public class HiveEntitySqlProviderImpl {
 			// "#{" + DataServiceBrokerCode.DefaultAttributeKey.MODIFIED_AT.getCode() + "},
 			// 'UTC') as MODIFIED_AT")
 			// .append(COMMA_WITH_SPACE);
-			// test by yj <-- #{ 가 2개여서 하나 삭제
+			// #{ 가 2개여서 하나 삭제
 			select.append("from_utc_timestamp(#{").append(
 					DataServiceBrokerCode.DefaultAttributeKey.MODIFIED_AT.getCode() + "}, 'UTC') as MODIFIED_AT")
 					.append(COMMA_WITH_SPACE);
@@ -510,7 +510,7 @@ public class HiveEntitySqlProviderImpl {
 					select.append("#{" + daoAttributeId + "} as ").append(columnName).append(COMMA_WITH_SPACE);
 				}
 
-				// yj <-- update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
+				// update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
 				if (updateQueryCols.contains(columnName)) {
 					update.append(columnName).append(" = ").append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
