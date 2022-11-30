@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.BindException;
 import java.util.HashMap;
-import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
-import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
+// import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdBadRequestException;
+// import kr.re.keti.sc.dataservicebroker.common.exception.ngsild.NgsiLdResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,18 +39,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -88,17 +88,17 @@ public class EntityControllerTest {
    */
   @Test
   void testCreate001_03() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -108,11 +108,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entities")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isConflict())
         .andDo(print());
@@ -140,17 +140,17 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
           .header(
             "Link",
             "<http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld>,<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>"
@@ -193,17 +193,17 @@ public class EntityControllerTest {
     /*
      400 Bad Request TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isBadRequest())
       .andDo(print());
@@ -219,17 +219,17 @@ public class EntityControllerTest {
     /*
      201 Bad Request TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -267,17 +267,17 @@ public class EntityControllerTest {
     /*
      400 Bad Request TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isBadRequest())
       .andDo(print());
@@ -293,17 +293,17 @@ public class EntityControllerTest {
     /*
      400 Bad Request TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
           .header(
             "Link",
             "<http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld>,<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>"
@@ -320,17 +320,17 @@ public class EntityControllerTest {
 
   @Test
   void testDelete002_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -412,7 +412,7 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityCreation003_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
        201 No Content
@@ -421,11 +421,11 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/create")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -461,7 +461,7 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityCreation003_04() throws Exception {
-    String csourceVO =
+    String inputData =
       "[{\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
        204 No Content
@@ -470,11 +470,11 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/create")
-          .content(csourceVO)
+          .content(inputData)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
           .header(
             "Link",
             "<http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld>,<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>"
@@ -514,7 +514,7 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityCreation003_07() throws Exception {
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
        201 No Content
@@ -523,11 +523,11 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/create")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -563,7 +563,7 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityUpsert004_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"datasetId\":\"TestModel3\",\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
     201 No Content
@@ -572,11 +572,11 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/upsert")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
           .param("options", "replace")
       )
       .andExpect(status().isCreated())
@@ -620,22 +620,22 @@ public class EntityControllerTest {
   @Test
   void testBatchEntityUpsert004_02() throws Exception {
     //entity create
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
     //if existing then update
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"datasetId\":\"TestModel3\",\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
     204 No Content
@@ -645,11 +645,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/upsert")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -688,18 +688,18 @@ public class EntityControllerTest {
         .andDo(print());
 
     // if not existing then create
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"datasetId\":\"TestModel3\",\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     resultActions =
       mvc
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/upsert")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isCreated())
         .andDo(print());
@@ -742,22 +742,22 @@ public class EntityControllerTest {
   @Test
   void testBatchEntityUpsert004_03() throws Exception {
     //entity create
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
     //if existing then update
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"datasetId\":\"TestModel3\",\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
 
     resultActions =
@@ -765,11 +765,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/upsert")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -808,22 +808,22 @@ public class EntityControllerTest {
   @Test
   void testBatchEntityUpsert004_04() throws Exception {
     //entity create
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
     //if existing then update
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"datasetId\":\"TestModel3\",\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
     204 No Content
@@ -833,12 +833,12 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/upsert")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
             .param("option", "update")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -876,22 +876,22 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityUpdate005_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}]";
     /*
  204 No Content
@@ -901,11 +901,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/update")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
             .param("options", "overwrite")
         )
         .andExpect(status().isNoContent())
@@ -944,22 +944,22 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityUpdate005_02() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}]";
     /*
  204 No Content
@@ -969,11 +969,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/update")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
             .param("option", "NoOverwrite")
         )
         .andExpect(status().isNoContent())
@@ -1015,7 +1015,7 @@ public class EntityControllerTest {
   @Test
   void testBatchEntityUpdate005_03() throws Exception {
     // failed
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}]";
     /*
  207 No content
@@ -1024,34 +1024,34 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/update")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
           .param("option", "Overwrite")
       )
       .andExpect(status().isMultiStatus())
       .andDo(print());
 
     // succeed
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     resultActions =
       mvc
         .perform(
           MockMvcRequestBuilders
             .post("/entities")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isCreated())
         .andDo(print());
 
-    csourceVO =
+    inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}]";
     /*
  204 No Content
@@ -1061,11 +1061,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/update")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
             .param("option", "NoOverwrite")
         )
         .andExpect(status().isNoContent())
@@ -1106,7 +1106,7 @@ public class EntityControllerTest {
 
   @Test
   void testBatchEntityDelete006_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
        201 No Content
@@ -1115,11 +1115,11 @@ public class EntityControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/entityOperations/create")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -1175,7 +1175,7 @@ public class EntityControllerTest {
       .andExpect(status().isMultiStatus())
       .andDo(print());
 
-    String csourceVO =
+    String inputData =
       "[{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}]";
     /*
        201 No Content
@@ -1185,11 +1185,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .post("/entityOperations/create")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isCreated())
         .andDo(print());
@@ -1226,17 +1226,17 @@ public class EntityControllerTest {
 
   @Test
   void testAppendEntityAttributes010_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\", \"datasetId\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -1244,7 +1244,7 @@ public class EntityControllerTest {
     /*
      204 No Content
     */
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}";
     resultActions =
       mvc
@@ -1253,11 +1253,11 @@ public class EntityControllerTest {
             .post(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -1293,17 +1293,17 @@ public class EntityControllerTest {
     /*
      204 No Content
     */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities/thisisaninvaliduri/attrs")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isBadRequest())
       .andDo(print());
@@ -1319,17 +1319,17 @@ public class EntityControllerTest {
     /*
      404 No Content
     */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities/urn:datahub:TestModel/attrs")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isNotFound())
       .andDo(print());
@@ -1339,18 +1339,18 @@ public class EntityControllerTest {
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\", \"datasetId\":\"TestModel3\"}";
     resultActions =
       mvc
         .perform(
           MockMvcRequestBuilders
             .post("/entities")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isCreated())
         .andDo(print());
@@ -1367,7 +1367,7 @@ public class EntityControllerTest {
     /*
      400 No Content attribute
     */
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalid\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     resultActions =
       mvc
@@ -1376,11 +1376,11 @@ public class EntityControllerTest {
             .post(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1405,22 +1405,22 @@ public class EntityControllerTest {
 
   @Test
   void testUpdateEntityAttributes011_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\", \"datasetId\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     /*
    204 No Content
@@ -1432,11 +1432,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -1471,22 +1471,22 @@ public class EntityControllerTest {
 
   @Test
   void testUpdateEntityAttributes011_02() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\", \"datasetId\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     /*
    204 No Content
@@ -1496,11 +1496,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .patch("/entities/invalidurl/attrs")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1535,17 +1535,17 @@ public class EntityControllerTest {
 
   @Test
   void testUpdateEntityAttributes011_03() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\", \"datasetId\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -1560,7 +1560,7 @@ public class EntityControllerTest {
         .andExpect(status().isOk())
         .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     /*
    400 bad Request invalid attr
@@ -1572,11 +1572,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1586,7 +1586,7 @@ public class EntityControllerTest {
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"type\":\"TestModel3\",\"datasetId\":\"TestModel3\",\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"type\":\"TestModel3\"}";
     /*
    400 bad request invalid id
@@ -1596,11 +1596,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .patch("/entities/invalidid/attrs")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1625,22 +1625,22 @@ public class EntityControllerTest {
 
   @Test
   void testPartialUpdateWithAttrId012_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}";
     /*
    204 No Content
@@ -1652,11 +1652,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs/testArrayBoolean"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNoContent())
         .andDo(print());
@@ -1691,22 +1691,22 @@ public class EntityControllerTest {
 
   @Test
   void testPartialUpdateWithAttrId012_02() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]}}";
     /*
    204 No Content
@@ -1718,11 +1718,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs/testArrayBoolean"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1732,7 +1732,7 @@ public class EntityControllerTest {
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}";
 
     resultActions =
@@ -1740,11 +1740,11 @@ public class EntityControllerTest {
         .perform(
           MockMvcRequestBuilders
             .patch("/entities/invalidurl/attrs/testArrayBoolean")
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1779,22 +1779,22 @@ public class EntityControllerTest {
 
   @Test
   void testPartialUpdateWithAttrId012_03() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testinvalidattr\":{\"type\":\"Property\",\"value\":[false,true]}}";
     /*
    204 No Content
@@ -1806,11 +1806,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e/attrs/testArrayBoolean"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -1820,7 +1820,7 @@ public class EntityControllerTest {
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
 
-    csourceVO =
+    inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]}}";
 
     resultActions =
@@ -1830,11 +1830,11 @@ public class EntityControllerTest {
             .patch(
               "/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e_testinvalid/attrs/testArrayBoolean"
             )
-            .content(csourceVO)
+            .content(inputData)
             .contentType("application/ld+json")
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
-            .header("Content-Length", String.valueOf(csourceVO.length()))
+            .header("Content-Length", String.valueOf(inputData.length()))
         )
         .andExpect(status().isNotFound())
         .andDo(print());
@@ -1869,17 +1869,17 @@ public class EntityControllerTest {
 
   @Test
   void testDeleteAttr013_02() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -1926,17 +1926,17 @@ public class EntityControllerTest {
 
   @Test
   void testDeleteAttr013_03() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2007,17 +2007,17 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2055,17 +2055,17 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2103,17 +2103,17 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2153,18 +2153,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2206,18 +2206,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2274,18 +2274,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2329,18 +2329,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2385,18 +2385,18 @@ public class EntityControllerTest {
     /*
      201 Created TDD
 */
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2437,18 +2437,18 @@ public class EntityControllerTest {
 
   @Test
   void testGetEntityTypes022_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());
@@ -2494,18 +2494,18 @@ public class EntityControllerTest {
 
   @Test
   void testGetEntityTypes023_01() throws Exception {
-    String csourceVO =
+    String inputData =
       "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
 
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
           .post("/entities")
-          .content(csourceVO)
+          .content(inputData)
           .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
       .andDo(print());

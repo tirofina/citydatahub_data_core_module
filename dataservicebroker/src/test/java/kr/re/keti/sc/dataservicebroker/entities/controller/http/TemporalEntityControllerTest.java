@@ -34,7 +34,6 @@ public class TemporalEntityControllerTest {
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
@@ -52,7 +51,6 @@ public class TemporalEntityControllerTest {
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
@@ -63,22 +61,50 @@ public class TemporalEntityControllerTest {
 
   @Test
   void testGetEntityById() throws Exception {
+    String csourceVO =
+      "{\"@context\":[\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld\"],\"testArrayBoolean\":{\"type\":\"Property\",\"value\":[false,true]},\"id\":\"urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e\",\"type\":\"TestModel3\"}";
+
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
-          .get(
-            "/temporal/entities/urn:datahub:test4:70-b3-d5-67-60-00-5c-1e_test2838"
-          )
+          .post("/entities")
+          .content(csourceVO)
+          .contentType("application/ld+json")
           .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(csourceVO.length()))
       )
-      .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
+      .andExpect(status().isCreated())
       .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get(
+              "/temporal/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Query=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/entities/urn:datahub:TestModel3:70-b3-d5-67-60-00-5c-1e")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
   }
 
   @Test
@@ -92,7 +118,6 @@ public class TemporalEntityControllerTest {
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(status().isOk())
-      //.andExpect(content().string(query_response_compare))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();

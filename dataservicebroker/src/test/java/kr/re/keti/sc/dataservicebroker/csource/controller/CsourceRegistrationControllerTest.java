@@ -31,15 +31,15 @@ public class CsourceRegistrationControllerTest {
   @Autowired
   private MockMvc mvc;
 
-  String csourceVO =
+  String inputData =
     "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"ForTTD\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}]}";
-  String csourceVO_update =
+  String inputData_update =
     "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"ForTTDUpdate\",\"endpoint\":\"http://my.csource.org:1026\",\"expires\":\"9999-11-17T20:48:09,290+09:00\",\"id\":\"TDD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}],\"properties\":[[\"address\",\"streedAddress\"]],\"relationships\":[[\"inAccident\"]]}]}";
   String query_response_compare =
     "[{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"description\":\"ForTTD\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"endpoint\":\"http://my.csource.org:1026\"}]";
   String retrieve_response_compare =
     "{\"id\":\"TDD\",\"type\":\"ContextSourceRegistration\",\"description\":\"ForTTDUpdate\",\"information\":[{\"entities\":[{\"id\":\"urn:datahub:OffStreetParking:yatap_01\",\"type\":\"http://kr.citydatahub.OffStreetParking:1.0\"}]}],\"endpoint\":\"http://my.csource.org:1026\"}";
-  String error_csourceVO =
+  String error_inputData =
     "{\"context\":\"http://uri.citydatahub.kr/ngsi-ld/testmodel2.jsonld\",\"description\":\"For TTD\"";
 
   @Test
@@ -51,72 +51,39 @@ public class CsourceRegistrationControllerTest {
       .perform(
         MockMvcRequestBuilders
           .post("/csourceRegistrations")
-          .content(csourceVO)
+          .content(inputData)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
       .andExpect(status().isCreated())
-      .andExpect(content().string("{\"id\":\"TDD\"}"))
       .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Post=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
-    /*
-     409 Already exists id Exception TDD
-*/
-    ResultActions resultActions2 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .post("/csourceRegistrations")
-          .content(csourceVO)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-          .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO.length()))
-      )
-      .andExpect(status().isConflict())
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(NgsiLdBadRequestException.class)
-            )
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
         )
-      )
-      .andDo(print());
-    /*
-     400 Request parameters error exception TDD
-*/
-    ResultActions resultActions3 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .post("/csourceRegistrations")
-          .content(error_csourceVO)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-          .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(error_csourceVO.length()))
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(HttpMessageNotReadableException.class)
-            )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
         )
-      )
-      .andDo(print());
+        .andExpect(status().isOk())
+        .andDo(print());
   }
 
   @Test
@@ -124,17 +91,50 @@ public class CsourceRegistrationControllerTest {
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
-          .get("/csourceRegistrations")
+          .post("/csourceRegistrations")
+          .content(inputData)
+          .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
-      .andExpect(status().isOk())
-      .andExpect(content().string(query_response_compare))
+      .andExpect(status().isCreated())
       .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Query=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
   }
 
   @Test
@@ -142,72 +142,54 @@ public class CsourceRegistrationControllerTest {
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
-          .patch("/csourceRegistrations/TDD")
-          .content(csourceVO_update)
+          .post("/csourceRegistrations")
+          .content(inputData)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO_update.length()))
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
-      .andExpect(status().isNoContent())
+      .andExpect(status().isCreated())
       .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .patch("/csourceRegistrations/TDD")
+            .content(inputData_update)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .header("Content-Length", String.valueOf(inputData_update.length()))
+        )
+        .andExpect(status().isNoContent())
+        .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Post=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
-    /*
-     404 Not found id Exception TDD
-*/
-    ResultActions resultActions2 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .patch("/csourceRegistrations/TDD_error")
-          .content(csourceVO_update)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-          .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(csourceVO_update.length()))
-      )
-      .andExpect(status().isNotFound())
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(NgsiLdResourceNotFoundException.class)
-            )
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
         )
-      )
-      .andDo(print());
-    /*
-     400 Request parameters error exception TDD
-*/
-    ResultActions resultActions3 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .patch("/csourceRegistrations/TDD")
-          .content(error_csourceVO)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-          .characterEncoding("utf-8")
-          .header("Content-Length", String.valueOf(error_csourceVO.length()))
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(HttpMessageNotReadableException.class)
-            )
-        )
-      )
-      .andDo(print());
+        .andExpect(status().isOk())
+        .andDo(print());
   }
 
   @Test
@@ -215,47 +197,32 @@ public class CsourceRegistrationControllerTest {
     ResultActions resultActions = mvc
       .perform(
         MockMvcRequestBuilders
-          .get("/csourceRegistrations/TDD")
+          .post("/csourceRegistrations")
+          .content(inputData)
+          .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(inputData.length()))
       )
-      .andExpect(status().isOk())
-      .andExpect(content().string(retrieve_response_compare))
+      .andExpect(status().isCreated())
       .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Retrieve=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
-    /*
-     404 Not exists id Exception TDD
-*/
-    ResultActions resultActions2 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .get("/csourceRegistrations/TDD_NotFound")
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(NgsiLdResourceNotFoundException.class)
-            )
-        )
-      )
-      .andDo(print());
-    MvcResult mvcResult2 = resultActions2.andReturn();
-    System.out.println("=====================Post=====================");
-    System.out.println(mvcResult2.getResponse().getContentAsString());
-    System.out.println("=====================End=====================");
-  }
 
-  @Test
-  void testDeleteContextSource() throws Exception {
-    ResultActions resultActions = mvc
+    mvc
       .perform(
         MockMvcRequestBuilders
           .delete("/csourceRegistrations/TDD")
@@ -263,32 +230,46 @@ public class CsourceRegistrationControllerTest {
       )
       .andExpect(status().isOk())
       .andDo(print());
+  }
+
+  @Test
+  void testDeleteContextSource() throws Exception {
+    ResultActions resultActions = mvc
+      .perform(
+        MockMvcRequestBuilders
+          .post("/csourceRegistrations")
+          .content(inputData)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .characterEncoding("utf-8")
+          .header("Content-Length", String.valueOf(inputData.length()))
+      )
+      .andExpect(status().isCreated())
+      .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .get("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
+            .delete("/csourceRegistrations/TDD")
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
 
     MvcResult mvcResult = resultActions.andReturn();
     System.out.println("=====================Delete=====================");
     System.out.println(mvcResult.getResponse().getContentAsString());
     System.out.println("=====================End=====================");
-    /*
-     404 Not exists id Exception TDD
-*/
-    ResultActions resultActions2 = mvc
-      .perform(
-        MockMvcRequestBuilders
-          .delete("/csourceRegistrations/TDD_error")
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isNotFound())
-      .andExpect(
-        (
-          rslt ->
-            assertTrue(
-              rslt
-                .getResolvedException()
-                .getClass()
-                .isAssignableFrom(NgsiLdResourceNotFoundException.class)
-            )
-        )
-      )
-      .andDo(print());
   }
 }
