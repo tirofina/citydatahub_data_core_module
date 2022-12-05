@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Primary;
 
 import kr.re.keti.sc.dataservicebroker.entities.dao.hive.HiveEntityDAO;
 import kr.re.keti.sc.dataservicebroker.entities.dao.rdb.RdbEntityDAO;
+import kr.re.keti.sc.dataservicebroker.entities.service.hbase.HbaseEntitySVC;
 import kr.re.keti.sc.dataservicebroker.entities.service.hive.HiveEntitySVC;
 import kr.re.keti.sc.dataservicebroker.entities.service.rdb.RdbEntitySVC;
 
@@ -45,5 +46,13 @@ public class EntityConfiguration {
 	protected HiveEntityDAO hiveEntityDAO() {
         return new HiveEntityDAO();
     }
+
+	@Bean
+	@Qualifier("hbaseDynamicEntitySVC")
+	protected HbaseEntitySVC hbaseDynamicEntitySVC() {
+		HbaseEntitySVC hbaseEntitySVC = new HbaseEntitySVC();
+		hbaseEntitySVC.setEntityDAOInterface(hiveEntityDAO());
+		return hbaseEntitySVC;
+	}
 	
 }

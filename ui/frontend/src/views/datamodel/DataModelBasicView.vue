@@ -19,232 +19,143 @@
               <col style="width:auto">
             </colgroup>
             <tbody>
-            <tr>
-              <th class="icon__require" rowspan="1">{{ $t('dataModel.context') }}</th>
-              <td rowspan="1">
-                <div class="button__group" style="margin: 0 0 5px;">
-                  <button
-                      class="button__util button__util--search material-icons"
-                      type="button"
-                      @click="getContextSearch"
-                  >
-                    {{ $t('comm.ok') }}
-                  </button>
-                  <button
-                      class="button__util button__util--add material-icons"
-                      type="button"
-                      @click="onContextAdd"
-                  >
-                    {{ $t('comm.add') }}
-                  </button>
-                  <button
-                      class="button__util button__util--remove material-icons"
-                      type="button"
-                      @click="onContextDel"
-                  >
-                    {{ $t('comm.delete') }}
-                  </button>
-                </div>
-                <label>
-                  <input class="input__text" type="text" v-model="addText" />
-                </label>
-                <AppTable
-                    :meta-data="[]"
-                    :table-items="formData['context']"
-                    tableHeight="130px"
-                    overflowY="auto"
-                    @on-row-event="onTableRowEvent"
-                    :class-name="error['context'] ? `error__border` : null"
-                />
-                <span v-show="error['context']" class="error__color">
-                  {{ $t('comm.required') }}
-                </span>
-              </td>
-              <th>{{ $t('dataModel.indexing') }}</th>
-              <td>
-                <div class="button__group" style="margin: 0 0 5px;">
-                  <button
-                      class="button__util button__util--add material-icons"
-                      type="button"
-                      @click="onIndexAdd"
-                  >
-                    {{ $t('comm.add') }}
-                  </button>
-                  <button
-                      class="button__util button__util--remove material-icons"
-                      type="button"
-                      @click="onIndexDel"
-                  >
-                    {{ $t('comm.delete') }}
-                  </button>
-                </div>
-                <label>
-                  <input class="input__text" type="text" v-model="indexAddText" />
-                </label>
-                <AppTable
-                    :meta-data="[]"
-                    :table-items="formData['indexAttributeNames']"
-                    tableHeight="130px"
-                    overflowY="auto"
-                    @on-row-event="onIndexTableRowEvent"
-                />
-              </td>
-              <th rowspan="7" class="icon__require">
-                {{ $t('dataModel.entityAttr') }}
-              </th>
-              <td colspan="2" rowspan="7">
-                <div class="button__group">
-                  <button
-                      type="button"
-                      class="button__util button__util--add material-icons"
-                      name="add"
-                      @click="onEntityEvent"
-                  >
-                    {{ $t('comm.add') }}
-                  </button>
-                  <button
-                      type="button"
-                      name="delete"
-                      class="button__util button__util--remove material-icons"
-                      @click="onEntityEvent"
-                  >
-                    {{ $t('comm.delete') }}
-                  </button>
-                </div>
-                <ElementTree
-                    :tree-data="treeData"
-                    nodeKey="attributes"
-                    tree-height="310px"
-                    :className="error['attributes'] ? `error__border` : null"
-                    @on-tree-event="onTreeEvent"
-                >
-                  <el-tooltip placement="left">
-                    <div slot="content">
-                      {{ $t('comm.required2') }}
-                      * 속성 값 : Object, ArrayObject 일 경우, 필수입력 입니다.
-                    </div>
-                  </el-tooltip>
-                </ElementTree>
-                <span v-show="error['attributes']" class="error__color">
-                  {{ $t('comm.required') }}
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th class="icon__require">{{ $t('dataModel.dataModelId') }}</th>
-              <td>
-                <label>
-                  <input
-                      :class="error['id'] ? `input__text error__border` : `input__text`"
-                      type="text"
-                      v-model="formData['id']"
-                      name="id"
-                      :disabled="isMode"
-                      @blur="onFocusoutEvent"
-                  />
-                </label>
-                <br>
-                <span v-show="error['id']" class="error__color">
-                  {{ $t('comm.required') }}
-                </span>
-              </td>
-              <th>{{ $t('dataModel.description') }}</th>
-              <td>
-                <label>
-                  <input class="input__text" type="text" name="description" v-model="formData['description']" />
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <th class="icon__require">{{ $t('dataModel.dataModelType') }}</th>
-              <td>
-                <label>
-                  <el-select
-                      v-model="formData['type']"
-                      filterable size="mini"
-                      @change="(value) => onChangeDataModel('type', value)"
-                      @blur="onFocusoutEvent"
-                      placeholder="Please select one"
-                      :class="error['type'] ? `error__border` : ``"
-                      name="type"
-                      style="width: 100%;"
-                  >
-                    <el-option
-                        size="mini"
-                        style="font-size: 12px;"
-                        v-for="item in dataModelTypes"
-                        :key="item"
-                        :label="item"
-                        :value="item"
-                    >
-                    </el-option>
-                  </el-select>
-                </label>
-                <br>
-                <span v-show="error['type']" class="error__color">
-                  {{ $t('comm.required') }}
-                </span>
-              </td>
-              <th>{{ $t('comm.creator') }}</th>
-              <td>
-                <label>
-                  <input class="input__text" type="text" v-model="formData['creatorId']" disabled />
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <th class="icon__require">{{ $t('dataModel.typeUri') }}</th>
-              <td>
-                <label>
+              <tr>
+                <th class="icon__require" rowspan="1">{{ $t('dataModel.context') }}</th>
+                <td rowspan="1" colspan="3">
+                  <div class="button__group" style="margin: 0 0 5px;">
+                    <button class="button__util button__util--search material-icons" type="button"
+                      @click="getContextSearch">
+                      {{ $t('comm.ok') }}
+                    </button>
+                    <button class="button__util button__util--add material-icons" type="button" @click="onContextAdd">
+                      {{ $t('comm.add') }}
+                    </button>
+                    <button class="button__util button__util--remove material-icons" type="button"
+                      @click="onContextDel">
+                      {{ $t('comm.delete') }}
+                    </button>
+                  </div>
+                  <label>
+                    <input class="input__text" type="text" v-model="addText" />
+                  </label>
+                  <AppTable :meta-data="[]" :table-items="formData['context']" tableHeight="130px" overflowY="auto"
+                    @on-row-event="onTableRowEvent" :class-name="error['context'] ? `error__border` : null" />
+                  <span v-show="error['context']" class="error__color">
+                    {{ $t('comm.required') }}
+                  </span>
+                </td>
+                <th rowspan="7" class="icon__require">
+                  {{ $t('dataModel.entityAttr') }}
+                </th>
+                <td colspan="2" rowspan="7">
+                  <div class="button__group">
+                    <button type="button" class="button__util button__util--add material-icons" name="add"
+                      @click="onEntityEvent">
+                      {{ $t('comm.add') }}
+                    </button>
+                    <button type="button" name="delete" class="button__util button__util--remove material-icons"
+                      @click="onEntityEvent">
+                      {{ $t('comm.delete') }}
+                    </button>
+                  </div>
+                  <ElementTree :tree-data="treeData" nodeKey="attributes" tree-height="310px"
+                    :className="error['attributes'] ? `error__border` : null" @on-tree-event="onTreeEvent">
+                    <el-tooltip placement="left">
+                      <div slot="content">
+                        {{ $t('comm.required2') }}
+                        * 속성 값 : Object, ArrayObject 일 경우, 필수입력 입니다.
+                      </div>
+                    </el-tooltip>
+                  </ElementTree>
+                  <span v-show="error['attributes']" class="error__color">
+                    {{ $t('comm.required') }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th class="icon__require">{{ $t('dataModel.dataModelId') }}</th>
+                <td>
+                  <label>
+                    <input :class="error['id'] ? `input__text error__border` : `input__text`" type="text"
+                      v-model="formData['id']" name="id" :disabled="isMode" @blur="onFocusoutEvent" />
+                  </label>
+                  <br>
+                  <span v-show="error['id']" class="error__color">
+                    {{ $t('comm.required') }}
+                  </span>
+                </td>
+                <th>{{ $t('dataModel.description') }}</th>
+                <td>
+                  <label>
+                    <input class="input__text" type="text" name="description" v-model="formData['description']" />
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <th class="icon__require">{{ $t('dataModel.dataModelType') }}</th>
+                <td>
+                  <label>
+                    <el-select v-model="formData['type']" filterable size="mini"
+                      @change="(value) => onChangeDataModel('type', value)" @blur="onFocusoutEvent"
+                      placeholder="Please select one" :class="error['type'] ? `error__border` : ``" name="type"
+                      style="width: 100%;">
+                      <el-option size="mini" style="font-size: 12px;" v-for="item in dataModelTypes" :key="item"
+                        :label="item" :value="item">
+                      </el-option>
+                    </el-select>
+                  </label>
+                  <br>
+                  <span v-show="error['type']" class="error__color">
+                    {{ $t('comm.required') }}
+                  </span>
+                </td>
+                <th>{{ $t('comm.creator') }}</th>
+                <td>
+                  <label>
+                    <input class="input__text" type="text" v-model="formData['creatorId']" disabled />
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <th class="icon__require">{{ $t('dataModel.typeUri') }}</th>
+                <td>
+                  <label>
 
-                  <el-select
-                      v-model="formData['typeUri']"
-                      filterable
-                      size="mini"
-                      @change="(value) => onChangeDataModel('typeUri', value)"
-                      @blur="onFocusoutEvent"
-                      placeholder="Please select one"
-                      :class="error['typeUri'] ? `error__border` : ``"
-                      name="typeUri"
-                      style="width: 100%;"
-                  >
-                    <el-option
-                        size="mini"
-                        style="font-size: 12px;"
-                        v-for="item in dataModelUris"
-                        :key="item"
-                        :label="item"
-                        :value="item"
-                    >
-                    </el-option>
-                  </el-select>
-                </label>
-                <br>
-                <span v-show="error['typeUri']" class="error__color">
-                  {{ $t('comm.required') }}
-                </span>
-              </td>
-              <th>{{ $t('comm.creationTime') }}</th>
-              <td>
-                <label>
-                  <input class="input__text" type="text" v-model="formData['createdAt']" disabled />
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <th>{{ $t('dataModel.dataModelName') }}</th>
-              <td>
-                <label>
-                  <input class="input__text" type="text" v-model="formData['name']" />
-                </label>
-              </td>
-              <th>{{ $t('comm.modifier') }}</th>
-              <td>
-                <label>
-                  <input class="input__text" type="text" v-model="formData['modifierId']" disabled />
-                </label>
-              </td>
-            </tr>
+                    <el-select v-model="formData['typeUri']" filterable size="mini"
+                      @change="(value) => onChangeDataModel('typeUri', value)" @blur="onFocusoutEvent"
+                      placeholder="Please select one" :class="error['typeUri'] ? `error__border` : ``" name="typeUri"
+                      style="width: 100%;">
+                      <el-option size="mini" style="font-size: 12px;" v-for="item in dataModelUris" :key="item"
+                        :label="item" :value="item">
+                      </el-option>
+                    </el-select>
+                  </label>
+                  <br>
+                  <span v-show="error['typeUri']" class="error__color">
+                    {{ $t('comm.required') }}
+                  </span>
+                </td>
+                <th>{{ $t('comm.creationTime') }}</th>
+                <td>
+                  <label>
+                    <input class="input__text" type="text" v-model="formData['createdAt']" disabled />
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $t('dataModel.dataModelName') }}</th>
+                <td>
+                  <label>
+                    <input class="input__text" type="text" v-model="formData['name']" />
+                  </label>
+                </td>
+                <th>{{ $t('comm.modifier') }}</th>
+                <td>
+                  <label>
+                    <input class="input__text" type="text" v-model="formData['modifierId']" disabled />
+                  </label>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -408,11 +319,14 @@ export default {
 
 <style scoped>
 .button__util--search:before {
-  content:'search'
+  content: 'search'
 }
+
 .error__color {
-  color: #f56c6c; font-size: 10px;
+  color: #f56c6c;
+  font-size: 10px;
 }
+
 .error__border {
   border-color: #f56c6c;
 }

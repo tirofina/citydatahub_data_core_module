@@ -97,21 +97,17 @@ public class ValidateUtil {
 			Integer integer = new Integer(String.valueOf(value));
 			return true;
 		} catch (NumberFormatException e) {
-
 		}
 		return false;
     }
-
 	public static boolean isLongObject(Object value) {
 		try {
 			Long l = new Long(String.valueOf(value));
 			return true;
 		} catch (NumberFormatException e) {
-
 		}
 		return false;
 	}
-
     public static boolean isValidGreaterThanOrEqualTo(Object value, BigDecimal greaterThanOrEqualTo) {
 
 		if (greaterThanOrEqualTo != null) {
@@ -178,7 +174,6 @@ public class ValidateUtil {
 			BigDecimal b = new BigDecimal(String.valueOf(value));
 			return true;
 		} catch (NumberFormatException e) {
-
 		}
 		return false;
     }

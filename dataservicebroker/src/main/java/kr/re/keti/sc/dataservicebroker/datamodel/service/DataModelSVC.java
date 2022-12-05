@@ -496,7 +496,7 @@ public class DataModelSVC {
 				String attributeDdl = null;
 				switch(updateDataModelProcessVO.getAttributeUpdateProcessType()) {
 					case NEW_ATTRIBUTE:  {
-						attributeDdl = bigDataTableSqlProvider.generateAddOrDropColumnDdl(id, afterAttribute, DbOperation.ADD_COLUMN);
+						attributeDdl = bigDataTableSqlProvider.generateAddOrDropColumnDdl(id, afterAttribute, afterStorageMetadataVO, DbOperation.ADD_COLUMN);
 						break;
 					} case EXISTS_ATTRIBUTE: {
 						attributeDdl = bigDataTableSqlProvider.generateAlterTableColumnDdl(id, beforeAttribute, afterAttribute);
