@@ -7,3 +7,7 @@ logs/
 .springBeans
 /.idea/
 datacore-ui.iml
+
+# 빌드 결과물 untrack
+src/main/resources/static/
+frontend/node/
