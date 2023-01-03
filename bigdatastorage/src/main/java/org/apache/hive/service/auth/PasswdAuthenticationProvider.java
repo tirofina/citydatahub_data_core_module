@@ -17,6 +17,8 @@
  */
 package org.apache.hive.service.auth;
 
+import org.apache.hive.service.auth.LdapAuthenticationProviderImpl;
+
 import javax.security.sasl.AuthenticationException;
 
 public interface PasswdAuthenticationProvider {
