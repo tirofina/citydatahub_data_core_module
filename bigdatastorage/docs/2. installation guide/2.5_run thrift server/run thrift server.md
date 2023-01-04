@@ -27,48 +27,19 @@
   </resolvers>
   </ivysettings>
   ```
-- Modify this part at top of `$THRIFT_HOME/bin/thrift-server.sh` 
-  ```
-  #!/bin/bash
 
-  sparkMaster="local"
-  hivePort="10000"
-  hiveHost="0.0.0.0"
-  thriftMode="$1"
-  ```
-- as follows
-  ```
-  #!/bin/bash
+- Modify this part at top of `$THRIFT_HOME/bin/thrift-server.sh` to actual working directory of ivy.settings
+   ```aidl
+   ivyDir=<working directory of ivy.settings>/ivy.settings
+   ```
 
-  export SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:~/.ivy2/jars/*
-
-  sparkMaster="local"
-  hivePort="10000"
-  hiveHost="0.0.0.0"
-  thriftMode="$1"
+- To update Geohiker version, modify this part at top of `$THRIFT_HOME/bin/thrift-server.sh`
+  - Default version: 1.2.53 (Verified version as of January 04, 2023)
+  ```aidl
+  geohikerVersion=1.2.53
   ```
 
-- Modify this part at bottom of `$THRIFT_HOME/bin/thrift-server.sh` 
-  ```
-  if [ "start" == "${thriftMode}" ]; then
-  $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh \
-  --master $sparkMaster \
-  --jars $GEOHIKER_HOME/libs/geohiker-core-1.0.jar,$GEOHIKER_HOME/libs/geohiker-index-1.0.jar,$GEOHIKER_HOME/libs/geohiker-spark-1.0.jar,$GEOHIKER_HOME/libs/geohiker-datastore-1.0.jar \
-  $GEOHIKER_HOME/libs/Thrift-Server-1.0.jar \
-  --hiveconf hive.server2.thrift.port=$hivePort \
-  --hiveconf hive.server2.thrift.bind.host=$hiveHost
-  ```
-- as follows
-  ```
-  if [ "start" == "${thriftMode}" ]; then
-  $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh \
-  --master $sparkMaster \
-  --packages io.dtonic.geohiker:geohiker-spark:1.2.43,io.dtonic.geohiker:geohiker-datastore:1.2.43 \
-  --conf spark.jars.ivySettings=<working directory of ivy.settings>/ivy.settings \
-  --conf spark.sql.extensions=io.dtonic.geohiker.spark.GeohikerSparkExtensions,io.delta.sql.DeltaSparkSessionExtension \
-  --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
-  $GEOHIKER_HOME/libs/Thrift-Server-1.0.jar
-  ```  
+
 - Enter the following command in the CLI environment to run the thrift server:
   ```
   $THRIFT_HOME/bin/thrift-server.sh start
