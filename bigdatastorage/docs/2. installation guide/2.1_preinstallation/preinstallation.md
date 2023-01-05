@@ -29,9 +29,8 @@ All the steps in the installation guide except thrift server.md can be found in 
 
 - setup container with set image tag and container name
   ```
-  cd docker/thrift
-  docker build -t <image tag>
-  docker run -d -p 12378:10000 -name <container name> <image tag>
+  docker build docker/thrift/. -t <image tag>
+  docker run -d -p 12378:10000 -v docker/conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml --name <container name> <image tag>
   ```
 - installed thrift server only.
 - follow up last document 'run-thrift server.md'
