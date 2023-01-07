@@ -29,9 +29,8 @@ All the steps in the installation guide except thrift server.md can be found in 
 
 - setup container with set image tag and container name
   ```
-  cd docker/thrift
-  docker build -t <image tag>
-  docker run -d -p 12378:10000 -name <container name> <image tag>
+  docker build docker/thrift/. -t <image tag>
+  docker run -d -p 12378:10000 -v docker/conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml --name <container name> <image tag>
   ```
 - installed thrift server only.
 - follow up last document 'run-thrift server.md'
@@ -52,7 +51,7 @@ All the steps in the installation guide except thrift server.md can be found in 
   ```
 
 ## 2.1.3 Install Hadoop, Hive, Spark
- - Version to download (Verified version as of February 17, 2021)
+ - Version to download (Verified version as of January 04, 2023)
      - Spark: 3.0.1
      - HADOOP_PROFILE: 2.7(Required for Spark Download)
      - Hive: 2.3.7
@@ -62,7 +61,7 @@ All the steps in the installation guide except thrift server.md can be found in 
   - If a service is already installed, skip it
   - If CDH or HDP is to be used, downloading Hive is required.
 ```
-(spark)  curl -s https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
+(spark)  curl -s https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
 (hive)   curl -s https://archive.apache.org/dist/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz | tar -xvz -C /usr/local/
 (hadoop) curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
 ```

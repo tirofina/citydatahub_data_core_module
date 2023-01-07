@@ -18,6 +18,10 @@
 
 package org.apache.hive.service.cli.operation;
 
+import org.apache.hive.service.cli.operation.ClassicTableTypeMapping;
+import org.apache.hive.service.cli.operation.HiveTableTypeMapping;
+import org.apache.hive.service.cli.operation.TableTypeMapping;
+
 public class TableTypeMappingFactory {
 
   public enum TableTypeMappings {
