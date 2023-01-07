@@ -133,6 +133,18 @@ public class SubscriptionControllerTest {
       mvc
         .perform(
           MockMvcRequestBuilders
+            .get(
+              "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
+            )
+            .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andDo(print());
+
+    resultActions =
+      mvc
+        .perform(
+          MockMvcRequestBuilders
             .delete(
               "/subscriptions/urn:ngsi-ld:CsourceRegistrationSubscription:myCsourceRegistrationSubscription"
             )
