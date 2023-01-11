@@ -263,10 +263,43 @@ public class DatasetFlowSVC {
       newStorageTypes = new ArrayList<>(); // default RDB
       newStorageTypes.add(BigDataStorageType.RDB);
     } else {
-      newStorageTypes = datasetFlowBaseVO.getBigDataStorageTypes();
+      //newStorageTypes = datasetFlowBaseVO.getBigDataStorageTypes();
+      newStorageTypes = new ArrayList<>();
+      for (BigDataStorageType storage : datasetFlowBaseVO.getBigDataStorageTypes()) {
+        newStorageTypes.add(storage);
+      }
     }
 
     if (oldStorageTypes != null) {
+      // 수정된 저장소의 테이블 생성
+      List<BigDataStorageType> createStorageTypes = newStorageTypes;
+      createStorageTypes.removeAll(oldStorageTypes);
+      DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheById(
+        dataModelBaseVO.getId()
+      );
+
+      if (datasetFlowBaseVO.getEnabled()) {
+        if (useBigDataStorage(createStorageTypes)) {
+          try {
+            createBigdataTable(dataModelCacheVO, createStorageTypes);
+          } catch (Exception e) {
+            throw new InternalServerErrorException(
+              ErrorCode.CREATE_ENTITY_TABLE_ERROR,
+              "Create Bigdata Table error. datasetId=" +
+              datasetFlowBaseVO.getDatasetId() +
+              ", dataModel=" +
+              dataModelBaseVO.getDataModel()
+            );
+          }
+        }
+
+        if (useRdbStorage(createStorageTypes)) {
+          String ddl = rdbDataModelSqlProvider.generateCreateTableDdl(
+            dataModelCacheVO
+          );
+          dataModelSVC.executeDdl(ddl, StorageType.RDB);
+        }
+      }
       newStorageTypes.addAll(oldStorageTypes);
       newStorageTypes =
         newStorageTypes.stream().distinct().collect(Collectors.toList());
