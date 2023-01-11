@@ -501,8 +501,8 @@ public class HiveEntitySqlProviderImpl {
 				} else if (dbColumnType == DbColumnType.GEOMETRY_4326) {
 					select.append("ST_AsGeoJson(ST_GeomFromGeoJSON(#{" + daoAttributeId + "})) as ").append(columnName)
 							.append(COMMA_WITH_SPACE);
-					select.append("ST_DISKINDEX(ST_asText(ST_GeomFromGeoJSON(#{" + daoAttributeId + "}))) as ")
-							.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+					// select.append("ST_DISKINDEX(ST_asText(ST_GeomFromGeoJSON(#{" + daoAttributeId + "}))) as ")
+					// 		.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
 				} else if (dbColumnType == DbColumnType.GEOMETRY_3857) {
 					select.append("ST_AsGeoJson(ST_Transform(ST_FlipCoordinates(ST_GeomFromGeoJSON(#{" + daoAttributeId
 							+ "})), 'epsg:4326','epsg:3857')) as ").append(columnName).append(COMMA_WITH_SPACE);
@@ -514,23 +514,23 @@ public class HiveEntitySqlProviderImpl {
 				if (updateQueryCols.contains(columnName)) {
 					update.append(columnName).append(" = ").append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
-					if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-						update.append(columnName).append("_idx").append(" = ").append("source.").append(columnName)
-								.append("_idx").append(COMMA_WITH_SPACE);
-					}
+					// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+					// 	update.append(columnName).append("_idx").append(" = ").append("source.").append(columnName)
+					// 			.append("_idx").append(COMMA_WITH_SPACE);
+					// }
 				}
 
 				insertColumns.append(columnName).append(COMMA_WITH_SPACE);
 
-				if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-					insertColumns.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
-				}
+				// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+				// 	insertColumns.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+				// }
 
 				insertValues.append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
-				if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-					insertValues.append("source.").append(columnName).append("_idx").append(COMMA_WITH_SPACE);
-				}
+				// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+				// 	insertValues.append("source.").append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+				// }
 			}
 		}
 
