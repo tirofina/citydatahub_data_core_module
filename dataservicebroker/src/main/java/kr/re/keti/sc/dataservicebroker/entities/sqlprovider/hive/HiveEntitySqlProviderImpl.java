@@ -390,6 +390,7 @@ public class HiveEntitySqlProviderImpl {
 
 		sql.append(insertBuilder.toString()).append(selectBuilder.toString()).append(valueBuilder.toString())
 				.append(asBuilder.toString()).append(")");
+    System.out.print("sql : " + sql.toString());
 		return sql.toString();
 	}
 
@@ -1804,6 +1805,7 @@ public class HiveEntitySqlProviderImpl {
 				}
 			}
 		};
+    System.out.print(sql.toString());
 		return sql.toString();
 	}
 
