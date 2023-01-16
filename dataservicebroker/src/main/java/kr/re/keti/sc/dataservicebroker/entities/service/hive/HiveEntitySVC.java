@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -554,9 +555,10 @@ public class HiveEntitySVC extends DefaultEntitySVC {
             	}
             } else if (isArrayType(rootAttribute.getValueType())) {
                 DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id);
+                
                 String arrayValue = (String) dynamicEntityDaoVO.get(dbColumnInfoVO.getColumnName()); // rdb에서는 lowercase를 하는데 hive 에서는 하지 않음
 
-                if (arrayValue != null) {
+                if (arrayValue != null && StringUtils.hasText(arrayValue)) {
                     // Hive JDBC 에서는 Array 타입의 조회를 지원하지 않고, String 한줄로 리턴하기 때문에 파싱 및 캐스팅 작업이 필요
                     String[] values = arrayValue.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
                     List<Object> castedValues = new ArrayList<>();
@@ -576,7 +578,7 @@ public class HiveEntitySVC extends DefaultEntitySVC {
                     attributeVO = valueToAttributeVO(rootAttribute, castedValues);
                 }
             } else {
-            	DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id);
+            	DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id.toLowerCase());
                 Object value = dynamicEntityDaoVO.get(dbColumnInfoVO.getColumnName()); // rdb에서는 lowercase를 하는데 hive 에서는 하지 않음
 
                 if (value != null) {
