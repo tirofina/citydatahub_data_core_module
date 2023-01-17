@@ -418,9 +418,9 @@ public class HiveEntitySVC extends DefaultEntitySVC {
     private Map convertDaoToAttribute(DynamicEntityDaoVO dynamicEntityDaoVO, Map<String, DataModelDbColumnVO> dbColumnInfoVOMap, Attribute rootAttribute, String upperId) {
         String id;
         if (upperId != null) {
-            id = upperId + "_" + rootAttribute.getName();
+            id = upperId + "_" + rootAttribute.getName().toLowerCase();
         } else {
-            id = rootAttribute.getName();
+            id = rootAttribute.getName().toLowerCase();
         }
 
         List<Attribute> hasAttributes = rootAttribute.getChildAttributes();
@@ -459,7 +459,7 @@ public class HiveEntitySVC extends DefaultEntitySVC {
                 }
 
                 attributeVO.putAll(childAttributeMap);
-                convertedMap.put(id, attributeVO);
+                convertedMap.put(id.toLowerCase(), attributeVO);
             }
         }
 
@@ -528,11 +528,11 @@ public class HiveEntitySVC extends DefaultEntitySVC {
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
                 attributeVO = addObservedAt(dynamicEntityDaoVO, dbColumnInfoVOMap, attributeVO, id);
             }
-            convertedMap.put(id, attributeVO);
+            convertedMap.put(id.toLowerCase(null), attributeVO);
 
         }
 
-        if (rootAttribute.getObjectMembers() == null && rootAttribute.getChildAttributes() == null) {
+        if (rootAttribute.getObjectMembers() == null && (rootAttribute.getChildAttributes() == null )) {
 
             AttributeVO attributeVO = null;
 
@@ -587,7 +587,7 @@ public class HiveEntitySVC extends DefaultEntitySVC {
             }
 
             if (attributeVO != null) {
-                convertedMap.put(rootAttribute.getName(), attributeVO);
+                convertedMap.put(rootAttribute.getName().toLowerCase(), attributeVO);
             }
 
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
@@ -607,7 +607,7 @@ public class HiveEntitySVC extends DefaultEntitySVC {
     }
     
     private AttributeVO addObservedAt(DynamicEntityDaoVO dynamicEntityDaoVO, Map<String, DataModelDbColumnVO> dbColumnInfoVOMap, AttributeVO attributeVO, String id) {
-    	DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id + "_" + PropertyKey.OBSERVED_AT.getCode());
+    	DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id + "_" + PropertyKey.OBSERVED_AT.getCode().toLowerCase());
         Object value = dynamicEntityDaoVO.get(dbColumnInfoVO.getColumnName()); // rdb에서는 lowercase를 하는데 hive 에서는 하지 않음
         if(value != null && attributeVO != null) {
         	attributeVO.setObservedAt(new Date(((java.sql.Timestamp)value).getTime()));

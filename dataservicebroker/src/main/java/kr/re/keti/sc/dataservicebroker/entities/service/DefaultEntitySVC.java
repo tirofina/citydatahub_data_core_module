@@ -2865,7 +2865,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
 	        boolean isMatch = false;
 	        for(String attr : attrs) {
-	            if(commonEntityFullVO.containsKey(attr)) {
+	            if(commonEntityFullVO.containsKey(attr.toLowerCase())) {
 	                isMatch = true;
 	                break;
 	            }

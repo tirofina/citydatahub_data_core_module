@@ -1260,18 +1260,18 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
 
                 //2-3. observedAt 조건 처리
                 if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt() == true) {
-                    targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), DataServiceBrokerCode.PropertyKey.OBSERVED_AT.getCode())));
+                    targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), DataServiceBrokerCode.PropertyKey.OBSERVED_AT.getCode())).toLowerCase());
                 }
 
                 //2-4. 1-level처리 ex) "inAccident" : 11 }
-                if (rootAttribute.getChildAttributes() == null) {
+                if (rootAttribute.getChildAttributes() == null || rootAttribute.getChildAttributes().isEmpty()) {
                     DataModelDbColumnVO dbColumnInfoVO = null;
                     DataServiceBrokerCode.AttributeValueType rootAttributeValueType = rootAttribute.getValueType();
                     if (rootAttribute != null && rootAttribute.getValueType() == DataServiceBrokerCode.AttributeValueType.GEO_JSON) {
-                        dbColumnInfoVO = dbColumnInfoVOMap.get(rootAttribute.getName() + Constants.GEO_PREFIX_4326);
+                        dbColumnInfoVO = dbColumnInfoVOMap.get(rootAttribute.getName().toLowerCase() + Constants.GEO_PREFIX_4326);
                         
                     } else if( rootAttributeValueType.getCode().startsWith("Array")) {
-                        String columnName = dbColumnInfoVOMap.get(rootAttribute.getName()).getColumnName();
+                        String columnName = dbColumnInfoVOMap.get(rootAttribute.getName().toLowerCase()).getColumnName();
                             targetColumnList.add( 
                                 "concat_ws(',', ".concat(columnName.concat(") AS ").concat(columnName) ));
                     } else {
@@ -1279,7 +1279,7 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
                     }
 
                     if (dbColumnInfoVO != null && !rootAttributeValueType.getCode().startsWith("Array")) {
-                        targetColumnList.add(dbColumnInfoVO.getColumnName());
+                        targetColumnList.add(dbColumnInfoVO.getColumnName().toLowerCase());
                     }
                 }
 
