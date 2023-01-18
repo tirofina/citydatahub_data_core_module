@@ -458,7 +458,7 @@ public class HiveEntitySqlProviderImpl {
 			}
 
 			// 3. Dynamic Entity Column 설정
-			Set<String> updateQueryCols = entityDaoVO.keySet();
+			//Set<String> updateQueryCols = entityDaoVO.keySet();
 			for (DataModelDbColumnVO dbColumnInfoVO : dbColumnInfoVOMap.values()) {
 				String daoAttributeId = dbColumnInfoVO.getDaoAttributeId();
 				String columnName = dbColumnInfoVO.getColumnName();
@@ -512,14 +512,15 @@ public class HiveEntitySqlProviderImpl {
 				}
 
 				// update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
-				if (updateQueryCols.contains(columnName)) {
+				
+				//if (updateQueryCols.contains(columnName)) {
 					update.append(columnName).append(" = ").append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
 					// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
 					// 	update.append(columnName).append("_idx").append(" = ").append("source.").append(columnName)
 					// 			.append("_idx").append(COMMA_WITH_SPACE);
 					// }
-				}
+				//}
 
 				insertColumns.append(columnName).append(COMMA_WITH_SPACE);
 

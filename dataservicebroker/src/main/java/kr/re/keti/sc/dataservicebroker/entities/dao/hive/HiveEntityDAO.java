@@ -735,16 +735,16 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
         rowCount = hiveTableSVC.getCount(entityDaoVO.getDbTableName(), entityDaoVO.getId());
 
         try {
-            if (rowCount > 0) { // 기존 Row가 있으면 Update
-                if (isUsingHBase(entityDaoVO.getDatasetId())) {
-                    logger.debug("Using HBase An existing row exists. Update Process Execute...");
+            if (rowCount > 0) { // 기존 Row가 있으면 Update //hive hbase 상관없이 update 같은 쿼리문
+                // if (isUsingHBase(entityDaoVO.getDatasetId())) {
+                //     logger.debug("Using HBase An existing row exists. Update Process Execute...");
 
-                    mapper.replaceAttrHBase(entityDaoVO);
-                } else {
-                    logger.debug("Using Hive An existing row exists. Update Process Execute...");
+                //     mapper.replaceAttrHBase(entityDaoVO);
+                // } else {
+                //     logger.debug("Using Hive An existing row exists. Update Process Execute...");
 
-                    mapper.replaceAttr(entityDaoVO);
-                }
+                mapper.replaceAttr(entityDaoVO);
+                //}
             } else {
                 logger.debug("The existing row does not exist. Insert Process Execute...");
 
