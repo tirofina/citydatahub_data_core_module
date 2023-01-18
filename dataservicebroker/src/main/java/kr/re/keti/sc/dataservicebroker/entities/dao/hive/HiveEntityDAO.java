@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.util.StringUtils;
 
 import kr.re.keti.sc.dataservicebroker.common.code.Constants;
 import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode;
@@ -1227,28 +1228,41 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
                     throw new NgsiLdBadRequestException(DataServiceBrokerCode.ErrorCode.INVALID_PARAMETER, "attrs ERROR. attr=" + queryVO.getAttrs(), null);
                 }
                 List<ObjectMember> objectMembers = rootAttribute.getObjectMembers();
-
-                //2-1. childAttributes 조건 처리, ex) "address" : { "value : { "addressCountry" : "xx" } }
+                DataServiceBrokerCode.AttributeValueType rootAttributeValueType = rootAttribute.getValueType();
+                //2-1. childAttributes 조건 처리, ex) "address" : { "value : { "addressCountry" : "xx" } } Object type
                 if (objectMembers != null) {
+                    if(rootAttributeValueType.getCode().startsWith("Array")){
+                        for (ObjectMember objectMember : objectMembers) {
+                            String columnName = StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName().toLowerCase(), objectMember.getName().toLowerCase()));
+                            targetColumnList.add( 
+                            "concat_ws(',', ".concat(columnName.concat(") AS ").concat(columnName) )); 
+                            //targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), objectMember.getName())));
+                        }
+                    }
+                    else{
                     for (ObjectMember objectMember : objectMembers) {
                         targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), objectMember.getName())));
-                    }
+                    }}
                 }
 
-                //2-2. hasAttributes 조건 처리, ex) "inAccident" : { { "providedBy" : "xx" } }
+                //2-2. hasAttributes 조건 처리, ex) "inAccident" : { { "providedBy" : "xx" } } childAttr
                 List<Attribute> hasAttributes = rootAttribute.getChildAttributes();
                 if (hasAttributes != null) {
-
+                    targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName().toLowerCase()))); 
                     for (Attribute hasAttribute : hasAttributes) {
 
                         DataServiceBrokerCode.AttributeType hasAttributeType = hasAttribute.getAttributeType();
-                        
                         if (hasAttributeType == DataServiceBrokerCode.AttributeType.GEO_PROPERTY) {
 
-                            targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), hasAttribute.getName())) + Constants.GEO_PREFIX_4326);
+                            targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName().toLowerCase(), hasAttribute.getName().toLowerCase())) + Constants.GEO_PREFIX_4326);
 //                            targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), hasAttribute.getName())) + Constants.GEO_PREFIX_3857);
-                        } else {
-                            targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName(), hasAttribute.getName())));
+                        } else if (hasAttribute.getObjectMembers() != null){   
+                                for (ObjectMember objectMember : hasAttribute.getObjectMembers()) {
+                                    targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName().toLowerCase(), hasAttribute.getName().toLowerCase(), objectMember.getName().toLowerCase()))); 
+                                }
+                        }
+                        else {
+                            targetColumnList.add(StringUtil.arrayStrToDbStyle(Arrays.asList(rootAttribute.getName().toLowerCase(), hasAttribute.getName().toLowerCase())));
                         }
                     }
 
@@ -1264,16 +1278,16 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
                 }
 
                 //2-4. 1-level처리 ex) "inAccident" : 11 }
-                if (rootAttribute.getChildAttributes() == null || rootAttribute.getChildAttributes().isEmpty()) {
+                if ((rootAttribute.getChildAttributes() == null || rootAttribute.getChildAttributes().isEmpty()) && (objectMembers == null || objectMembers.isEmpty())) {
                     DataModelDbColumnVO dbColumnInfoVO = null;
-                    DataServiceBrokerCode.AttributeValueType rootAttributeValueType = rootAttribute.getValueType();
                     if (rootAttribute != null && rootAttribute.getValueType() == DataServiceBrokerCode.AttributeValueType.GEO_JSON) {
                         dbColumnInfoVO = dbColumnInfoVOMap.get(rootAttribute.getName().toLowerCase() + Constants.GEO_PREFIX_4326);
                         
                     } else if( rootAttributeValueType.getCode().startsWith("Array")) {
+                        List<ObjectMember> arrayobjectMembers = rootAttribute.getObjectMembers();
                         String columnName = dbColumnInfoVOMap.get(rootAttribute.getName().toLowerCase()).getColumnName();
-                            targetColumnList.add( 
-                                "concat_ws(',', ".concat(columnName.concat(") AS ").concat(columnName) ));
+                        targetColumnList.add( 
+                            "concat_ws(',', ".concat(columnName.concat(") AS ").concat(columnName) ));    
                     } else {
                             dbColumnInfoVO = dbColumnInfoVOMap.get(rootAttribute.getName().toLowerCase());
                     }
@@ -1291,22 +1305,19 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
             for (Map.Entry<String, DataModelDbColumnVO> entry : storageMetadataVO.getDbColumnInfoVOMap().entrySet()) {
 
             	DataModelDbColumnVO dbColumnInfoVO = entry.getValue();
-
                 String columnName = dbColumnInfoVO.getColumnName();
-
+                DataServiceBrokerCode.DbColumnType columnType = dbColumnInfoVO.getColumnType();
                 if (!columnName.equalsIgnoreCase("")) {
-                    //TODO : 개발 테스트용 값 처리 부분
-                    if (!columnName.startsWith("컬럼")) {
-                        targetColumnList.add(columnName);
+                        if(columnType.getBigdataCode().startsWith("ARRAY")){
+                                targetColumnList.add( 
+                                "concat_ws(',', ".concat(columnName.concat(") AS ").concat(columnName) )); 
+                            }
                     }
+                        targetColumnList.add(columnName);
                 }
-
             }
-        }
-
         if (isTemproal) {
             targetColumnList.addAll(Arrays.asList(MANDATORY_TEMPORAL_ATTRIBUTE));
-
         } else {
             targetColumnList.addAll(Arrays.asList(MANDATORY_ATTRIBUTE));
         }

@@ -468,11 +468,11 @@ public class HiveEntitySVC extends DefaultEntitySVC {
             HashMap<String, Object> objectMemberMap = new HashMap<>();
             for (ObjectMember objectMember : objectMembers) {
 
-                String objectMemberId = objectMember.getName();
+                String objectMemberId = objectMember.getName().toLowerCase();
                 DataModelDbColumnVO vo = dbColumnInfoVOMap.get(id + "_" + objectMemberId);
                 Object value = null;
                 String[] arrayString = String.valueOf(dynamicEntityDaoVO.get(vo.getColumnName())).replaceAll("\\[", "")
-                        .replaceAll("\\]", "").split(", ");
+                        .replaceAll("\\]", "").split(",");
 
                 if (arrayString != null) {
                     Object[] castedValues;
@@ -499,6 +499,9 @@ public class HiveEntitySVC extends DefaultEntitySVC {
                         castedValues = new Object[arrayString.length];
 
                         for (int i = 0; i < arrayString.length; i++) {
+                            if (!StringUtils.hasText(arrayString[i]) || arrayString[i].equals("null")){
+                                continue;
+                            }
                             if (objectMember.getValueType() == AttributeValueType.INTEGER) {
                                 castedValues[i] = Integer.parseInt(arrayString[i]);
                             } else if (objectMember.getValueType() == AttributeValueType.DOUBLE) {
@@ -528,7 +531,7 @@ public class HiveEntitySVC extends DefaultEntitySVC {
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
                 attributeVO = addObservedAt(dynamicEntityDaoVO, dbColumnInfoVOMap, attributeVO, id);
             }
-            convertedMap.put(id.toLowerCase(null), attributeVO);
+            convertedMap.put(id.toLowerCase(), attributeVO);
 
         }
 
