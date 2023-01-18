@@ -21,20 +21,19 @@ import java.io.PrintStream
 import java.nio.charset.StandardCharsets.UTF_8
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{GeohikerSqlSupport, SQLContext, SparkSession}
-import org.apache.spark.sql.hive.{HiveExternalCatalog, HiveUtils}
-import org.apache.spark.sql.internal.StaticSQLConf.CATALOG_IMPLEMENTATION
+import org.apache.spark.sql.{GeohikerSqlSupport, SparkSession}
+import org.apache.spark.sql.hive.{HiveContext, HiveExternalCatalog, HiveUtils}
 import org.apache.spark.util.Utils
 
 /** A singleton object for the master program. The slaves should not access this. */
 private[hive] object GeohikerSparkSQLEnv extends Logging {
   logDebug("Initializing GeohikerSparkSQLEnv")
 
-  var sqlContext: SQLContext = _
+  var hiveContext: HiveContext = _
   var sparkContext: SparkContext = _
 
   def init() {
-    if (sqlContext == null) {
+    if (hiveContext == null) {
       val sparkConf = new SparkConf(loadDefaults = true)
       // If user doesn't specify the appName, we want to get [SparkSQL::localHostName] instead of
       // the default appName [GeohikerSparkSQLCLIDriver] in cli or beeline.
@@ -45,12 +44,13 @@ private[hive] object GeohikerSparkSQLEnv extends Logging {
 
       sparkConf
         .setAppName(maybeAppName.getOrElse(s"SparkSQL::${Utils.localHostName()}"))
-        .set(CATALOG_IMPLEMENTATION.key, "hive")
+        .set("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0")
+        .set("spark.sql.extensions", "io.dtonic.geohiker.spark.GeohikerSparkExtensions,io.delta.sql.DeltaSparkSessionExtension")
+        .set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
 
       val sc = SparkContext.getOrCreate(sparkConf)
-
-      sqlContext = new SQLContext(sc)
-      val sparkSession = sqlContext.sparkSession
+      hiveContext = new HiveContext(sc)
+      val sparkSession = hiveContext.sparkSession
       sparkContext = sparkSession.sparkContext
 
 
@@ -62,7 +62,7 @@ private[hive] object GeohikerSparkSQLEnv extends Logging {
       sparkSession.conf.set(HiveUtils.FAKE_HIVE_VERSION.key, HiveUtils.builtinHiveVersion)
     }
 
-    GeohikerSqlSupport.init(sqlContext)
+    GeohikerSqlSupport.init(hiveContext)
   }
 
   /** Cleans up and shuts down the Spark SQL environments. */
@@ -72,7 +72,7 @@ private[hive] object GeohikerSparkSQLEnv extends Logging {
     if (GeohikerSparkSQLEnv.sparkContext != null) {
       sparkContext.stop()
       sparkContext = null
-      sqlContext = null
+      hiveContext = null
     }
   }
 }

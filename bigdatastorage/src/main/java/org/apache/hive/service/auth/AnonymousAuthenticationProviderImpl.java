@@ -18,6 +18,8 @@
 
 package org.apache.hive.service.auth;
 
+import org.apache.hive.service.auth.PasswdAuthenticationProvider;
+
 import javax.security.sasl.AuthenticationException;
 
 /**

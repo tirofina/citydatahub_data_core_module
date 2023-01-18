@@ -19,6 +19,7 @@
 package org.apache.hive.service;
 
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hive.service.ServiceStateChangeListener;
 
 /**
  * Service.

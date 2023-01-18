@@ -24,29 +24,12 @@ RUN cd /usr/local && ln -s apache-hive-$HIVE_VERSION-bin hive
 RUN curl -s https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VER/hadoop-$HADOOP_VER.tar.gz | tar -xvz -C /usr/local/
 RUN cd /usr/local && ln -s hadoop-$HADOOP_VER hadoop
 
-#Download HBase jars
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/hbase/hbase-common/1.1.1/hbase-common-1.1.1.jar"
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/hbase/hbase-client/1.1.1/hbase-client-1.1.1.jar"
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/hbase/hbase-server/1.1.1/hbase-server-1.1.1.jar"
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/hbase/hbase-protocol/1.1.1/hbase-protocol-1.1.1.jar"
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/hive/hive-hbase-handler/2.3.7/hive-hbase-handler-2.3.7.jar"
-
-
 #Deploy Thrift Server
 ADD thrift-server /thrift-server
 
 RUN tar -xvzf /thrift-server/thrift-server-$THRIFT_SERVER_VERSION.tar.gz -C /usr/local
 
 RUN ln -s /usr/local/thrift-server-$THRIFT_SERVER_VERSION /usr/local/thrift-server
-
-RUN cp /usr/local/thrift-server/libs/geohiker-*.jar /usr/local/spark/jars/
-
-#Download jts jars
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/locationtech/jts/jts-core/1.18.1/jts-core-1.18.1.jar"
-
-#Download sedona jars
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/sedona/sedona-core-3.0_2.12/1.0.0-incubating/sedona-core-3.0_2.12-1.0.0-incubating.jar"
-RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/apache/sedona/sedona-sql-3.0_2.12/1.0.0-incubating/sedona-sql-3.0_2.12-1.0.0-incubating.jar"
 
 #Download jst2geojson
 RUN wget -P /usr/local/spark/jars/ "https://repo1.maven.org/maven2/org/wololo/jts2geojson/0.16.1/jts2geojson-0.16.1.jar"
@@ -78,7 +61,7 @@ ENV PATH $SPARK_HOME/bin:$PATH
 ENV PATH $HIVE_HOME/bin:$PATH
 ENV PATH $HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
 
-RUN wget -P /usr/local/spark/jars/ https://jdbc.postgresql.org/download/postgresql-42.2.19.jar
+RUN wget -P /usr/local/spark/jars/ https://jdbc.postgresql.org/download/postgresql-42.2.19.jar --no-check-certificate
 
 RUN yum -y update
 RUN yum install -y epel-release 
