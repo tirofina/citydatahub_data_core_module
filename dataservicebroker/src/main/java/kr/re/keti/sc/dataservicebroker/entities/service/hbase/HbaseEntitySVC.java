@@ -426,9 +426,9 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             Map<String, DataModelDbColumnVO> dbColumnInfoVOMap, Attribute rootAttribute, String upperId) {
         String id;
         if (upperId != null) {
-            id = upperId + "_" + rootAttribute.getName().toLowerCase();
+            id = upperId + "_" + rootAttribute.getName();
         } else {
-            id = rootAttribute.getName().toLowerCase();
+            id = rootAttribute.getName();
         }
 
         List<Attribute> hasAttributes = rootAttribute.getChildAttributes();
@@ -469,7 +469,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
                 }
 
                 attributeVO.putAll(childAttributeMap);
-                convertedMap.put(id.toLowerCase(), attributeVO);
+                convertedMap.put(id, attributeVO);
             }
         }
 
@@ -542,7 +542,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
                 attributeVO = addObservedAt(dynamicEntityDaoVO, dbColumnInfoVOMap, attributeVO, id);
             }
-            convertedMap.put(id.toLowerCase(), attributeVO);
+            convertedMap.put(id, attributeVO);
 
         }
 
@@ -605,7 +605,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             }
 
             if (attributeVO != null) {
-                convertedMap.put(rootAttribute.getName().toLowerCase(), attributeVO);
+                convertedMap.put(rootAttribute.getName(), attributeVO);
             }
 
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
