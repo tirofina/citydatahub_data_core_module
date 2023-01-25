@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -425,9 +426,9 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             Map<String, DataModelDbColumnVO> dbColumnInfoVOMap, Attribute rootAttribute, String upperId) {
         String id;
         if (upperId != null) {
-            id = upperId + "_" + rootAttribute.getName();
+            id = upperId + "_" + rootAttribute.getName().toLowerCase();
         } else {
-            id = rootAttribute.getName();
+            id = rootAttribute.getName().toLowerCase();
         }
 
         List<Attribute> hasAttributes = rootAttribute.getChildAttributes();
@@ -468,7 +469,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
                 }
 
                 attributeVO.putAll(childAttributeMap);
-                convertedMap.put(id, attributeVO);
+                convertedMap.put(id.toLowerCase(), attributeVO);
             }
         }
 
@@ -477,11 +478,14 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             HashMap<String, Object> objectMemberMap = new HashMap<>();
             for (ObjectMember objectMember : objectMembers) {
 
-                String objectMemberId = objectMember.getName();
+                String objectMemberId = objectMember.getName().toLowerCase();
                 DataModelDbColumnVO vo = dbColumnInfoVOMap.get(id + "_" + objectMemberId);
                 Object value = null;
-                String[] arrayString = String.valueOf(dynamicEntityDaoVO.get(vo.getColumnName())).replaceAll("\\[", "")
-                        .replaceAll("\\]", "").split(", ");
+                // String[] arrayString = String.valueOf(dynamicEntityDaoVO.get(vo.getColumnName())).replaceAll("\\[", "")
+                //         .replaceAll("\\]", "").split(", ");
+                String.valueOf(dynamicEntityDaoVO.get(vo.getColumnName())).replaceAll("\\{", "")
+                .replaceAll("\\}", "").split(",");                String[] arrayString = String.valueOf(dynamicEntityDaoVO.get(vo.getColumnName())).replaceAll("\\{", "")
+                        .replaceAll("\\}", "").split(",");
 
                 if (arrayString != null) {
                     Object[] castedValues;
@@ -508,6 +512,9 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
                         castedValues = new Object[arrayString.length];
 
                         for (int i = 0; i < arrayString.length; i++) {
+                            if (!StringUtils.hasText(arrayString[i]) || arrayString[i].equals("null")){
+                                continue;
+                            }
                             if (objectMember.getValueType() == AttributeValueType.INTEGER) {
                                 castedValues[i] = Integer.parseInt(arrayString[i]);
                             } else if (objectMember.getValueType() == AttributeValueType.DOUBLE) {
@@ -537,7 +544,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
                 attributeVO = addObservedAt(dynamicEntityDaoVO, dbColumnInfoVOMap, attributeVO, id);
             }
-            convertedMap.put(id, attributeVO);
+            convertedMap.put(id.toLowerCase(), attributeVO);
 
         }
 
@@ -569,7 +576,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
                                                                                                      // lowercase를 하는데
                                                                                                      // hive 에서는 하지 않음
 
-                if (arrayValue != null) {
+                if (arrayValue != null && StringUtils.hasText(arrayValue)) {
                     // Hive JDBC 에서는 Array 타입의 조회를 지원하지 않고, String 한줄로 리턴하기 때문에 파싱 및 캐스팅 작업이 필요
                     String[] values = arrayValue.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "")
                             .split(",");
@@ -590,7 +597,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
                     attributeVO = valueToAttributeVO(rootAttribute, castedValues);
                 }
             } else {
-                DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id);
+                DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id.toLowerCase());
                 Object value = dynamicEntityDaoVO.get(dbColumnInfoVO.getColumnName()); // rdb에서는 lowercase를 하는데 hive 에서는
                                                                                        // 하지 않음
 
@@ -600,7 +607,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
             }
 
             if (attributeVO != null) {
-                convertedMap.put(rootAttribute.getName(), attributeVO);
+                convertedMap.put(rootAttribute.getName().toLowerCase(), attributeVO);
             }
 
             if (rootAttribute.getHasObservedAt() != null && rootAttribute.getHasObservedAt()) {
@@ -621,7 +628,7 @@ public class HbaseEntitySVC extends DefaultEntitySVC {
 
     private AttributeVO addObservedAt(DynamicEntityDaoVO dynamicEntityDaoVO,
             Map<String, DataModelDbColumnVO> dbColumnInfoVOMap, AttributeVO attributeVO, String id) {
-        DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id + "_" + PropertyKey.OBSERVED_AT.getCode());
+        DataModelDbColumnVO dbColumnInfoVO = dbColumnInfoVOMap.get(id + "_" + PropertyKey.OBSERVED_AT.getCode().toLowerCase());
         Object value = dynamicEntityDaoVO.get(dbColumnInfoVO.getColumnName()); // rdb에서는 lowercase를 하는데 hive 에서는 하지 않음
         if (value != null && attributeVO != null) {
             attributeVO.setObservedAt(new Date(((java.sql.Timestamp) value).getTime()));

@@ -450,6 +450,7 @@ public class DatasetFlowSVC {
         datasetBaseVO.getDataModelId()
       );
       //기존 hive 존재시 신규 hbase 생성 할 경우
+      if(dataModelBaseVO.getCreatedStorageTypes() != null){
       if (
         dataModelBaseVO.getCreatedStorageTypes()
           .contains(BigDataStorageType.HIVE) &&
@@ -475,6 +476,7 @@ public class DatasetFlowSVC {
           "Can not create Hbase and Hive together. Already has created Hbase Table."
         );
       }
+    }
 
       updateDataModelStorageType(datasetFlowBaseVO, dataModelBaseVO);
 
