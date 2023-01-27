@@ -211,6 +211,7 @@ public class DatasetFlowSVC {
           try {
             createBigdataTable(
               dataModelCacheVO,
+              datasetId,
               datasetFlowBaseVO.getBigDataStorageTypes()
             );
           } catch (Exception e) {
@@ -290,7 +291,7 @@ public class DatasetFlowSVC {
       if (datasetFlowBaseVO.getEnabled()) {
         if (useBigDataStorage(createStorageTypes)) {
           try {
-            createBigdataTable(dataModelCacheVO, createStorageTypes);
+            createBigdataTable(dataModelCacheVO, datasetFlowBaseVO.getDatasetId(), createStorageTypes);
           } catch (Exception e) {
             throw new InternalServerErrorException(
               ErrorCode.CREATE_ENTITY_TABLE_ERROR,
@@ -326,6 +327,7 @@ public class DatasetFlowSVC {
    */
   private void createBigdataTable(
     DataModelCacheVO dataModelCacheVO,
+    String datasetId,
     List<BigDataStorageType> bigDataStorageTypes
   ) throws Exception {
     String ddl = hiveDataModelSqlProvider.generateCreateTableDdl(
@@ -349,14 +351,14 @@ public class DatasetFlowSVC {
     log.debug("Is this flow Stored in HBase? " + (storeInHbase ? "yes" : "no"));
 
     for (String sql : sqls) {
-      String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, "");
+      String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, datasetId);
       hiveTableSVC.createTable(fullSql);
     }
 
     if (bothStore) {
       storeInHbase = false;
       for (String sql : sqls) {
-        String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, "");
+        String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, datasetId);
         hiveTableSVC.createTable(fullSql);
       }
     }
