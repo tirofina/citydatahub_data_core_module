@@ -1153,7 +1153,7 @@ public class HiveEntityDAO implements EntityDAOInterface<DynamicEntityDaoVO> {
             dbConditionVO.setIdPattern(queryVO.getIdPattern());
         }
         //1. 조회 대상 컬럼 세팅
-        String selectCondition = this.getSelectCondition(queryVO, isTemproal);
+        String selectCondition = this.getSelectCondition(queryVO, isTemproal).toLowerCase();
         dbConditionVO.setSelectCondition(selectCondition);
 
         //2. geo-query param 처리
