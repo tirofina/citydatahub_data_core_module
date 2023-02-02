@@ -390,6 +390,7 @@ public class HiveEntitySqlProviderImpl {
 
 		sql.append(insertBuilder.toString()).append(selectBuilder.toString()).append(valueBuilder.toString())
 				.append(asBuilder.toString()).append(")");
+    System.out.print("sql : " + sql.toString());
 		return sql.toString();
 	}
 
@@ -457,7 +458,7 @@ public class HiveEntitySqlProviderImpl {
 			}
 
 			// 3. Dynamic Entity Column 설정
-			Set<String> updateQueryCols = entityDaoVO.keySet();
+			//Set<String> updateQueryCols = entityDaoVO.keySet();
 			for (DataModelDbColumnVO dbColumnInfoVO : dbColumnInfoVOMap.values()) {
 				String daoAttributeId = dbColumnInfoVO.getDaoAttributeId();
 				String columnName = dbColumnInfoVO.getColumnName();
@@ -501,8 +502,8 @@ public class HiveEntitySqlProviderImpl {
 				} else if (dbColumnType == DbColumnType.GEOMETRY_4326) {
 					select.append("ST_AsGeoJson(ST_GeomFromGeoJSON(#{" + daoAttributeId + "})) as ").append(columnName)
 							.append(COMMA_WITH_SPACE);
-					select.append("ST_DISKINDEX(ST_asText(ST_GeomFromGeoJSON(#{" + daoAttributeId + "}))) as ")
-							.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+					// select.append("ST_DISKINDEX(ST_asText(ST_GeomFromGeoJSON(#{" + daoAttributeId + "}))) as ")
+					// 		.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
 				} else if (dbColumnType == DbColumnType.GEOMETRY_3857) {
 					select.append("ST_AsGeoJson(ST_Transform(ST_FlipCoordinates(ST_GeomFromGeoJSON(#{" + daoAttributeId
 							+ "})), 'epsg:4326','epsg:3857')) as ").append(columnName).append(COMMA_WITH_SPACE);
@@ -511,26 +512,27 @@ public class HiveEntitySqlProviderImpl {
 				}
 
 				// update 되는 값에 대해서만 set 쿼리를 구성하도록 필터링 추가
-				if (updateQueryCols.contains(columnName)) {
+				
+				//if (updateQueryCols.contains(columnName)) {
 					update.append(columnName).append(" = ").append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
-					if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-						update.append(columnName).append("_idx").append(" = ").append("source.").append(columnName)
-								.append("_idx").append(COMMA_WITH_SPACE);
-					}
-				}
+					// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+					// 	update.append(columnName).append("_idx").append(" = ").append("source.").append(columnName)
+					// 			.append("_idx").append(COMMA_WITH_SPACE);
+					// }
+				//}
 
 				insertColumns.append(columnName).append(COMMA_WITH_SPACE);
 
-				if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-					insertColumns.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
-				}
+				// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+				// 	insertColumns.append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+				// }
 
 				insertValues.append("source.").append(columnName).append(COMMA_WITH_SPACE);
 
-				if (dbColumnType == DbColumnType.GEOMETRY_4326) {
-					insertValues.append("source.").append(columnName).append("_idx").append(COMMA_WITH_SPACE);
-				}
+				// if (dbColumnType == DbColumnType.GEOMETRY_4326) {
+				// 	insertValues.append("source.").append(columnName).append("_idx").append(COMMA_WITH_SPACE);
+				// }
 			}
 		}
 
@@ -1804,6 +1806,7 @@ public class HiveEntitySqlProviderImpl {
 				}
 			}
 		};
+    System.out.print(sql.toString());
 		return sql.toString();
 	}
 

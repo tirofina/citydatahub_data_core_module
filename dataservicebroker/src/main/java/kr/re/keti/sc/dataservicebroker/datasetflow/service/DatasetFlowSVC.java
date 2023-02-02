@@ -195,13 +195,51 @@ public class DatasetFlowSVC {
           datasetBaseVO.getDataModelId()
         );
       }
-
+          // hbase와 hive 동시 생성 할 경우
+    if (
+      datasetFlowBaseVO.getBigDataStorageTypes().contains(BigDataStorageType.HBASE) &&
+      datasetFlowBaseVO.getBigDataStorageTypes().contains(BigDataStorageType.HIVE)
+    ) {
+      throw new BadRequestException(
+        ErrorCode.PROVISIONING_ERROR,
+        "Can not create Hbase and Hive together"
+      );
+    }
+    //기존 hive 존재시 신규 hbase 생성 할 경우
+    if(dataModelBaseVO.getCreatedStorageTypes() != null){
+      if (
+        dataModelBaseVO.getCreatedStorageTypes()
+          .contains(BigDataStorageType.HIVE) &&
+        datasetFlowBaseVO
+          .getBigDataStorageTypes()
+           .contains(BigDataStorageType.HBASE)
+      ) {
+          throw new BadRequestException(
+            ErrorCode.PROVISIONING_ERROR,
+            "Can not create Hbase and Hive together. Already has created Hive Table."
+            );
+        }
+      //기존 hbase 존재시 신규 hive생성 할 경우
+        if (
+          dataModelBaseVO.getCreatedStorageTypes()
+            .contains(BigDataStorageType.HBASE) &&
+          datasetFlowBaseVO
+            .getBigDataStorageTypes()
+            .contains(BigDataStorageType.HIVE)
+        ) {
+          throw new BadRequestException(
+            ErrorCode.PROVISIONING_ERROR,
+            "Can not create Hbase and Hive together. Already has created Hbase Table."
+          );
+        }
+    }
       if (datasetFlowBaseVO.getEnabled()) {
         // 4. 데이터모델 DDL 기반 테이블 생성
         if (useBigDataStorage(datasetFlowBaseVO.getBigDataStorageTypes())) {
           try {
             createBigdataTable(
               dataModelCacheVO,
+              datasetId,
               datasetFlowBaseVO.getBigDataStorageTypes()
             );
           } catch (Exception e) {
@@ -263,10 +301,43 @@ public class DatasetFlowSVC {
       newStorageTypes = new ArrayList<>(); // default RDB
       newStorageTypes.add(BigDataStorageType.RDB);
     } else {
-      newStorageTypes = datasetFlowBaseVO.getBigDataStorageTypes();
+      //newStorageTypes = datasetFlowBaseVO.getBigDataStorageTypes();
+      newStorageTypes = new ArrayList<>();
+      for (BigDataStorageType storage : datasetFlowBaseVO.getBigDataStorageTypes()) {
+        newStorageTypes.add(storage);
+      }
     }
 
     if (oldStorageTypes != null) {
+       // 수정된 저장소의 테이블 생성
+      List<BigDataStorageType> createStorageTypes = newStorageTypes;
+      createStorageTypes.removeAll(oldStorageTypes);
+      DataModelCacheVO dataModelCacheVO = dataModelManager.getDataModelVOCacheById(
+        dataModelBaseVO.getId()
+      );
+
+      if (datasetFlowBaseVO.getEnabled()) {
+        if (useBigDataStorage(createStorageTypes)) {
+          try {
+            createBigdataTable(dataModelCacheVO, datasetFlowBaseVO.getDatasetId(), createStorageTypes);
+          } catch (Exception e) {
+            throw new InternalServerErrorException(
+              ErrorCode.CREATE_ENTITY_TABLE_ERROR,
+              "Create Bigdata Table error. datasetId=" +
+              datasetFlowBaseVO.getDatasetId() +
+              ", dataModel=" +
+              dataModelBaseVO.getDataModel()
+            );
+          }
+        }
+
+        if (useRdbStorage(createStorageTypes)) {
+          String ddl = rdbDataModelSqlProvider.generateCreateTableDdl(
+            dataModelCacheVO
+          );
+          dataModelSVC.executeDdl(ddl, StorageType.RDB);
+        }
+      }
       newStorageTypes.addAll(oldStorageTypes);
       newStorageTypes =
         newStorageTypes.stream().distinct().collect(Collectors.toList());
@@ -284,6 +355,7 @@ public class DatasetFlowSVC {
    */
   private void createBigdataTable(
     DataModelCacheVO dataModelCacheVO,
+    String datasetId,
     List<BigDataStorageType> bigDataStorageTypes
   ) throws Exception {
     String ddl = hiveDataModelSqlProvider.generateCreateTableDdl(
@@ -307,14 +379,14 @@ public class DatasetFlowSVC {
     log.debug("Is this flow Stored in HBase? " + (storeInHbase ? "yes" : "no"));
 
     for (String sql : sqls) {
-      String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, "");
+      String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, datasetId);
       hiveTableSVC.createTable(fullSql);
     }
 
     if (bothStore) {
       storeInHbase = false;
       for (String sql : sqls) {
-        String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, "");
+        String fullSql = hiveTableSVC.getFullDdl(sql, storeInHbase, datasetId);
         hiveTableSVC.createTable(fullSql);
       }
     }
@@ -382,17 +454,23 @@ public class DatasetFlowSVC {
       DatasetFlowBaseVO datasetFlowBaseVO = datasetFlowVOToDatasetFlowBaseVO(
         datasetFlowProvisioningVO
       );
-      datasetFlowBaseVO.setProvisioningRequestId(requestId);
-      datasetFlowBaseVO.setProvisioningEventTime(eventTime);
-
-      int result = datasetFlowDAO.updateDatasetFlow(datasetFlowBaseVO);
-
-      if (result == 0) {
+      //수정 하여 생성될 저장소가 hbase & hive 경우
+      if (
+        datasetFlowBaseVO
+          .getBigDataStorageTypes()
+          .contains(BigDataStorageType.HBASE) &&
+        datasetFlowBaseVO
+          .getBigDataStorageTypes()
+          .contains(BigDataStorageType.HIVE)
+      ) {
         throw new BadRequestException(
-          ErrorCode.NOT_EXIST_ID,
-          "Not Exists. datasetId=" + datasetId
+          ErrorCode.PROVISIONING_ERROR,
+          "Can not create Hbase and Hive together"
         );
       }
+
+      datasetFlowBaseVO.setProvisioningRequestId(requestId);
+      datasetFlowBaseVO.setProvisioningEventTime(eventTime);
 
       // 6. 데이터모델이 어느 Storage에 생성되어 있는 지 갱신
       DatasetBaseVO datasetBaseVO = dataModelManager.getDatasetCache(
@@ -401,7 +479,44 @@ public class DatasetFlowSVC {
       DataModelBaseVO dataModelBaseVO = dataModelRetrieveSVC.getDataModelBaseVOById(
         datasetBaseVO.getDataModelId()
       );
+      //기존 hive 존재시 신규 hbase 생성 할 경우
+      if(dataModelBaseVO.getCreatedStorageTypes() != null){
+      if (
+        dataModelBaseVO.getCreatedStorageTypes()
+          .contains(BigDataStorageType.HIVE) &&
+        datasetFlowBaseVO
+          .getBigDataStorageTypes()
+          .contains(BigDataStorageType.HBASE)
+      ) {
+        throw new BadRequestException(
+          ErrorCode.PROVISIONING_ERROR,
+          "Can not create Hbase and Hive together. Already has created Hive Table."
+        );
+      }
+      //기존 hbase 존재시 신규 hive생성 할 경우
+      if (
+        dataModelBaseVO.getCreatedStorageTypes()
+          .contains(BigDataStorageType.HBASE) &&
+        datasetFlowBaseVO
+          .getBigDataStorageTypes()
+          .contains(BigDataStorageType.HIVE)
+      ) {
+        throw new BadRequestException(
+          ErrorCode.PROVISIONING_ERROR,
+          "Can not create Hbase and Hive together. Already has created Hbase Table."
+        );
+      }
+    }
+
       updateDataModelStorageType(datasetFlowBaseVO, dataModelBaseVO);
+
+      int result = datasetFlowDAO.updateDatasetFlow(datasetFlowBaseVO);
+      if (result == 0) {
+        throw new BadRequestException(
+          ErrorCode.NOT_EXIST_ID,
+          "Not Exists. datasetId=" + datasetId
+        );
+      }
 
       // 7. 캐쉬갱신
       dataModelManager.putDataModelCache(dataModelBaseVO);
