@@ -19,12 +19,12 @@ package org.apache.spark.sql.hive.thriftserver.server
 
 import java.util.{List => JList, Map => JMap}
 import java.util.concurrent.ConcurrentHashMap
+
 import org.apache.hive.service.cli._
 import org.apache.hive.service.cli.operation._
 import org.apache.hive.service.cli.session.HiveSession
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hive.HiveUtils
+import org.apache.spark.sql.hive.{HiveContext, HiveUtils}
 import org.apache.spark.sql.hive.thriftserver._
 import org.apache.spark.sql.internal.SQLConf
 
@@ -38,17 +38,17 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
     .getSuperField[JMap[OperationHandle, Operation]](this, "handleToOperation")
 
   val sessionToActivePool: ConcurrentHashMap[SessionHandle, String] = new ConcurrentHashMap[SessionHandle, String]()
-  val sessionToContexts: ConcurrentHashMap[SessionHandle, SQLContext] = new ConcurrentHashMap[SessionHandle, SQLContext]()
+  val sessionToContexts: ConcurrentHashMap[SessionHandle, HiveContext] = new ConcurrentHashMap[SessionHandle, HiveContext]()
 
   override def newExecuteStatementOperation(
       parentSession: HiveSession,
       statement: String,
       confOverlay: JMap[String, String],
       async: Boolean): ExecuteStatementOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       s" initialized or had already closed.")
-    val conf = sqlContext.sessionState.conf
+    val conf = hiveContext.sessionState.conf
     val hiveSessionState = parentSession.getSessionState
     setConfMap(conf, hiveSessionState.getOverriddenConfigurations)
     setConfMap(conf, hiveSessionState.getHiveVariables)
@@ -56,7 +56,7 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
 
     val operation = if(!statement.toUpperCase.contains(" STORED BY ")) {
       new GeohikerSparkExecuteStatementOperation(parentSession, statement, confOverlay,
-        runInBackground)(sqlContext, sessionToActivePool)
+        runInBackground)(hiveContext, sessionToActivePool)
     } else {
       ExecuteStatementOperation.newExecuteStatementOperation(parentSession, statement, confOverlay, runInBackground,0)
     }
@@ -71,10 +71,10 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
       parentSession: HiveSession,
       catalogName: String,
       schemaName: String): GetSchemasOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       " initialized or had already closed.")
-    val operation = new GeohikerSparkGetSchemasOperation(sqlContext, parentSession, catalogName, schemaName)
+    val operation = new GeohikerSparkGetSchemasOperation(hiveContext, parentSession, catalogName, schemaName)
     handleToOperation.put(operation.getHandle, operation)
     logDebug(s"Created GetSchemasOperation with session=$parentSession.")
     operation
@@ -86,10 +86,10 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
       schemaName: String,
       tableName: String,
       tableTypes: JList[String]): MetadataOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       " initialized or had already closed.")
-    val operation = new GeohikerSparkGetTablesOperation(sqlContext, parentSession,
+    val operation = new GeohikerSparkGetTablesOperation(hiveContext, parentSession,
       catalogName, schemaName, tableName, tableTypes)
     handleToOperation.put(operation.getHandle, operation)
     logDebug(s"Created GetTablesOperation with session=$parentSession.")
@@ -102,10 +102,10 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
       schemaName: String,
       tableName: String,
       columnName: String): GetColumnsOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       " initialized or had already closed.")
-    val operation = new GeohikerSparkGetColumnsOperation(sqlContext, parentSession,
+    val operation = new GeohikerSparkGetColumnsOperation(hiveContext, parentSession,
       catalogName, schemaName, tableName, columnName)
     handleToOperation.put(operation.getHandle, operation)
     logDebug(s"Created GetColumnsOperation with session=$parentSession.")
@@ -114,10 +114,10 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
 
   override def newGetTableTypesOperation(
       parentSession: HiveSession): GetTableTypesOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       " initialized or had already closed.")
-    val operation = new GeohikerSparkGetTableTypesOperation(sqlContext, parentSession)
+    val operation = new GeohikerSparkGetTableTypesOperation(hiveContext, parentSession)
     handleToOperation.put(operation.getHandle, operation)
     logDebug(s"Created GetTableTypesOperation with session=$parentSession.")
     operation
@@ -128,10 +128,10 @@ private[thriftserver] class GeohikerSparkSQLOperationManager()
       catalogName: String,
       schemaName: String,
       functionName: String): GetFunctionsOperation = synchronized {
-    val sqlContext = sessionToContexts.get(parentSession.getSessionHandle)
-    require(sqlContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
+    val hiveContext = sessionToContexts.get(parentSession.getSessionHandle)
+    require(hiveContext != null, s"Session handle: ${parentSession.getSessionHandle} has not been" +
       " initialized or had already closed.")
-    val operation = new GeohikerSparkGetFunctionsOperation(sqlContext, parentSession,
+    val operation = new GeohikerSparkGetFunctionsOperation(hiveContext, parentSession,
       catalogName, schemaName, functionName)
     handleToOperation.put(operation.getHandle, operation)
     logDebug(s"Created GetFunctionsOperation with session=$parentSession.")

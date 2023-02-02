@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -72,5 +71,4 @@ public class HiveDoubleArrayListTypeHandler extends BaseTypeHandler<ArrayList<Bi
 	public ArrayList<BigDecimal> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
 		return null;
 	}
-
 }

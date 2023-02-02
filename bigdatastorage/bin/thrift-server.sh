@@ -1,9 +1,10 @@
 #!/bin/bash
 
+export SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:~/.ivy2/jars/*
 sparkMaster="local"
-hivePort="10000"
-hiveHost="0.0.0.0"
 thriftMode="$1"
+ivyDir=<working directory of ivy.settings>/ivy.settings
+geohikerVersion=1.2.53
 
 help()
 {
@@ -47,10 +48,11 @@ shopt -s nocasematch
 if [ "start" == "${thriftMode}" ]; then
   $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh \
   --master $sparkMaster \
-  --jars $GEOHIKER_HOME/libs/geohiker-core-1.0.jar,$GEOHIKER_HOME/libs/geohiker-index-1.0.jar,$GEOHIKER_HOME/libs/geohiker-spark-1.0.jar,$GEOHIKER_HOME/libs/geohiker-datastore-1.0.jar \
-  $GEOHIKER_HOME/libs/Thrift-Server-1.0.jar \
-  --hiveconf hive.server2.thrift.port=$hivePort \
-  --hiveconf hive.server2.thrift.bind.host=$hiveHost
+  --packages io.dtonic.geohiker:geohiker-spark:${geohikerVersion},io.dtonic.geohiker:geohiker-datastore:${geohikerVersion} \
+  --conf spark.jars.ivySettings=${ivyDir} \
+  --conf spark.sql.extensions=io.dtonic.geohiker.spark.GeohikerSparkExtensions,io.delta.sql.DeltaSparkSessionExtension \
+  --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+  $GEOHIKER_HOME/libs/Thrift-Server-1.0.jar
 elif [ "stop" == "${thriftMode}" ]; then
   $GEOHIKER_HOME/sbin/datacore-stop-thriftserver.sh
 else

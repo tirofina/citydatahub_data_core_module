@@ -22,16 +22,15 @@ package org.apache.hive.service.cli.session;
  * Proxy wrapper on HiveSession to execute operations
  * by impersonating given user
  */
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hive.service.cli.HiveSQLException;
+import org.apache.hive.service.cli.session.HiveSession;
+import org.apache.hive.service.cli.session.HiveSessionBase;
+
+import java.lang.reflect.*;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 public class HiveSessionProxy implements InvocationHandler {
   private final HiveSession base;
@@ -46,7 +45,7 @@ public class HiveSessionProxy implements InvocationHandler {
       throws IllegalArgumentException, HiveSQLException {
     return (HiveSession)Proxy.newProxyInstance(HiveSession.class.getClassLoader(),
         new Class<?>[] {HiveSession.class},
-        new HiveSessionProxy(hiveSession, ugi));
+        new org.apache.hive.service.cli.session.HiveSessionProxy(hiveSession, ugi));
   }
 
   @Override

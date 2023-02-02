@@ -18,6 +18,8 @@
 
 package org.apache.hive.service;
 
+import org.apache.hive.service.Service;
+
 /**
  * ServiceStateChangeListener.
  *

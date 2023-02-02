@@ -18,6 +18,9 @@
 
 package org.apache.hive.service.cli;
 
+import org.apache.hive.service.cli.HiveSQLException;
+import org.apache.hive.service.cli.OperationState;
+
 /**
  * OperationStatus
  *

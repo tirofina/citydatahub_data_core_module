@@ -17,6 +17,12 @@
  */
 package org.apache.hive.service.auth;
 
+import org.apache.hive.service.auth.AnonymousAuthenticationProviderImpl;
+import org.apache.hive.service.auth.CustomAuthenticationProviderImpl;
+import org.apache.hive.service.auth.LdapAuthenticationProviderImpl;
+import org.apache.hive.service.auth.PamAuthenticationProviderImpl;
+import org.apache.hive.service.auth.PasswdAuthenticationProvider;
+
 import javax.security.sasl.AuthenticationException;
 
 /**

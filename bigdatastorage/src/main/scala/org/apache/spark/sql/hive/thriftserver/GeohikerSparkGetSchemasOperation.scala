@@ -19,25 +19,26 @@ package org.apache.spark.sql.hive.thriftserver
 
 import java.util.UUID
 import java.util.regex.Pattern
+
 import org.apache.hadoop.hive.ql.security.authorization.plugin.HiveOperationType
 import org.apache.hive.service.cli._
 import org.apache.hive.service.cli.operation.GetSchemasOperation
 import org.apache.hive.service.cli.operation.MetadataOperation.DEFAULT_HIVE_CATALOG
 import org.apache.hive.service.cli.session.HiveSession
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.util.{Utils => SparkUtils}
 
 /**
  * Spark's own GetSchemasOperation
  *
- * @param sqlContext SQLContext to use
+ * @param hiveContext HiveContext to use
  * @param parentSession a HiveSession from SessionManager
  * @param catalogName catalog name. null if not applicable.
  * @param schemaName database name, null or a concrete database name
  */
 private[hive] class GeohikerSparkGetSchemasOperation(
-    sqlContext: SQLContext,
+    hiveContext: HiveContext,
     parentSession: HiveSession,
     catalogName: String,
     schemaName: String)
@@ -58,7 +59,7 @@ private[hive] class GeohikerSparkGetSchemasOperation(
     logInfo(s"$logMsg with $statementId")
     setState(OperationState.RUNNING)
     // Always use the latest class loader provided by executionHive's state.
-    val executionHiveClassLoader = sqlContext.sharedState.jarClassLoader
+    val executionHiveClassLoader = hiveContext.sharedState.jarClassLoader
     Thread.currentThread().setContextClassLoader(executionHiveClassLoader)
 
     if (isAuthV2Enabled) {
@@ -74,11 +75,11 @@ private[hive] class GeohikerSparkGetSchemasOperation(
 
     try {
       val schemaPattern = convertSchemaPattern(schemaName)
-      sqlContext.sessionState.catalog.listDatabases(schemaPattern).foreach { dbName =>
+      hiveContext.sessionState.catalog.listDatabases(schemaPattern).foreach { dbName =>
         rowSet.addRow(Array[AnyRef](dbName, DEFAULT_HIVE_CATALOG))
       }
 
-      val globalTempViewDb = sqlContext.sessionState.catalog.globalTempViewManager.database
+      val globalTempViewDb = hiveContext.sessionState.catalog.globalTempViewManager.database
       val databasePattern = Pattern.compile(CLIServiceUtils.patternToRegex(schemaName))
       if (databasePattern.matcher(globalTempViewDb).matches()) {
         rowSet.addRow(Array[AnyRef](globalTempViewDb, DEFAULT_HIVE_CATALOG))
