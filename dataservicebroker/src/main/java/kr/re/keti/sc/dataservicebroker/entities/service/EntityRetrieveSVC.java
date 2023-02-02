@@ -333,6 +333,7 @@ public class EntityRetrieveSVC {
 			entity = hiveEntitySVC.selectById(queryVO, accept, false);
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
 			// TODO: 구현
+			entity = hbaseEntitySVC.selectById(queryVO, accept, false);
 		} else {
 			entity = rdbEntitySVC.selectById(queryVO, accept, false);
 		}

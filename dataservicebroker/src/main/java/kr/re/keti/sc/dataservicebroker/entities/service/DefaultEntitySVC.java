@@ -2863,13 +2863,22 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 	           return false;
 	        }
 
-	        boolean isMatch = false;
-	        for(String attr : attrs) {
-	            if(commonEntityFullVO.containsKey(attr)) {
-	                isMatch = true;
-	                break;
-	            }
-	        }
+            boolean isMatch = false;
+            if (this.getClass().toString().contains("hive")) {
+                for(String attr : attrs) {
+                    if(commonEntityFullVO.containsKey(attr.toLowerCase())) {
+                        isMatch = true;
+                        break;
+                    }
+                }
+            } else {
+                for (String attr : attrs) {
+                    if (commonEntityFullVO.containsKey(attr)) {
+                        isMatch = true;
+                        break;
+                    }
+                }
+            }
 	        if(isMatch) {
 	            return false;
 	        }
