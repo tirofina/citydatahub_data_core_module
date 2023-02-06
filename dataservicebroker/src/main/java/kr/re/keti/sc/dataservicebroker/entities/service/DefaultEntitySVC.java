@@ -2864,16 +2864,16 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 	        }
 
             boolean isMatch = false;
-            if (this.entityDAO.toString().contains("rdb")) {
+            if (this.getClass().toString().contains("hive")) {
                 for(String attr : attrs) {
-                    if(commonEntityFullVO.containsKey(attr)) {
+                    if(commonEntityFullVO.containsKey(attr.toLowerCase())) {
                         isMatch = true;
                         break;
                     }
                 }
             } else {
                 for (String attr : attrs) {
-                    if (commonEntityFullVO.containsKey(attr.toLowerCase())) {
+                    if (commonEntityFullVO.containsKey(attr)) {
                         isMatch = true;
                         break;
                     }
