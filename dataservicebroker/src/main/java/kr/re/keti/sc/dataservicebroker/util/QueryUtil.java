@@ -49,7 +49,7 @@ public class QueryUtil {
             String q_query = queryVO.getQ();
 
             //불필요한 부분 정제
-            q_query = q_query.replace("\"", "'").replace("\\", "");
+            q_query = q_query.replace("\"", "").replace("\\", "");
 
             //상세쿼리 조건 단위 인(;)로 쪼개서 처리함
             String[] splitedAndQuery = q_query.split(";");
@@ -286,7 +286,7 @@ public class QueryUtil {
                 if (isArrayTypeColumn(attrName, dataModelCacheVO)) {
                     resultFragmentQuery = makeQueryWithColumnArrType(getColumnNameWithType(attrName, dataModelCacheVO), qValue, qOperator);
                 } else {
-                    resultFragmentQuery = makeQuery(getColumnName(attrName, dataModelCacheVO), qValue, qOperator);
+                    resultFragmentQuery = makeQuery(getColumnName(qValue, dataModelCacheVO), qValue, qOperator); //dongjin 수정2
                 }
             }
 
@@ -397,7 +397,7 @@ public class QueryUtil {
             if (isArrayTypeColumn(attrName, dataModelCacheVO)) {
                 resultFragmentQuery = makeQueryWithColumnArrType(getColumnNameWithType(attrName, dataModelCacheVO), qValue, dbOperator);
             } else {
-                resultFragmentQuery = makeQuery(getColumnName(attrName, dataModelCacheVO), qValue, dbOperator);
+                resultFragmentQuery = makeQuery(getColumnName(qValue, dataModelCacheVO), qValue, dbOperator); // dongjin 2023-02-03 수정
             }
 
             return resultFragmentQuery;
