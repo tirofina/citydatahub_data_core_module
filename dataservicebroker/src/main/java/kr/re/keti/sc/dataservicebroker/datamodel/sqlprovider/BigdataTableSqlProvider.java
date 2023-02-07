@@ -458,13 +458,19 @@ public class BigdataTableSqlProvider {
 
       // 컬럼 alter 쿼리 세팅
       if (entry.getValue() == DbOperation.ADD_COLUMN) {
+        // VARCHAR -> STRING 
+        if (dataModelDbColumnVO.getColumnType() == DbColumnType.VARCHAR) {
+          dataModelDbColumnVO.setMaxLength(null);
+          dataModelDbColumnVO.setColumnType(DbColumnType.STRING);
+        }
+
         if (needAddColumn) {
           sql
           .append(" ADD COLUMNS (`")
           .append(dataModelDbColumnVO.getColumnName())
           .append("` ")
           .append(dataModelDbColumnVO.getColumnType().getBigdataCode())
-          .append(", ");
+          .append(",");   // space bar 제외
           needAddColumn = false;
         }else{
           sql
@@ -1432,7 +1438,7 @@ public class BigdataTableSqlProvider {
       columnType = dataModelManager.valueTypeToDbColumnType(valueType);
     }
 
-    if (columnType == DbColumnType.VARCHAR) {
+    if (columnType.getBigdataCode() == DbColumnType.VARCHAR.getBigdataCode()) {
       maxLength = null;
       columnType = DbColumnType.STRING;
     }
