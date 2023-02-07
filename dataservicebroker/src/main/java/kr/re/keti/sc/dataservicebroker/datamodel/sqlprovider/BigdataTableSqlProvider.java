@@ -729,7 +729,7 @@ public class BigdataTableSqlProvider {
     sql.append(")");
     sql.append(";");
   }else {
-    throw new UnsupportedOperationException("Bigdata not supported " + dbOperation + " " + tableName + " " + attribute);
+    throw new UnsupportedOperationException("Bigdata not supported " + dbOperation + ". : " + tableName + " " + attribute);
   }
   return sql.toString();
   }
