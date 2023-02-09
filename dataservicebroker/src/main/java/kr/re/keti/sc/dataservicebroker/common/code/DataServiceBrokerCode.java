@@ -531,9 +531,13 @@ public class DataServiceBrokerCode {
     //property 결과
     @JsonProperty("value")
     VALUE("value"),
+    @JsonProperty("value")
+    VALUES("values"),
     //relationship 결과
     @JsonProperty("object")
-    OBJECT("object");
+    OBJECT("object"),
+    @JsonProperty("objects")
+    OBJECTS("objects");
 
     private String code;
 

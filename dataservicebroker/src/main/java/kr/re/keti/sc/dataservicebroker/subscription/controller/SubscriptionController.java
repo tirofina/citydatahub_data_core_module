@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
 import kr.re.keti.sc.dataservicebroker.util.ValidateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,8 @@ public class SubscriptionController {
     private SubscriptionSVC subscriptionSVC;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private DataModelManager dataModelManager;
 
     @Value("${datacore.http.binding.response.log.yn:N}")
     private String isResponseLog;
@@ -55,8 +58,6 @@ public class SubscriptionController {
     private Integer defaultLimit;
     @Value("${entity.default.storage}")
     protected DataServiceBrokerCode.BigDataStorageType bigDataStorageType;
-    @Value("${entity.retrieve.include.context:Y}")
-    private String includeContext;
 
     /**
      * 구독 리스트 조회 (Query Subscriptions)
@@ -94,17 +95,12 @@ public class SubscriptionController {
        		if(!Constants.APPLICATION_LD_JSON_VALUE.equals(primaryAccept)) {
        			//Link에 Context를 넣어야하나 subscription 인스턴스 마다 Context가 다를 수 있어 Link 해더에 넣을 수 없음. URI로 전달
            		for (SubscriptionVO subscriptionVO : resultList) {
-                		subscriptionVO.expandTerm(null);
+                		subscriptionVO.expandTerm(
+                                dataModelManager.contextToFlatMap(subscriptionVO.getContext())
+                        );
                 		subscriptionVO.setContext(null);
                 }
-            } else {//Accept가 ld+json 일 경우
-            	if (DataServiceBrokerCode.UseYn.NO.getCode().equalsIgnoreCase(includeContext)) {
-            		for (SubscriptionVO subscriptionVO : resultList) {
-            			subscriptionVO.expandTerm(null);
-            			subscriptionVO.setContext(null);
-                    }
-            	}
-        	}  
+            }
         }
 
         response.getWriter().print(objectMapper.writeValueAsString(resultList));
@@ -142,19 +138,8 @@ public class SubscriptionController {
         //TODO: 요청 내 포함된 link에 값이 들어올 경우 처리 필요
         
         if(!Constants.APPLICATION_LD_JSON_VALUE.equals(primaryAccept)) {
-        	if (DataServiceBrokerCode.UseYn.YES.getCode().equalsIgnoreCase(includeContext)) {//Context를 Link에 넣어 전달
-        		HttpHeadersUtil.addContextLinkHeader(response, primaryAccept, result.getContext());
-        		result.setContext(null);
-           	}
-        	else {// term expansion 이후 전달
-        		result.expandTerm(null);
-        		result.setContext(null);
-        	}
-        } else {//Accept가 ld+json 일 경우
-        	if (DataServiceBrokerCode.UseYn.NO.getCode().equalsIgnoreCase(includeContext)) {
-        		result.expandTerm(null);
-        		result.setContext(null);
-        	}
+            HttpHeadersUtil.addContextLinkHeader(response, primaryAccept, result.getContext());
+            result.setContext(null);
         }
 
         response.getWriter().print(objectMapper.writeValueAsString(result));
