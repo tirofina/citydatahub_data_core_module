@@ -471,9 +471,28 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                                     ", valueType=" + AttributeValueType.GEO_JSON.getCode() + ", value=" + value);
                 }
             } else if (DataServiceBrokerCode.AttributeType.RELATIONSHIP == rootAttribute.getAttributeType()) {
-                Object object = attribute.get(PropertyKey.OBJECT.getCode());
+
+                if (rootAttribute.getValueType() == AttributeValueType.ARRAY_STRING
+                    && attribute.containsKey(PropertyKey.OBJECT.getCode())) {
+                    throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                            "Invalid Request Content. only allow objects. attribute=" + rootAttribute.getName());
+                }
+
+                if (rootAttribute.getValueType() == AttributeValueType.STRING
+                        && attribute.containsKey(PropertyKey.OBJECTS.getCode())) {
+                    throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
+                            "Invalid Request Content. only allow object. attribute=" + rootAttribute.getName());
+                }
+
+                PropertyKey propertyKey = PropertyKey.OBJECT;
+                if (rootAttribute.getValueType() == AttributeValueType.ARRAY_STRING) {
+                    propertyKey = PropertyKey.OBJECTS;
+                }
+
+                Object object = attribute.get(propertyKey.getCode());
+
                 // 세부 파라미터 유효성 체크
-                checkObjectType(rootAttribute.getName(), AttributeValueType.STRING, object, rootAttribute);
+                checkObjectType(rootAttribute.getName(), rootAttribute.getValueType(), object, rootAttribute);
 
                 String id = dataModelManager.getColumnNameByStorageMetadata(storageMetadataVO, currentHierarchyIds);
                 dynamicEntityDaoVO.put(id, object);
@@ -597,9 +616,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                         "Not found Property value. attributeId=" + attributeId);
             }
         } else if (attribute.get(PropertyKey.TYPE.getCode()) == AttributeType.RELATIONSHIP) {
-            if (attribute.get(PropertyKey.OBJECT.getCode()) == null) {
+            if (attribute.get(PropertyKey.OBJECT.getCode()) == null
+                && attribute.get(PropertyKey.OBJECTS.getCode()) == null) {
                 throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER,
-                        "Not found Relationship object. attributeId=" + attributeId);
+                        "Not found Relationship object and objects. attributeId=" + attributeId);
             }
         }
     }
@@ -983,8 +1003,9 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
         } else if (type.equalsIgnoreCase(AttributeType.RELATIONSHIP.getCode())) {
             // RELATIONSHIP 형 item 체크
             Object objectItem = attrValue.get(PropertyKey.OBJECT.getCode());
-            if (objectItem == null) {
-                throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "Not found object : " + entry.getKey());
+            Object objectsItem = attrValue.get(PropertyKey.OBJECTS.getCode());
+            if (objectItem == null && objectsItem == null) {
+                throw new NgsiLdBadRequestException(ErrorCode.INVALID_PARAMETER, "Not found object and objects. attribute=: " + entry.getKey());
             }
             //동일 레벨 attribute 체크
             checkInnerAttribute(attrKey, attrValue, attribute);
@@ -1069,6 +1090,7 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 String relationshipMapKey = relationshipMap.getKey();
                 if (relationshipMapKey.equals(PropertyKey.TYPE.getCode())
                         || relationshipMapKey.equals(PropertyKey.OBJECT.getCode())
+                        || relationshipMapKey.equals(PropertyKey.OBJECTS.getCode())
                         || relationshipMapKey.equals(PropertyKey.OBSERVED_AT.getCode())) {
                     continue;
                 }

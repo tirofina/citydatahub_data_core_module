@@ -745,7 +745,7 @@ public class DataModelManager {
     } else if (rootAttribute.getAttributeType() == AttributeType.RELATIONSHIP) {
       DataModelDbColumnVO dbColumnInfoVO = createDbColumnInfoVO(
         currentHierarchyIds,
-        AttributeValueType.STRING,
+              rootAttribute.getValueType() == null ? AttributeValueType.STRING : rootAttribute.getValueType(),
         rootAttribute.getMaxLength(),
         rootAttribute.getIsRequired(),
         false,

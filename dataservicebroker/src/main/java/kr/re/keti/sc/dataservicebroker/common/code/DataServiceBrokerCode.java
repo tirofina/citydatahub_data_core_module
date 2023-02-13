@@ -356,6 +356,7 @@ public class DataServiceBrokerCode {
     VALUE("value"),
     OBSERVED_AT("observedAt"),
     OBJECT("object"),
+    OBJECTS("objects"),
     COORDINATES("coordinates"),
     UNIT_CODE("unitCode"),
     CREATED_AT("createdAt"),
