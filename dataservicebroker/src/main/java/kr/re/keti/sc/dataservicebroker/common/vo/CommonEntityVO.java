@@ -131,7 +131,11 @@ public class CommonEntityVO extends LinkedHashMap<String, Object> implements Com
                 continue;
             }
 
-            if (entryValue instanceof Map && !isObjectMember(entryValue)) {
+            if (isArrayAttribute(entryValue)) {
+                for (Map<String, Object> innerEntry : (List<Map<String, Object>>)entryValue) {
+                    expandKey(innerEntry, requestContextMap, dataModelContextMap);
+                }
+            } else if (isAttribute(entryValue)) {
                 expandKey((Map<String, Object>)entryValue, requestContextMap, dataModelContextMap);
             }
 
@@ -185,6 +189,23 @@ public class CommonEntityVO extends LinkedHashMap<String, Object> implements Com
         } else if (!ValidateUtil.isEmptyData(fullUriByRequest)
                 && !ValidateUtil.isEmptyData(fullUriByDataModel)
                 && !fullUriByRequest.equals(fullUriByDataModel)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isArrayAttribute(Object entryValue) {
+        if (entryValue instanceof List
+                && !ValidateUtil.isEmptyData((List)entryValue)
+                && ((List<?>) entryValue).get(0) instanceof Map
+                && !isObjectMember(entryValue)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isAttribute(Object entryValue) {
+        if (entryValue instanceof Map && !isObjectMember(entryValue)) {
             return true;
         }
         return false;

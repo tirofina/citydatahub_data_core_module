@@ -2412,7 +2412,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
                 // 3. 요청 header의 accept가 'application/ld+json' 일 경우 @context 정보 추가
                 if (commonEntityVO != null && accept.equals(Constants.APPLICATION_LD_JSON_VALUE)) {
-                    commonEntityVO.setContext(dataModelCacheVO.getDataModelVO().getContext());
+                    List<String> link = getLinkOrDefault(queryVO.getLinks());
+                    if (!ValidateUtil.isEmptyData(link)) {
+                        commonEntityVO.setContext(link);
+                    }
                 }
 
                 if(commonEntityVO != null) {
@@ -2420,9 +2423,10 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 }
             }
 
+            // 4. term expand
             commonEntityVOList.forEach(
                     commonEntityVO -> commonEntityVO.expandTerm(
-                            dataModelManager.contextToFlatMap(queryVO.getLinks()),
+                            dataModelManager.contextToFlatMap(getLinkOrDefault(queryVO.getLinks())),
                             dataModelManager.contextToFlatMap(dataModelCacheVO.getDataModelVO().getContext())
                     )
             );
@@ -2496,15 +2500,19 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
                 commonEntityVO = this.daoVOToFullRepresentationVO(entityDaoVO, dataModelCacheVO, includeSysAttrs, queryVO.getAttrs());
             }
 
+            // 5. term expand
             commonEntityVO.expandTerm(
-                    dataModelManager.contextToFlatMap(queryVO.getLinks()),
+                    dataModelManager.contextToFlatMap(getLinkOrDefault(queryVO.getLinks())),
                     dataModelManager.contextToFlatMap(dataModelCacheVO.getDataModelVO().getContext())
             );
         }
 
         // 5. 요청 header의 accept가 'application/ld+json' 일 경우 @context 정보 추가
         if (commonEntityVO != null && accept.equals(Constants.APPLICATION_LD_JSON_VALUE)) {
-            commonEntityVO.setContext(dataModelCacheVO.getDataModelVO().getContext());
+            List<String> link = getLinkOrDefault(queryVO.getLinks());
+            if (!ValidateUtil.isEmptyData(link)) {
+                commonEntityVO.setContext(link);
+            }
         }
 
         return commonEntityVO;
@@ -2621,8 +2629,17 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
             }
         }
 
+        // 요청 header의 accept가 'application/ld+json' 일 경우 @context 정보 추가
+        if (accept.equals(Constants.APPLICATION_LD_JSON_VALUE)) {
+            List<String> link = getLinkOrDefault(queryVO.getLinks());
+            if (!ValidateUtil.isEmptyData(link)) {
+                commonEntityVOList.forEach(commonEntityVO -> commonEntityVO.setContext(link));
+            }
+        }
+
+        // term expand
         commonEntityVOList.forEach(commonEntityVO -> commonEntityVO.expandTerm(
-                dataModelManager.contextToFlatMap(queryVO.getLinks()),
+                dataModelManager.contextToFlatMap(getLinkOrDefault(queryVO.getLinks())),
                 dataModelManager.contextToFlatMap(dataModelCacheVO.getDataModelVO().getContext())
         ));
 
@@ -2700,13 +2717,23 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 
         if (commonEntityVOList != null && commonEntityVOList.size() > 0) {
             commonEntityVO = commonEntityVOList.get(0);
+
+            // 요청 header의 accept가 'application/ld+json' 일 경우 @context 정보 추가
+            if (accept.equals(Constants.APPLICATION_LD_JSON_VALUE)) {
+                List<String> link = getLinkOrDefault(queryVO.getLinks());
+                if (!ValidateUtil.isEmptyData(link)) {
+                    commonEntityVO.setContext(link);
+                }
+            }
+
         } else {
             //조회된 결과값이 없을 경우, 규격을 맞추기 위해 빈 객체 리턴함
             commonEntityVO = new CommonEntityVO();
         }
 
+        // term expand
         commonEntityVO.expandTerm(
-                dataModelManager.contextToFlatMap(queryVO.getLinks()),
+                dataModelManager.contextToFlatMap(getLinkOrDefault(queryVO.getLinks())),
                 dataModelManager.contextToFlatMap(dataModelCacheVO.getDataModelVO().getContext())
         );
 
@@ -2945,5 +2972,12 @@ public abstract class DefaultEntitySVC implements EntitySVCInterface<DynamicEnti
 	            return false;
 	        }
 	        return true;
-	    }
+    }
+
+    private List<String> getLinkOrDefault(List<String> link) {
+        if (!ValidateUtil.isEmptyData(link)) {
+            return link;
+        }
+        return Collections.singletonList(defaultContextUri);
+    }
 }
