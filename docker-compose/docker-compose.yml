@@ -96,8 +96,8 @@ services:
       DATASOURCE_SECONDARY_URL: jdbc:postgresql://postgis:5432/smart_city
       REST_PROXY_URL: http://rest-proxy:8082
       KAFKA_URL: broker:29092
-      KAFKA_SECURITY_YN: N
-      SECURITY_ACL_USEYN: N
+      KAFKA_SECURITY_YN: "N"
+      SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
 
   ingest-interface:
@@ -115,9 +115,9 @@ services:
       DATASOURCE_URL: jdbc:postgresql://postgis:5432/smart_city
       DATASOURCE_SECONDARY_URL: jdbc:postgresql://postgis:5432/smart_city
       KAFKA_URL: broker:29092
-      KAFKA_SECURITY_YN: N
+      KAFKA_SECURITY_YN: "N"
       SPRING_PROFILES_ACTIVE: local
-      SECURITY_ACL_USEYN: N
+      SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
 
   data-service-broker:
@@ -134,8 +134,8 @@ services:
       DATASOURCE_URL: jdbc:postgresql://postgis:5432/smart_city
       DATASOURCE_SECONDARY_URL: jdbc:postgresql://postgis:5432/smart_city
       KAFKA_URL: broker:29092
-      KAFKA_SECURITY_YN: N
-      SECURITY_ACL_USEYN: N
+      KAFKA_SECURITY_YN: "N"
+      SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
 
   datacore-ui:
@@ -201,6 +201,6 @@ services:
       - ./logs/push-agent:/logs
     environment:
       KAFKA_URL: broker:29092
-      KAFKA_SECURITY_YN: N
-      SECURITY_ACL_USEYN: N
+      KAFKA_SECURITY_YN: "N"
+      SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
