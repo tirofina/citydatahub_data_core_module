@@ -502,7 +502,7 @@ public class DataModelSVC {
 						attributeDdl = bigDataTableSqlProvider.generateAlterTableColumnDdl(id, beforeAttribute, afterAttribute);
 						break;
 					} case REMOVE_ATTRIBUTE: {
-						throw new UnsupportedOperationException("Hive not supported drop column");
+						throw new UnsupportedOperationException("Bigdata not supported drop column");
 					} default: {
 						break;
 					}

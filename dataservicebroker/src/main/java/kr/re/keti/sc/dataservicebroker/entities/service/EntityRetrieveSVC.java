@@ -371,7 +371,8 @@ public class EntityRetrieveSVC {
 			totalCount = hiveEntitySVC.selectCount(queryVO);
 
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
+			totalCount = hiveEntitySVC.selectCount(queryVO);
+			
 		} else {
 			totalCount = rdbEntitySVC.selectCount(queryVO);
 		}
@@ -403,7 +404,7 @@ public class EntityRetrieveSVC {
 			totalCount = hiveEntitySVC.selectTemporalCount(queryVO);
 
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
+			totalCount = hbaseEntitySVC.selectTemporalCount(queryVO);
 		} else {
 			totalCount = rdbEntitySVC.selectTemporalCount(queryVO);
 		}
@@ -543,7 +544,7 @@ public class EntityRetrieveSVC {
 			resultList = hiveEntitySVC.selectTemporal(queryVO, accept);
 
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
+			resultList = hbaseEntitySVC.selectTemporal(queryVO, accept);
 		} else {
 			resultList = rdbEntitySVC.selectTemporal(queryVO, accept);
 		}
@@ -568,7 +569,7 @@ public class EntityRetrieveSVC {
 		} else if (BigDataStorageType.HIVE == dataStorageType) {
 			resultList = hiveEntitySVC.selectTemporalById(queryVO, accept);
 		} else if (BigDataStorageType.HBASE == dataStorageType) {
-			// TODO: 구현
+			resultList = hbaseEntitySVC.selectTemporalById(queryVO, accept);
 		} else {
 			resultList = rdbEntitySVC.selectTemporalById(queryVO, accept);
 		}
