@@ -19,6 +19,7 @@ package org.apache.spark.sql.hive.thriftserver
 
 import java.sql.DatabaseMetaData
 import java.util.UUID
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import org.apache.hadoop.hive.ql.security.authorization.plugin.{HiveOperationType, HivePrivilegeObjectUtils}
 import org.apache.hive.service.cli._
@@ -26,20 +27,20 @@ import org.apache.hive.service.cli.operation.GetFunctionsOperation
 import org.apache.hive.service.cli.operation.MetadataOperation.DEFAULT_HIVE_CATALOG
 import org.apache.hive.service.cli.session.HiveSession
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.util.{Utils => SparkUtils}
 
 /**
  * Spark's own GetFunctionsOperation
  *
- * @param sqlContext SQLContext to use
+ * @param hiveContext HiveContext to use
  * @param parentSession a HiveSession from SessionManager
  * @param catalogName catalog name. null if not applicable
  * @param schemaName database name, null or a concrete database name
  * @param functionName function name pattern
  */
 private[hive] class GeohikerSparkGetFunctionsOperation(
-    sqlContext: SQLContext,
+    hiveContext: HiveContext,
     parentSession: HiveSession,
     catalogName: String,
     schemaName: String,
@@ -61,10 +62,10 @@ private[hive] class GeohikerSparkGetFunctionsOperation(
     logInfo(s"$logMsg with $statementId")
     setState(OperationState.RUNNING)
     // Always use the latest class loader provided by executionHive's state.
-    val executionHiveClassLoader = sqlContext.sharedState.jarClassLoader
+    val executionHiveClassLoader = hiveContext.sharedState.jarClassLoader
     Thread.currentThread().setContextClassLoader(executionHiveClassLoader)
 
-    val catalog = sqlContext.sessionState.catalog
+    val catalog = hiveContext.sessionState.catalog
     // get databases for schema pattern
     val schemaPattern = convertSchemaPattern(schemaName)
     val matchingDbs = catalog.listDatabases(schemaPattern)

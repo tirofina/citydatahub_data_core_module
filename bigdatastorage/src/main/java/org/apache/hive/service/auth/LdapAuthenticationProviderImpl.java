@@ -17,14 +17,15 @@
  */
 package org.apache.hive.service.auth;
 
-import java.util.Hashtable;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hive.service.ServiceUtils;
+import org.apache.hive.service.auth.PasswdAuthenticationProvider;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import javax.security.sasl.AuthenticationException;
-
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hive.service.ServiceUtils;
+import java.util.Hashtable;
 
 public class LdapAuthenticationProviderImpl implements PasswdAuthenticationProvider {
 

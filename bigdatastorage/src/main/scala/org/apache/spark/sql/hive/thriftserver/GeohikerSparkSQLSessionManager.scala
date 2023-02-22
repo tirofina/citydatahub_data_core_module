@@ -18,19 +18,20 @@
 package org.apache.spark.sql.hive.thriftserver
 
 import java.util.concurrent.Executors
+
 import org.apache.commons.logging.Log
 import org.apache.hadoop.hive.conf.HiveConf
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars
 import org.apache.hive.service.cli.SessionHandle
 import org.apache.hive.service.cli.session.SessionManager
 import org.apache.hive.service.server.HiveServer2
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hive.HiveUtils
+
+import org.apache.spark.sql.hive.{HiveContext, HiveUtils}
 import org.apache.spark.sql.hive.thriftserver.GeohikerReflectionUtils._
 import org.apache.spark.sql.hive.thriftserver.server.GeohikerSparkSQLOperationManager
 
 
-private[hive] class GeohikerSparkSQLSessionManager(hiveServer: HiveServer2, sqlContext: SQLContext)
+private[hive] class GeohikerSparkSQLSessionManager(hiveServer: HiveServer2, hiveContext: HiveContext)
   extends SessionManager(hiveServer)
   with GeohikerReflectedCompositeService {
 
@@ -55,10 +56,10 @@ private[hive] class GeohikerSparkSQLSessionManager(hiveServer: HiveServer2, sqlC
     val session = super.getSession(sessionHandle)
     GeohikerThriftServer.listener.onSessionCreated(
       session.getIpAddress, sessionHandle.getSessionId.toString, session.getUsername)
-    val ctx = if (sqlContext.conf.hiveThriftServerSingleSession) {
-      sqlContext
+    val ctx = if (hiveContext.conf.hiveThriftServerSingleSession) {
+      hiveContext
     } else {
-      sqlContext.newSession()
+      hiveContext.newSession()
     }
     ctx.setConf(HiveUtils.FAKE_HIVE_VERSION.key, HiveUtils.builtinHiveVersion)
     if (sessionConf != null && sessionConf.containsKey("use:database")) {
