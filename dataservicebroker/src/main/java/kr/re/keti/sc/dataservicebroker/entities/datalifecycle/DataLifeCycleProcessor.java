@@ -14,7 +14,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.Constants;
 import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
 import kr.re.keti.sc.dataservicebroker.dataset.service.DatasetSVC;
 import kr.re.keti.sc.dataservicebroker.dataset.vo.DatasetBaseVO;
-import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCyleDAO;
+import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCycleDAO;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -24,12 +24,12 @@ public class DataLifeCycleProcessor {
     @Autowired
     private DatasetRetrieveSVC datasetRetrieveSVC;
     @Autowired
-    private DataLifeCyleDAO dataLifeCyleDAO;
+    private DataLifeCycleDAO dataLifeCycleDAO;
     @Autowired
 	private DataModelManager dataModelManager;
 
 
-    @Scheduled(cron = "${datacore.data.life.cyle.cron}")
+    @Scheduled(cron = "${datacore.data.life.cycle.cron}")
     public void excute() {
 
 
@@ -49,7 +49,7 @@ public class DataLifeCycleProcessor {
 
             StringBuilder tableNameBuilder = new StringBuilder();
 
-            
+
             tableNameBuilder
                     .append(Constants.SCHEMA_NAME)
                     .append(".")
@@ -64,11 +64,11 @@ public class DataLifeCycleProcessor {
             LocalDateTime now = LocalDateTime.now(); // 현재시간
             LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
-            Date lifeCyleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
+            Date lifeCycleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
 
-            dataLifeCyleDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
-            dataLifeCyleDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
-            dataLifeCyleDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);
+            dataLifeCycleDAO.deleteEntity(tableName, datasetId, lifeCycleDate);
+            dataLifeCycleDAO.deleteEntity(partialHistTableName, datasetId, lifeCycleDate);
+            dataLifeCycleDAO.deleteEntity(fullHistTableName, datasetId, lifeCycleDate);
 
         }
     }

@@ -89,7 +89,7 @@ datacore:
   # 데이터 라이프 사이클 관리를 위한 스케줄러 (*설정 :  새벽 2시)
   data:
     life:
-      cyle:
+      cycle:
         cron: 0 0 2 * * *
 #        cron:  0/5 * * * * *
 
