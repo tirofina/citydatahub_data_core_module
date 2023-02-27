@@ -20,6 +20,7 @@ import kr.re.keti.sc.dataservicebroker.datasetflow.service.DatasetFlowRetrieveSV
 import kr.re.keti.sc.dataservicebroker.datasetflow.vo.DatasetFlowBaseVO;
 import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCyleDAO;
 import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.hive.HiveTableDatalifeDAO;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -30,7 +31,7 @@ public class DataLifeCycleProcessor {
     @Autowired
     private DatasetRetrieveSVC datasetRetrieveSVC;
     @Autowired
-    private DataLifeCyleDAO dataLifeCyleDAO;
+    private DataLifeCycleDAO dataLifeCycleDAO;
     @Autowired
 	private DataModelManager dataModelManager;
     @Autowired
@@ -39,7 +40,7 @@ public class DataLifeCycleProcessor {
     private HiveTableDatalifeDAO hiveTableDAO;
 
 
-    @Scheduled(cron = "${datacore.data.life.cyle.cron}")
+    @Scheduled(cron = "${datacore.data.life.cycle.cron}")
     public void excute() {
         List<DatasetFlowBaseVO> datasetFlowBaseVOList = datasetFlowRetrieveSVC.getDatasetFlowBaseVOList();
         for (DatasetFlowBaseVO datasetFlowBaseVO : datasetFlowBaseVOList) {
@@ -90,6 +91,7 @@ public class DataLifeCycleProcessor {
             dataLifeCyleDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
             dataLifeCyleDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
             dataLifeCyleDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);   
+
     }
 
     public void hive(String dataModelId, Integer storageRetention, String datasetId){
@@ -106,7 +108,8 @@ public class DataLifeCycleProcessor {
         LocalDateTime now = LocalDateTime.now(); // 현재시간
         LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
-        Date lifeCyleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
+       
+       
 
         hiveTableDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
         hiveTableDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);

@@ -528,7 +528,10 @@ public class DataModelController {
 
             } else if (attributeType.equals(DataManagerCode.AttributeType.RELATIONSHIP)) {
 
-                if (attributeValueType != null && attributeValueType.equals(DataManagerCode.AttributeValueType.STRING)) {
+                if (attributeValueType != null
+                        && (attributeValueType.equals(DataManagerCode.AttributeValueType.STRING)
+                            || attributeValueType.equals(DataManagerCode.AttributeValueType.ARRAY_STRING))
+                ) {
                     continue;
                 }
             } else if (attributeValueType != null && attributeType.equals(DataManagerCode.AttributeType.GEO_PROPERTY)) {

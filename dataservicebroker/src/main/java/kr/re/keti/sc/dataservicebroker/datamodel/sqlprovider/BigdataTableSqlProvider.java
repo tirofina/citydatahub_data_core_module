@@ -488,7 +488,6 @@ public class BigdataTableSqlProvider {
       //     .append(dataModelDbColumnVO.getColumnType().getBigdataCode())
       //     .append(",");
         } 
-
       else if (
         entry.getValue() == DbOperation.ALTER_COLUMN_TYPE ||
         entry.getValue() == DbOperation.ALTER_COLUMN_TYPE_AND_ADD_NOT_NULL ||
