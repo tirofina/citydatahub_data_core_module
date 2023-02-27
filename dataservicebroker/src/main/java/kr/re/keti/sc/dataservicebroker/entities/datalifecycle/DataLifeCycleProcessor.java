@@ -52,16 +52,15 @@ public class DataLifeCycleProcessor {
             Integer storageRetention = datasetBaseVO.getStorageRetention();
 
             if (storageRetention == null || storageRetention == 0) {
-
                 log.info("storageRetention(" + storageRetention + ") value is invald ");
-                continue;
-            }
-            for(BigDataStorageType storageType : storageTypes){
-                if(storageType == BigDataStorageType.RDB) {
-                    rdb(dataModelId, storageRetention, datasetId);
-                }
-                if(storageType == BigDataStorageType.HIVE || storageType == BigDataStorageType.HBASE) {
-                    hive(dataModelId, storageRetention, datasetId);
+            }else{
+                for(BigDataStorageType storageType : storageTypes){
+                    if(storageType == BigDataStorageType.RDB) {
+                        rdb(dataModelId, storageRetention, datasetId);
+                    }
+                    if(storageType == BigDataStorageType.HIVE || storageType == BigDataStorageType.HBASE) {
+                        hive(dataModelId, storageRetention, datasetId);
+                    }
                 }
             }
 
@@ -90,7 +89,7 @@ public class DataLifeCycleProcessor {
             
             dataLifeCyleDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
             dataLifeCyleDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
-            dataLifeCyleDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);        
+            dataLifeCyleDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);   
     }
 
     public void hive(String dataModelId, Integer storageRetention, String datasetId){
