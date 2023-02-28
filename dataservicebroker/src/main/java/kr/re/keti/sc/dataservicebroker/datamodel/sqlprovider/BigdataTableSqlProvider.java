@@ -493,28 +493,33 @@ public class BigdataTableSqlProvider {
         entry.getValue() == DbOperation.ALTER_COLUMN_TYPE_AND_ADD_NOT_NULL ||
         entry.getValue() == DbOperation.ALTER_COLUMN_TYPE_AND_DROP_NOT_NULL
       ) {
-        if (!sql.toString().contains("-replace- columns")) {
-          sql.append(" -replace- columns (");
-        }
+        throw new BadRequestException(
+            ErrorCode.PROVISIONING_ERROR,
+            "BigData not supported change column"
+            );
+        // if (!sql.toString().contains("-replace- columns")) {
+        //   sql.append(" -replace- columns (");
+        // }
 
-        if (dataModelDbColumnVO.getColumnType() == DbColumnType.VARCHAR) {
-          dataModelDbColumnVO.setMaxLength(null);
-          dataModelDbColumnVO.setColumnType(DbColumnType.STRING);
-        }
+        // if (dataModelDbColumnVO.getColumnType() == DbColumnType.VARCHAR) {
+        //   dataModelDbColumnVO.setMaxLength(null);
+        //   dataModelDbColumnVO.setColumnType(DbColumnType.STRING);
+        // }
 
-        sql.append(dataModelDbColumnVO.getColumnName());
-        sql
-          .append(" ")
-          .append(dataModelDbColumnVO.getColumnType().getBigdataCode());
-        if (dataModelDbColumnVO.getMaxLength() != null) {
-          sql
-            .append("(")
-            .append(dataModelDbColumnVO.getMaxLength())
-            .append(")");
-        }
-        // sql.append(" USING ").append(dataModelDbColumnVO.getColumnName()).append("::")
-        // sql.append(dataModelDbColumnVO.getColumnType().getBigdataCode())
-        sql.append(",");
+        // sql.append(dataModelDbColumnVO.getColumnName());
+        
+        // sql
+        //   .append(" ")
+        //   .append(dataModelDbColumnVO.getColumnType().getBigdataCode());
+        // if (dataModelDbColumnVO.getMaxLength() != null) {
+        //   sql
+        //     .append("(")
+        //     .append(dataModelDbColumnVO.getMaxLength())
+        //     .append(")");
+        // }
+        // // sql.append(" USING ").append(dataModelDbColumnVO.getColumnName()).append("::")
+        // // sql.append(dataModelDbColumnVO.getColumnType().getBigdataCode())
+        // sql.append(",");
       } else if (entry.getValue() == DbOperation.DROP_COLUMN) {
         sql
           .append(dataModelDbColumnVO.getColumnName())
