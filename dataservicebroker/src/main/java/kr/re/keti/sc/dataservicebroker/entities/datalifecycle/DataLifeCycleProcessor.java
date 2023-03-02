@@ -115,6 +115,6 @@ public class DataLifeCycleProcessor {
 
         hiveTableDAO.deleteEntity(tableName, datasetId, lifeCycleDate);
         hiveTableDAO.deleteEntity(partialHistTableName, datasetId, lifeCycleDate);
-        hiveTableDAO.deleteEntity(fullHistTableName, datasetId, lifeCycleDate);        
-}
+        hiveTableDAO.deleteEntity(fullHistTableName, datasetId, lifeCycleDate);
+    }
 }
