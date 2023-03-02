@@ -18,7 +18,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.BigData
 import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
 import kr.re.keti.sc.dataservicebroker.datasetflow.service.DatasetFlowRetrieveSVC;
 import kr.re.keti.sc.dataservicebroker.datasetflow.vo.DatasetFlowBaseVO;
-import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCyleDAO;
+import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCycleDAO;
 import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.hive.HiveTableDatalifeDAO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -86,11 +86,11 @@ public class DataLifeCycleProcessor {
             LocalDateTime now = LocalDateTime.now(); // 현재시간
             LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
-            Date lifeCyleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
+            Date lifeCycleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
             
-            dataLifeCyleDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
-            dataLifeCyleDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
-            dataLifeCyleDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);   
+            dataLifeCycleDAO.deleteEntity(tableName, datasetId, lifeCycleDate);
+            dataLifeCycleDAO.deleteEntity(partialHistTableName, datasetId, lifeCycleDate);
+            dataLifeCycleDAO.deleteEntity(fullHistTableName, datasetId, lifeCycleDate);   
 
     }
 
@@ -108,10 +108,10 @@ public class DataLifeCycleProcessor {
         LocalDateTime now = LocalDateTime.now(); // 현재시간
         LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
-        Date lifeCyleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
+        Date lifeCycleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
 
-        hiveTableDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
-        hiveTableDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
-        hiveTableDAO.deleteEntity(fullHistTableName, datasetId, lifeCyleDate);        
+        hiveTableDAO.deleteEntity(tableName, datasetId, lifeCycleDate);
+        hiveTableDAO.deleteEntity(partialHistTableName, datasetId, lifeCycleDate);
+        hiveTableDAO.deleteEntity(fullHistTableName, datasetId, lifeCycleDate);        
 }
 }
