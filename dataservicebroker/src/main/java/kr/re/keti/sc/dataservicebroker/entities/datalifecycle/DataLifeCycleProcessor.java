@@ -18,6 +18,7 @@ import kr.re.keti.sc.dataservicebroker.common.code.DataServiceBrokerCode.BigData
 import kr.re.keti.sc.dataservicebroker.datamodel.DataModelManager;
 import kr.re.keti.sc.dataservicebroker.datasetflow.service.DatasetFlowRetrieveSVC;
 import kr.re.keti.sc.dataservicebroker.datasetflow.vo.DatasetFlowBaseVO;
+
 import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.DataLifeCycleDAO;
 import kr.re.keti.sc.dataservicebroker.entities.datalifecycle.dao.hive.HiveTableDatalifeDAO;
 
@@ -86,6 +87,7 @@ public class DataLifeCycleProcessor {
             LocalDateTime now = LocalDateTime.now(); // 현재시간
             LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
+
             Date lifeCycleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
             
             dataLifeCycleDAO.deleteEntity(tableName, datasetId, lifeCycleDate);
@@ -107,6 +109,7 @@ public class DataLifeCycleProcessor {
 
         LocalDateTime now = LocalDateTime.now(); // 현재시간
         LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
+
 
         Date lifeCycleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant());
 
