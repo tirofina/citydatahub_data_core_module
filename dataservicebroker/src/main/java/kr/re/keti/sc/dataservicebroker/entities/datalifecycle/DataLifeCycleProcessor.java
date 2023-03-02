@@ -108,8 +108,7 @@ public class DataLifeCycleProcessor {
         LocalDateTime now = LocalDateTime.now(); // 현재시간
         LocalDateTime storageRetentionDayAgo = now.minusDays(storageRetention);
 
-       
-       
+        Date lifeCyleDate = Date.from(storageRetentionDayAgo.atZone(ZoneId.systemDefault()).toInstant()); // 제발
 
         hiveTableDAO.deleteEntity(tableName, datasetId, lifeCyleDate);
         hiveTableDAO.deleteEntity(partialHistTableName, datasetId, lifeCyleDate);
