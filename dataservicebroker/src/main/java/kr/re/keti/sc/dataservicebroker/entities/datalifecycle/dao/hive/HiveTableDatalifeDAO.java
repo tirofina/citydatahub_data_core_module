@@ -20,12 +20,12 @@ public class HiveTableDatalifeDAO {
     @Qualifier("hiveSqlSession")
     private SqlSessionTemplate sqlSession;
 
-    public int deleteEntity(String tableName, String datasetId, Date lifeCyleDate) {
+    public int deleteEntity(String tableName, String datasetId, Date lifeCycleDate) {
 
         Map<String, Object> param = new HashMap<>();
         param.put("tableName", tableName);
         param.put("datasetId", datasetId);
-        param.put("lifeCyleDate", lifeCyleDate);
+        param.put("lifeCycleDate", lifeCycleDate);
 
     	return sqlSession.delete("dataservicebroker.hive.deleteEntity", param);
     }
