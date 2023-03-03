@@ -13,7 +13,7 @@ STS is defined as Hive Server2 or sometimes it also can be defined as Spark SQL 
 
 ## 1.2. How Thrift server and Data Core are connected
 
-Spark Thrift Server is connected to Data Service Broker in Data Core through JDBC and ODBC protocol.
+Spark Thrift Server is connected to Data Service Broker in Data Core through JDBC protocol.
 
 <br/>
 
