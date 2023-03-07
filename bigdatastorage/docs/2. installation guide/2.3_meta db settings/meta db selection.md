@@ -42,9 +42,18 @@
   $SPARK_HOME/jars
   ```
 ### 2.3.2.3 hive-site.xml configuration
+- Copy and rename hive-default.xml.template under /usr/local/hive/conf
+  ```zsh
+  $cd /usr/local/hive/conf
+  $cp hive-default.xml.template ./hive-site.xml
+  ```
+  
 - Add MetaDB information to use as Metstore in hive-site.xml
   - User name and password refer to the newly created user information and password as shown in the **2.3 MetaStore DataBase Settings**
   > ex) hive/hive123!
+
+- In the sample script below, the port number of ConnectionURL is 5500, but it needs to be modified depending on your installation.
+
 ```
   <property>
     <name>javax.jdo.option.ConnectionUserName</name>

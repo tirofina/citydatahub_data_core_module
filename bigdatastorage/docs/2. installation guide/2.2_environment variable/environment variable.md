@@ -1,9 +1,10 @@
 # 2.2 Hadoop Configuration Setting
 
 - Open the environment variable settings file using the editor with `vi ~/.bash_profile` and add the following:
+- It is required to update the environment variable of JAVA_HOME in case of installing the different version of JDK
   ```
   # Set JAVA_HOME
-  export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
   
   # Set Hive Path
   export HIVE_HOME=/usr/local/hive

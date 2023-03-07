@@ -1,9 +1,10 @@
 # 2.4 Spark Settings
 
 ## 2.4.1 Thrift Server Deployment
-Move packed `tar.gz` file to FileSystem of your server and unzip the complessed file which directory you have defined as THRIFT_HOME
+- Move packed `tar.gz` file to FileSystem of your server and unzip the complessed file which directory you have defined as THRIFT_HOME
+- When executing the command below, you need to specify the location of the compressed file.
   ```
-  tar -xvzf /thrift-server/thrift-server-$THRIFT_SERVER_VERSION.tar.gz -C /usr/local
+  tar -xvzf [location of the compressed file]/thrift-server-$THRIFT_SERVER_VERSION.tar.gz -C /usr/local
   ln -s /usr/local/thrift-server-$THRIFT_SERVER_VERSION /usr/local/thrift-server
   ```
 ## 2.4.2 Download Jars
@@ -19,7 +20,9 @@ wget -P $SPARK_HOME/jars/ "https://repo1.maven.org/maven2/org/wololo/jts2geojson
 
 ## 2.4.3 Work with Hadoop & Hive
 
-In order to store data into HDFS and execute query in yarn executors, the xml files below must be located in  `$SPARK_HOME/conf` directory
+In order to store data into HDFS and execute query in yarn executors, the xml files below must be located in  `$SPARK_HOME/conf` directory.
+
+The xml files methioned above are located in configuration folder where hadoop cluster is installed.
 
 ```
 core-site.xml
