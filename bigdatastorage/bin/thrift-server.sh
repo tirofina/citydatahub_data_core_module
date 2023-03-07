@@ -6,15 +6,6 @@ thriftMode="$1"
 ivyDir=<working directory of ivy.settings>/ivy.settings
 geohikerVersion=1.2.53
 
-help()
-{
-    echo "Start Thrift Server : $0 [start|stop] -master [spark-master] -port [thrift-port] -url [thrift-url]"
-    echo " -m set spark master"
-    echo " -p set port of spart thrift server"
-    echo " -u set url of spark thrift server"
-}
-
-
 # 옵션이름 뒤에 :이 붙은 것은 값을 필요로 함을 의미합니다.
 while getopts opt
 do
@@ -32,7 +23,6 @@ do
         # 상단의  옵션이 아니면 도움말을 출력하고 종료합니다.
         *)
             echo "Invalid option ${opt}"
-            help
             exit 0
             ;;
     esac
@@ -57,5 +47,4 @@ elif [ "stop" == "${thriftMode}" ]; then
   $GEOHIKER_HOME/sbin/datacore-stop-thriftserver.sh
 else
   echo "Invalid mode ${thriftMode}"
-  help
 fi
