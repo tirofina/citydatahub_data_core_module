@@ -44,7 +44,17 @@
   ```
   $THRIFT_HOME/bin/thrift-server.sh start
   ```
-> If you modify `--hiveconf` in `thrift-server.sh`, you can using this option : -m <Spark_Master> -p <Thrift_Port> -u <Thrift_Url>
+
+- If you face the error, you need to execute the command below.
+
+  `/usr/bin/env : ‘bash\r’ : No such file of directory`  
+
+  ```
+  $ sudo yum -y install dos2unix 
+  $ dos2unix $THRIFT_HOME/bin/thrift-server.sh
+  $ dos2unix $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh
+  $ dos2unix $GEOHIKER_HOME/sbin/datacore-stop-thriftserver.sh
+  ```
   
 - If you want to stop thrift server, enter the following command:
    ```

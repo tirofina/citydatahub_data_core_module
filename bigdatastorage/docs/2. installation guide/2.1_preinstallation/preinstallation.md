@@ -66,7 +66,7 @@ All the steps in the installation guide except thrift server.md can be found in 
 (hadoop) curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
 ```
 
-### 2.2.2.1 (Optional) Create a path with no version information using symbolic links
+### 2.2.2.1 Create a path with no version information using symbolic links
 ```
 (spark)  cd /usr/local && ln -s spark-3.0.1-bin-hadoop2.7 spark
 (hive)   cd /usr/local && ln -s apache-hive-2.3.7-bin hive
