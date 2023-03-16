@@ -40,6 +40,7 @@ RUN chmod -R 744 /usr/local/thrift-server
 #Set Environment Variable
 ENV JAVA_HOME /usr/lib/jvm/jre-1.8.0-openjdk
 ENV THRIFT_HOME /usr/local/thrift-server
+ENV GEOHIKER_HOME /usr/local/thrift-server
 ENV SPARK_HOME /usr/local/spark
 ENV PYTHONPATH $SPARK_HOME/python/:$PYTHONPATH$
 
@@ -72,5 +73,6 @@ ADD run-thrift.sh run-thrift.sh
 RUN chmod a+x run-thrift.sh
 
 ADD supervisord.conf supervisord.conf
+ADD ivy.settings ivy.settings 
 
 ENTRYPOINT ["supervisord", "-c", "/supervisord.conf"]
