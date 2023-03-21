@@ -3,7 +3,7 @@
 export SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:~/.ivy2/jars/*
 sparkMaster="local"
 thriftMode="$1"
-ivyDir=<working directory of ivy.settings>/ivy.settings
+ivyDir=/ivy.settings
 geohikerVersion=1.2.53
 
 # 옵션이름 뒤에 :이 붙은 것은 값을 필요로 함을 의미합니다.
