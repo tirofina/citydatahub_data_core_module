@@ -1,74 +1,93 @@
-# 2.1 PreInstallation
-- If you clone git project, you can project build
+# 2.1 설치 전 준비 (수동 및 docker 사용한 설치 공통)
+
+- JDK 설치 (java-1.8.0-openjdk) 및 $JAVA_HOME  환경변수 등록 (Java 8 버전이 Spark 버전과 호환)
+
+  ```bash
+  # JDK 설치
+  yum install java-1.8.0-openjdk-devel.x86_64
+
+  # .bashrc 파일 수정
+  vi ~/.bashrc
+
+  # .bashrc 파일에 JAVA_HOME 환경변수 추가
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b08-1.el7_9.x86_64
+
+  # 변경된 .bashrc 파일 적용
+  source ~/.bashrc
+
+  # JAVA_HOME 환경변수가 제대로 설정되었는지 확인
+  echo $JAVA_HOME
   ```
+
+- /usr/local/lib 폴더 하위에 프로젝트를 복제
+  
+  ```bash
+  cd /usr/local/lib
+  git clone https://github.com/IoTKETI/citydatahub_data_core_module.git
+  ```
+
+- 복제된 프로젝트 폴더 내 bigdatastorage 폴더로 이동 후 하위의 gradlew 파일 권한 수정 및 build 및 makeTar 명령을 통한 *.tar.gz 파일 생성
+
+  ```bash
   chmod +x gradlew
   ./gradlew build
   ./gradlew makeTar
   ``` 
-# Create Distribution File
-- After the job is done, you can check `tar.gz` file in:
+## 프로젝트 빌드 후 결과 파일 확인
+- 위의 작업이 완료된 후에 아래 폴더 경로에서 `tar.gz` 파일을 확인하실 수 있습니다.
+
+  ```
+  build/dist
+  docker/thrift/thrift-server
+  ```
+<br/>
+
+만약 docker를 사용해서 설치를 하시는 경우에는 좌측 메뉴 리스트에서 `2. 설치 및 기본 설정`의 하위 메뉴 `2.2 (설치 방법1) docker-compose.yml`를 참고해서 진행해주시고, 수동 설치를 진행하시는 경우에는 아래 내용을 포함해서 2.2 Environment Variable ~ 2.5. Run Thrift Server를 순차적으로 이어서 설치해주시기 바랍니다.
+
+<br/>
+
+## 설치 시 필요한 net-tools와 wget 설치
+
+```bash
+yum install -y net-tools
+yum install -y wget
 ```
-build/dist
-docker/thrift/thrift-server
-```
-#README
-- you can choose 3 way to run thrift server
-  1. using `docker/docker-compose.yml`
-  2. using `docker/thrift/Dockerfile`
-  3. manually install (recommend adapt on your setting)
-  
-this document guide 3. manually install. but If you can use Docker, recommend 1. using `docker/docker-compose.yml` or 2. using `docker/thrift/Dockerfile`
-All the steps in the installation guide except thrift server.md can be found in docker-compose.yml or Dockerfile.
 
-# using 1. using `docker/docker-compose.yml` : 
-- install preconfigured thrift server and hadoop(container name "hadoop"), metastore is postgres(container name "7x_postgres").
-- follow up document 'run on docker.md' and 'run-thrift server.md'
+<br/>
 
-# using 2. using `docker/thrift/Dockerfile` : 
-- install preconfigured thrift server
+## Hadoop, Hive, Spark 설치
 
-- setup container with set image tag and container name
-  ```
-  docker build docker/thrift/. -t <image tag>
-  docker run -d -p 12378:10000 -v docker/conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml --name <container name> <image tag>
-  ```
-- installed thrift server only.
-- follow up last document 'run-thrift server.md'
+  ```bash
+  # BigDataStorageHandler가 동작하는 환경은 아래와 같습니다.
 
-# using 3. manually install : 
-- follow up next step and next document
-
-## 2.1.1 OS
-- Current version of Bigdata Storage is capable to CentOS 7. If the version above the version, capability check is required.
-
-## 2.1.2 Install Java
-- Install Java 8 version with consideration to Spark compatibility
-  ```
-  # centos7
-  yum install -y java-1.8.0-openjdk
-  yum install -y net-tools
-  yum install -y wget
+  - Spark: 3.0.1
+  - HADOOP_PROFILE: 2.7(Spark 다운로드를 위한 요구)
+  - Hive: 2.3.7
+  - Hadoop: 3.0.0
   ```
 
-## 2.1.3 Install Hadoop, Hive, Spark
- - Version to download (Verified version as of January 04, 2023)
-     - Spark: 3.0.1
-     - HADOOP_PROFILE: 2.7(Required for Spark Download)
-     - Hive: 2.3.7
-     - Hadoop: 3.0.0
+아래 명령어를 통해 spark, hive, hadoop을 설치해주시기 바랍니다.
 
-- Download and unzip Hive, Hadoop, Spark to desired path 
-  - If a service is already installed, skip it
-  - If CDH or HDP is to be used, downloading Hive is required.
-```
-(spark)  curl -s https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
-(hive)   curl -s https://archive.apache.org/dist/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz | tar -xvz -C /usr/local/
-(hadoop) curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
-```
+  ```bash
+  # spark  
+  curl -s https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
+  # hive   
+  curl -s https://archive.apache.org/dist/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz | tar -xvz -C /usr/local/
+  # hadoop 
+  curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
+  ```
 
-### 2.2.2.1 Create a path with no version information using symbolic links
-```
-(spark)  cd /usr/local && ln -s spark-3.0.1-bin-hadoop2.7 spark
-(hive)   cd /usr/local && ln -s apache-hive-2.3.7-bin hive
-(hadoop) cd /usr/local && ln -s hadoop-3.0.0 hadoop
-```
+위에서 설치한 spark, hive, hadoop 경로에 대한 symbolic link 설정
+
+  ```bash
+  # spark  
+  cd /usr/local && ln -s spark-3.0.1-bin-hadoop2.7 spark
+  # hive  
+  cd /usr/local && ln -s apache-hive-2.3.7-bin hive
+  # hadoop 
+  cd /usr/local && ln -s hadoop-3.0.0 hadoop
+  ``` 
+
+<br/>
+
+CDH 또는 HDP를 사용하는 경우에는 별도로 Hive가 설치되어있지 않은 경우에는 설치가 요구됩니다.
