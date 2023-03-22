@@ -1,6 +1,6 @@
 # 2.1 설치 전 준비 (수동 및 docker 사용한 설치 공통)
 
-- JDK 설치 (java-1.8.0-openjdk) 및 $JAVA_HOME  환경변수 등록 (Java 8 버전이 Spark 버전과 호환)
+- JDK 설치 (java-1.8.0-openjdk) 및 $JAVA_HOME 환경변수 등록 (Java 8 버전이 Spark 버전과 호환)
 
   ```bash
   # JDK 설치
@@ -20,29 +20,34 @@
   ```
 
 - /usr/local/lib 폴더 하위에 프로젝트를 복제
-  
+
   ```bash
   cd /usr/local/lib
   git clone https://github.com/IoTKETI/citydatahub_data_core_module.git
   ```
 
-- 복제된 프로젝트 폴더 내 bigdatastorage 폴더로 이동 후 하위의 gradlew 파일 권한 수정 및 build 및 makeTar 명령을 통한 *.tar.gz 파일 생성
+- 복제된 프로젝트 폴더 내 bigdatastorage 폴더로 이동 후 하위의 gradlew 파일 권한 수정 및 build 및 makeTar 명령을 통한 \*.tar.gz 파일 생성
 
   ```bash
   chmod +x gradlew
   ./gradlew build
   ./gradlew makeTar
-  ``` 
+  ```
+
 ## 프로젝트 빌드 후 결과 파일 확인
+
 - 위의 작업이 완료된 후에 아래 폴더 경로에서 `tar.gz` 파일을 확인하실 수 있습니다.
 
   ```
   build/dist
   docker/thrift/thrift-server
   ```
-<br/>
 
-만약 docker를 사용해서 설치를 하시는 경우에는 좌측 메뉴 리스트에서 `2. 설치 및 기본 설정`의 하위 메뉴 `2.2 (설치 방법1) docker-compose.yml`를 참고해서 진행해주시고, 수동 설치를 진행하시는 경우에는 아래 내용을 포함해서 2.2 Environment Variable ~ 2.5. Run Thrift Server를 순차적으로 이어서 설치해주시기 바랍니다.
+  <br/>
+
+`여기까지의 내용이 수동 및 Docker를 사용한 Thrift 서버 설치 시 공통으로 진행해야 되는 내용이었습니다.`
+
+만약 docker를 사용해서 설치를 하시는 경우에는 좌측 메뉴 리스트에서 `2. 설치 및 기본 설정`의 하위 메뉴 `2.2 (설치 방법1) docker-compose.yml`를 참고해서 진행해주시고, 수동 설치를 진행하시는 경우에는 아래 내용을 포함해서 2.2 Environment Variable ~ 2.5. Run Thrift Server를 순차적으로 이어서 설치를 진행해주시기 바랍니다.
 
 <br/>
 
@@ -57,33 +62,33 @@ yum install -y wget
 
 ## Hadoop, Hive, Spark 설치
 
-  ```bash
-  # BigDataStorageHandler가 동작하는 환경은 아래와 같습니다.
+```bash
+# BigDataStorageHandler가 동작하는 환경은 아래와 같습니다.
 
-  - Spark: 3.0.1
-  - HADOOP_PROFILE: 2.7(Spark 다운로드를 위한 요구)
-  - Hive: 2.3.7
-  - Hadoop: 3.0.0
-  ```
+- Spark: 3.0.1
+- HADOOP_PROFILE: 2.7(Spark 다운로드를 위한 요구)
+- Hive: 2.3.7
+- Hadoop: 3.0.0
+```
 
 아래 명령어를 통해 spark, hive, hadoop을 설치해주시기 바랍니다.
 
-  ```bash
-  # spark  
-  curl -s https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
-  # hive   
-  curl -s https://archive.apache.org/dist/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz | tar -xvz -C /usr/local/
-  # hadoop 
-  curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
-  ```
+```bash
+# spark
+curl -s https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz | tar -xvz -C /usr/local/
+# hive
+curl -s https://archive.apache.org/dist/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz | tar -xvz -C /usr/local/
+# hadoop
+curl -s https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0/hadoop-3.0.0.tar.gz | tar -xvz -C /usr/local/
+```
 
 위에서 설치한 spark, hive, hadoop 경로에 대한 symbolic link 설정
 
-  ```bash
-  # spark  
-  cd /usr/local && ln -s spark-3.0.1-bin-hadoop2.7 spark
-  # hive  
-  cd /usr/local && ln -s apache-hive-2.3.7-bin hive
-  # hadoop 
-  cd /usr/local && ln -s hadoop-3.0.0 hadoop
-  ``` 
+```bash
+# spark
+cd /usr/local && ln -s spark-3.0.1-bin-hadoop2.7 spark
+# hive
+cd /usr/local && ln -s apache-hive-2.3.7-bin hive
+# hadoop
+cd /usr/local && ln -s hadoop-3.0.0 hadoop
+```
