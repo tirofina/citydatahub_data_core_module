@@ -87,7 +87,3 @@ yum install -y wget
   # hadoop 
   cd /usr/local && ln -s hadoop-3.0.0 hadoop
   ``` 
-
-<br/>
-
-CDH 또는 HDP를 사용하는 경우에는 별도로 Hive가 설치되어있지 않은 경우에는 설치가 요구됩니다.
