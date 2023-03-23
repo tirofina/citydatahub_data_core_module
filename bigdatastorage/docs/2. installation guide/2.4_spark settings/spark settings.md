@@ -45,7 +45,7 @@
 
 <br/>
 
-## 2.4.3 Hadoop 클러스터 Work with Hadoop & Hive
+## (선택) 2.4.3 Hadoop 클러스터 Work with Hadoop & Hive
 
 HDFS에 데이터를 적재하고, YARN에서 query를 실행하기 위해 hadoop 클러스터가 설치된 경로의 config 폴더 하위에 있는 아래 명기되어있는 파일들을 `$SPARK_HOME/conf` 경로에 위치하도록 해야 합니다.
 
@@ -55,4 +55,4 @@ HDFS에 데이터를 적재하고, YARN에서 query를 실행하기 위해 hadoo
   yarn-site.xml
   ```
 
-추가로, hive metastore 데이터베이스 set을 사용하기 위해서 `$SPARK_HOME/conf` 경로의 hive-site.xml 파일을 `$SPARK_HOME/conf`의 경로에도 동일하게 위치시켜야 합니다.
+추가로, hive metastore DB set을 사용하기 위해서 `$SPARK_HOME/conf` 경로의 hive-site.xml 파일을 `$SPARK_HOME/conf`의 경로에도 동일하게 위치시켜야 합니다.

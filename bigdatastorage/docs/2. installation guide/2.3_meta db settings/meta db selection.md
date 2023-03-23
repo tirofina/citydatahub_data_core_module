@@ -1,22 +1,22 @@
-# 2.3 Metastore 데이터베이스 설정
+# 2.3 Metastore DB 설정
 
-- Spark Thrift는 Hive의 Metastore 데이터베이스를 사용하며, 관련 셋팅이 필요합니다.
+- Spark Thrift는 Hive의 Metastore DB를 사용하며, 관련 셋팅이 필요합니다.
 
 <br/>
 
 ## 2.3.1 Metastore로 사용 할 데이터베이스 선택
 
-- 기본적으로 Apache Spark은 Derby라는 기본 Metastore 데이터베이스를 제공합니다.
+- 기본적으로 Apache Spark은 Derby라는 기본 Metastore DB를 제공합니다.
 - 만약 기본적으로 제공되는 Derby 외 MySQL이나 PostgreSQL와 같은 RDBMS를 사용하는 경우에는 아래의 추가 과정을 통해 설정해주시기 바랍니다.
 - Ambari 또는 Cloudera Manager(HDP/CDH)에 의해 사용되는 DB 또한 Metastore로써 사용될 수 있습니다.
 
 <br/>
 
-Thrift 서버는 단 하나의 metastore를 가질 수 있으며, 본 수동 설치 가이드에서는 기본적으로 PostgreSQL를 metastore 데이터베이스로 사용함을 전제로 하여 작성하였습니다.
+Thrift 서버는 단 하나의 metastore를 가질 수 있으며, 본 수동 설치 가이드에서는 기본적으로 PostgreSQL를 metastore DB로 사용함을 전제로 하여 작성하였습니다.
 
 <br/>
 
-## 2.3.2 PostgreSQL을 Metastore 데이터베이스로 설정
+## 2.3.2 PostgreSQL을 Metastore DB로 설정
 
 <br/>
 

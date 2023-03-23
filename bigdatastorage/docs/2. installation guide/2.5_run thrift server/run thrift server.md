@@ -95,7 +95,7 @@ thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로�
 
   Thrift 서버 접속 계정 정보는 아래와 같습니다.
 
-  username : hive
+  username : hive <br/>
   password : hive123!
 
 <br/>
