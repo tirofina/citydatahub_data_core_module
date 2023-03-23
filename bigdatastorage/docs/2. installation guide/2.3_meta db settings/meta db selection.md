@@ -18,6 +18,8 @@ Thrift 서버는 단 하나의 metastore를 가질 수 있으며, 본 수동 설
 
 ## 2.3.2 PostgreSQL을 Metastore 데이터베이스로 설정
 
+<br/>
+
 - PostgreSQL 설치 (본 매뉴얼은 PostgreSQL 13을 기준으로 작성하였습니다)
 
   ```bash

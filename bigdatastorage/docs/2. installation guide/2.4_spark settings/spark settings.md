@@ -1,43 +1,58 @@
-# 2.4 Spark Settings
+# 2.4 Spark 설정
 
-## 2.4.1 Thrift Server Deployment
-- Move packed `tar.gz` file to FileSystem of your server and unzip the complessed file which directory you have defined as THRIFT_HOME
-- When executing the command below, you need to specify the location of the compressed file.
+## 2.4.1 Thrift Server 배포
+
+<br/>
+
+- 프로젝트 빌드 후 생성된 \*.tar.gz 파일을 /usr/local 하위 경로에 압축 해제
+
+  ```bash
+  tar -xvzf /usr/local/lib/citydatahub_data_core_module/bigdatastorage/build/dist/thrift-server-1.0.tar.gz -C /usr/local
   ```
-  tar -xvzf [location of the compressed file]/thrift-server-$THRIFT_SERVER_VERSION.tar.gz -C /usr/local
-  ln -s /usr/local/thrift-server-$THRIFT_SERVER_VERSION /usr/local/thrift-server
+
+<br/>
+
+- jts2geojson 설치
+
+  ```bash
+  wget -P $SPARK_HOME/jars/ "https://repo1.maven.org/maven2/org/wololo/jts2geojson/0.16.1/jts2geojson-0.16.1.jar"
   ```
-## 2.4.2 Download Jars
-Before you start Thrift Server, ensure that the jars described below must be deployed in `$SPARK_HOME/jars` directory
 
-### 2.4.2.1 jts2geojson
-In order to support spatial operations in spark, the following jars must be deployed.
-```
-# jts2geojson
-wget -P $SPARK_HOME/jars/ "https://repo1.maven.org/maven2/org/wololo/jts2geojson/0.16.1/jts2geojson-0.16.1.jar"
-```
+<br/>
 
+- Thrift 서버 실행 준비
 
-## 2.4.3 Work with Hadoop & Hive
+  ```bash
+  yum -y update
+  yum install -y epel-release
+  yum -y install supervisor
 
-In order to store data into HDFS and execute query in yarn executors, the xml files below must be located in  `$SPARK_HOME/conf` directory.
+  cp /usr/local/lib/citydatahub_data_core_module/bigdatastorage/docker/thrift/run-thrift.sh /
+  cd /
+  chmod a+x run-thrift.sh
 
-The xml files methioned above are located in configuration folder where hadoop cluster is installed.
+  # 스크립트 파일 내 line separator 이슈를 고려하여 각 스크립트 파일 convert 
+  yum -y install dos2unix
+  dos2unix $THRIFT_HOME/bin/thrift-server.sh
+  dos2unix $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh
+  dos2unix $GEOHIKER_HOME/sbin/datacore-stop-thriftserver.sh
 
-```
-core-site.xml
-hdfs-site.xml
-yarn-site.xml
-```
+  # 실행되는 스크립트 파일 권한 수정 (실행권한 추가)
+  chmod +x $THRIFT_HOME/bin/thrift-server.sh
+  chmod +x $GEOHIKER_HOME/sbin/datacore-start-thriftserver.sh
+  chmod +x $GEOHIKER_HOME/sbin/datacore-stop-thriftserver.sh
+  ```
 
-To use hive metastore DB set above, `hive-site.xml` written previously also must be located in `$SPARK_HOME/conf` directory.
+<br/>
 
-## 2.4.4 prepare running thrift server
-copy run-thrift.sh to `/` in your thrift server envireonment, execute next commend
-```
-yum -y update
-yum install -y epel-release
-yum -y install supervisor
+## 2.4.3 Hadoop 클러스터 Work with Hadoop & Hive
 
-chmod a+x run-thrift.sh
-```
+HDFS에 데이터를 적재하고, YARN에서 query를 실행하기 위해 hadoop 클러스터가 설치된 경로의 config 폴더 하위에 있는 아래 명기되어있는 파일들을 `$SPARK_HOME/conf` 경로에 위치하도록 해야 합니다.
+
+  ```
+  core-site.xml
+  hdfs-site.xml
+  yarn-site.xml
+  ```
+
+추가로, hive metastore 데이터베이스 set을 사용하기 위해서 `$SPARK_HOME/conf` 경로의 hive-site.xml 파일을 `$SPARK_HOME/conf`의 경로에도 동일하게 위치시켜야 합니다.
