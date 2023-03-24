@@ -74,6 +74,7 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
   - 접속한 Beeline에서 Thrift 서버 접속 및 테스트 (테이블 생성 및 데이터 적재)
 
     Thrift 서버 접속 계정 정보는 아래와 같습니다.
+    아래에서 beeline을 통해 Thrift 서버에 접속 시 입력되는 계정 정보는 HDFS에 데이터를 적재하기 위해 필요한 계정 정보입니다.
 
     <br/>
     
