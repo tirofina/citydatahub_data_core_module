@@ -75,4 +75,8 @@ RUN chmod a+x run-thrift.sh
 ADD supervisord.conf supervisord.conf
 ADD ivy.settings ivy.settings 
 
+RUN chmod +x /usr/local/thrift-server/bin/thrift-server.sh
+RUN chmod +x /usr/local/thrift-server/sbin/datacore-start-thriftserver.sh
+RUN chmod +x /usr/local/thrift-server/sbin/datacore-stop-thriftserver.sh
+
 ENTRYPOINT ["supervisord", "-c", "/supervisord.conf"]

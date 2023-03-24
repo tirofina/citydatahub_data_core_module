@@ -54,5 +54,3 @@ HDFS에 데이터를 적재하고, YARN에서 query를 실행하기 위해 hadoo
   hdfs-site.xml
   yarn-site.xml
   ```
-
-추가로, hive metastore DB set을 사용하기 위해서 `$SPARK_HOME/conf` 경로의 hive-site.xml 파일을 `$SPARK_HOME/conf`의 경로에도 동일하게 위치시켜야 합니다.

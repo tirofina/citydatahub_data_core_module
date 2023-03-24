@@ -69,6 +69,7 @@ thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로�
   $THRIFT_HOME/bin/thrift-server.sh start
   ```
 
+<br/>
 
 - (선택) Geohiker 버전을 업데이트 하기 위해서는 `$THRIFT_HOME/bin/thrift-server.sh` 파일 내 스크립트의 상단 부분에 있는 geohikerVersion의 설정값을 수정해주시기 바랍니다.
   - Default version: 1.2.53 (Verified version as of January 04, 2023)

@@ -1,6 +1,8 @@
 # 2.3 Metastore DB 설정
 
 - Spark Thrift는 Hive의 Metastore DB를 사용하며, 관련 셋팅이 필요합니다.
+- 기존에 사용하고 있는 PostgreSQL DB가 있는 경우, 아래 `2.3.2 PostgreSQL을 Metastore DB로 설정`에서 `hive 사용자 및 meta DB 생성` 내용부터 참고를 해주시고, /usr/local/hive/conf 폴더 하위에 hive-site.xml 파일의 내용에서는 기존 DB에 설정되어있는 UserName, Password, ConnectionDriverName 및 ConnectionURL에 대한 value를 수정해주시기 바랍니다.
+- 기존에 사용하고 있는 RDBMS가 없는 경우, 아래 `2.3.1 Metastore로 사용 할 데이터베이스 선택`부터 순차적으로 진행해주시기 바랍니다.
 
 <br/>
 
@@ -101,7 +103,7 @@ Thrift 서버는 단 하나의 metastore를 가질 수 있으며, 본 수동 설
 
 <br/>
   
-- /usr/local/hive/conf 폴더 하위에 hive-site.xml 파일 생성한 뒤 아래 내용 추가 <br/> (PostgreSQL의 설정 정보에서 Port는 5432(default)로 작성되었습니다)
+- /usr/local/hive/conf 및 /usr/local/spark/conf 폴더 하위에 hive-site.xml 파일 생성한 뒤 아래 내용 추가 <br/> (PostgreSQL의 설정 정보에서 Port는 5432(default)로 작성되었습니다)
 
   ```bash
   <configuration>

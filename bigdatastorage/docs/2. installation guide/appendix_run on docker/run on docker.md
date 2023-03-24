@@ -1,8 +1,10 @@
 # 부록. Docker를 이용해서 Thrift 서버 설치
 
-복제한 프로젝트 내 bigdatastorage 폴더 하위의 docker 폴더는 `hadoop, postgres, thrift`로 구성이 되어있습니다.  
+복제한 프로젝트 내 bigdatastorage 폴더 하위의 docker 폴더는 `hadoop, postgres, thrift` 각 각의 서비스별로 폴더로 구분하여 구성되어 있습니다. docker를 이용해서 Thrift 서버를 설치하는 경우에는 docker 폴더 하위의 docker-compose.yml 파일을 사용해주시기 바랍니다.
 
 docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령을 통해 설치를 진행해주시기 바랍니다.
+ 
+  <br/>
 
   - Docker 및 docker-compose 설치
     ```bash
@@ -13,11 +15,15 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
     sudo chmod +x /usr/local/bin/docker-compose
     ```
 
+  <br/>
+
   - Docker 서비스 시작
     
     ```bash
     systemctl start docker
     ```
+  
+  <br/>
 
   - Docker network 생성
 
@@ -25,13 +31,17 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
     docker network create -d bridge local-docker-bridge
     ```
 
+  <br/>
+
   - `/usr/local/lib/citydatahub_data_core_module/bigdatastorage/docker` 하위에 있는 docker-compose.yml 파일 실행
 
     ```bash
+    cd /usr/local/lib/citydatahub_data_core_module/bigdatastorage/docker
+
     docker-compose up -d --build
     ```
 
-<br/>
+  <br/>
 
   - Thrift 서버 컨테이너 접근 및 Thrift 서버 실행 
     ```bash
@@ -45,6 +55,10 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
     $THRIFT_HOME/bin/thrift-server.sh start
     ```
 
+
+  <br/>
+
+
   - 접속한 Beeline에서 Thrift 서버 접속 및 테스트 (테이블 생성 및 데이터 적재)
 
     Thrift 서버 접속 계정 정보는 아래와 같습니다.
@@ -56,15 +70,15 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
 
     <br/>
 
-    docker-compose를 이용한 설치는 수동 설치와는 달리 Hadoop cluster와 연동된 구성이기 때문에 아래와 같이 beeline 접속해서 테스트 시, hive 계정이 아닌 root 계정으로 접근해서 테이블 생성 및 데이터 삽입을 해주셔야 합니다.
+    docker-compose를 이용한 설치는 수동 설치와 달리 Hadoop cluster와 연동된 구성이기 때문에 아래와 같이 beeline 접속해서 테스트 시 hive 계정이 아닌 root 계정으로 접근해서 테이블 생성 및 데이터 삽입을 해주셔야 합니다.
 
 <br/>
 
   ```bash
   beeline> !connect jdbc:hive2://localhost:10000/default
   Connecting to jdbc:hive2://localhost:10000/default
-  Enter username for jdbc:hive2://localhost:10000:
-  Enter password for jdbc:hive2://localhost:10000:
+  Enter username for jdbc:hive2://localhost:10000: 
+  Enter password for jdbc:hive2://localhost:10000: 
 
   # Thrift 서버 접속
   # 테스트 테이블 생성
@@ -79,6 +93,8 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
   # 삽입한 데이터 확인
   0: jdbc:hive2://localhost:10000/default> SELECT * FROM test_table;
   ```
+  
+  <br/>
 
   - 적재된 데이터는 아래의 과정을 통해 확인해주시기 바랍니다.
     ```bash
