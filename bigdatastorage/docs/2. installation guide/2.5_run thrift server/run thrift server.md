@@ -57,17 +57,13 @@
 
 <br/>
 
-Thrift 서버를 최초로 실행하는 경우에는 아래 명령을 통해 Thrift 서버가 완전히 올라간 것을 확인한 후에 Thrift 서버를 중지 후 재시작 해줘야 합니다. 
-
-
-thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로드된 *.jar 파일들의 권한을 아래 명령을 통해 수정합니다.
-권한을 수정한 후에는 Thrift 서버를 재시작 시켜주도록 합니다.
+Thrift 서버를 최초로 실행하는 경우에는 아래 명령을 통해 Thrift 서버가 10000포트로 붙은 것을 확인한 후에 Thrift 서버를 재시작해야 합니다. (최초 서버 실행 시)
 
   ```bash
-  $cd /root/.ivy2/jars
-  $chmod -R +x .
+  # Thrift 서버가 제대로 완전히 올라갔는지 확인
+  netstat -tnlp | grep 10000
 
-  # Dependency 파일 권한 수정 후 Thrift 서버 재시작
+  # Thrift 서버 재시작
   $THRIFT_HOME/bin/thrift-server.sh stop
   $THRIFT_HOME/bin/thrift-server.sh start
   ```
@@ -75,9 +71,9 @@ thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로�
 <br/>
 
 - (선택) Geohiker 버전을 업데이트 하기 위해서는 `$THRIFT_HOME/bin/thrift-server.sh` 파일 내 스크립트의 상단 부분에 있는 geohikerVersion의 설정값을 수정해주시기 바랍니다.
-  - Default version: 1.2.53 (Verified version as of January 04, 2023)
+  - Default version: 1.2.55 (Verified version as of March 24, 2023)
   ```aidl
-  geohikerVersion=1.2.53
+  geohikerVersion=1.2.55
   ```
 
 <br/>

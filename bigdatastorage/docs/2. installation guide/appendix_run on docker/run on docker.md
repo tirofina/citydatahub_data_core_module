@@ -54,7 +54,19 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
     # Thrift 서버 실행
     $THRIFT_HOME/bin/thrift-server.sh start
     ```
+  
+  <br/>
 
+  Thrift 서버를 최초로 실행한 경우에는 아래 명령을 통해 Thrift 서버가 10000포트로 붙은 것을 확인한 후에 Thrift 서버를 재시작해야 합니다. (최초 서버 실행 시)
+
+  ```bash
+  # Thrift 서버가 제대로 완전히 올라갔는지 확인
+  netstat -tnlp | grep 10000
+
+  # Thrift 서버 재시작
+  $THRIFT_HOME/bin/thrift-server.sh stop
+  $THRIFT_HOME/bin/thrift-server.sh start
+  ```
 
   <br/>
 
@@ -107,16 +119,7 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
 
 <br/>
 
-  ※ 만약 Beeline을 통해 Thrift 서버에 접속하는 과정에서 *.jar 파일 NOT FOUND 에러가 발생하는 경우에는 아래 명령을 통해 `/root/.ivy2/jars` 하위의 *.jar 파일들의 권한을 수정하고, Thrift 서버를 재시작 해주시기 바랍니다.
-
-  ```bash
-  cd /root/.ivy2/jars
-  chmod -R +x .
-  THRIFT_HOME/bin/thrift-server.sh stop
-  THRIFT_HOME/bin/thrift-server.sh start  
-  ```
-
-## (선택) Thrift 서버와 외부 Hadoop 클러스터와의 연동
+## Thrift 서버와 외부 Hadoop 클러스터와의 연동
 
 <br/>
 
