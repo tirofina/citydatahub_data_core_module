@@ -49,6 +49,8 @@
 
 만약 docker를 사용해서 설치를 하시는 경우에는 좌측 메뉴 리스트에서 `2. 설치 및 기본 설정`의 하위 메뉴 `2.2 (설치 방법1) docker-compose.yml`를 참고해서 진행해주시고, 수동 설치를 진행하시는 경우에는 아래 내용을 포함해서 2.2 Environment Variable ~ 2.5. Run Thrift Server를 순차적으로 이어서 진행해주시기 바랍니다.
 
+수동 설치 매뉴얼의 경우에는 Thrift 서버를 구동하기 위한 매뉴얼로, HDFS에 실제 데이터를 적재하기 위해서는 `2.4. Spark Setting` 페이지의 `2.4.3 Hadoop 클러스터 (Hadoop & Hive과 연동))`부분에 대한 설정은 반드시 해주셔야 합니다. 
+
 <br/>
 
 ## 설치 시 필요한 net-tools와 wget 설치
