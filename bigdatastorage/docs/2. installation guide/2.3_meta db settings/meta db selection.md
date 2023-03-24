@@ -103,7 +103,7 @@ Thrift 서버는 단 하나의 metastore를 가질 수 있으며, 본 수동 설
 
 <br/>
   
-- /usr/local/hive/conf 및 /usr/local/spark/conf 폴더 하위에 hive-site.xml 파일 생성한 뒤 아래 내용 추가 <br/> (PostgreSQL의 설정 정보에서 Port는 5432(default)로 작성되었습니다)
+- `/usr/local/hive/conf` 및 `/usr/local/spark/conf` 폴더 하위에 hive-site.xml 파일 생성한 뒤 아래 내용 추가 <br/> (PostgreSQL의 설정 정보에서 Port는 5432(default)로 작성되었습니다)
 
   ```bash
   <configuration>
