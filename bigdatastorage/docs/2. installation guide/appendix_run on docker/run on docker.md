@@ -70,7 +70,7 @@ docker 및 docker-compose가 설치되어있지 않은 경우, 아래의 명령�
 
     <br/>
 
-    docker-compose를 이용한 설치는 수동 설치와 달리 Hadoop cluster와 연동된 구성이기 때문에 아래와 같이 beeline 접속해서 테스트 시 hive 계정이 아닌 root 계정으로 접근해서 테이블 생성 및 데이터 삽입을 해주셔야 합니다.
+    docker-compose를 이용한 설치는 수동 설치와 달리 Hadoop cluster와 연동된 구성이기 때문에 아래와 같이 beeline 접속해서 테스트 시 root 계정으로 접근해서 테이블 생성 및 데이터 삽입을 해줘야 합니다.
 
 <br/>
 
