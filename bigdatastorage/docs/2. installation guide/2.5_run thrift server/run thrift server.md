@@ -57,6 +57,9 @@
 
 <br/>
 
+Thrift 서버를 최초로 실행하는 경우에는 아래 명령을 통해 Thrift 서버가 완전히 올라간 것을 확인한 후에 Thrift 서버를 중지 후 재시작 해줘야 합니다. 
+
+
 thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로드된 *.jar 파일들의 권한을 아래 명령을 통해 수정합니다.
 권한을 수정한 후에는 Thrift 서버를 재시작 시켜주도록 합니다.
 
@@ -87,18 +90,17 @@ thrift 서버를 실행한 후에 `/root/.ivy2/jars` 폴더 하위에 다운로�
 
 - Beeline 접속
   ```bash
-  $SPARK-HOME/bin/beeline
+  $SPARK_HOME/bin/beeline
   ```
 
 <br/>
 
 - 접속한 Beeline에서 Thrift 서버 접속 및 테스트 (테이블 생성 및 데이터 적재)
 
-  Thrift 서버 접속 계정 정보는 아래와 같습니다.
+  아래에서 beeline을 통해 Thrift 서버에 접속 시 입력되는 계정 정보는 HDFS에 데이터를 적재하기 위해 필요한 계정 정보입니다.
 
-  username : hive <br/>
-  password : hive123!
-
+  username과 password에 아무 값도 입력되지 않을 경우, anonymous로 데이터가 적재됩니다.
+  
 <br/>
 
   ```bash
