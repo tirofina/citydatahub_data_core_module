@@ -67,6 +67,7 @@ RUN wget -P /usr/local/spark/jars/ https://jdbc.postgresql.org/download/postgres
 RUN yum -y update
 RUN yum install -y epel-release 
 RUN yum -y install supervisor
+RUN yum -y install dos2unix
 
 WORKDIR /
 ADD run-thrift.sh run-thrift.sh
@@ -75,6 +76,10 @@ RUN chmod a+x run-thrift.sh
 ADD supervisord.conf supervisord.conf
 ADD ivy.settings ivy.settings 
 ADD thrift-server.sh /usr/local/thrift-server/bin/thrift-server.sh
+
+RUN dos2unix /usr/local/thrift-server/bin/thrift-server.sh
+RUN dos2unix /usr/local/thrift-server/sbin/datacore-start-thriftserver.sh
+RUN dos2unix /usr/local/thrift-server/sbin/datacore-stop-thriftserver.sh
 
 RUN chmod +x /usr/local/thrift-server/bin/thrift-server.sh
 RUN chmod +x /usr/local/thrift-server/sbin/datacore-start-thriftserver.sh
