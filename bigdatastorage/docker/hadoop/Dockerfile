@@ -53,6 +53,5 @@ RUN ssh-keygen -q -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -q -t dsa -N '' -f /etc/ssh/ssh_host_ecdsa_key
 RUN ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/ssh_host_ed25519_key
 RUN dos2unix start-hadoop.sh
-RUN dos2unix /conf/hadoop/hadoop-env.sh
 
 ENTRYPOINT ["supervisord", "-c", "/supervisord.conf"]
