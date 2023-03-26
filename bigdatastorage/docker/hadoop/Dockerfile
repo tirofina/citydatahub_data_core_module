@@ -41,6 +41,7 @@ ENV HADOOP_OPTS "-Djava.library.path=$HADOOP_HOME/lib"
 RUN ssh-keygen -q -t rsa -N '' -f /root/.ssh/id_rsa
 RUN cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 RUN chmod 644 /root/.ssh/authorized_keys
+RUN yum -y install dos2unix
 
 WORKDIR /
 ADD supervisord.conf supervisord.conf
@@ -51,5 +52,7 @@ RUN chmod a+x start-hadoop.sh
 RUN ssh-keygen -q -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -q -t dsa -N '' -f /etc/ssh/ssh_host_ecdsa_key
 RUN ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/ssh_host_ed25519_key
+RUN dos2unix start-hadoop.sh
+RUN dos2unix /conf/hadoop/hadoop-env.sh
 
 ENTRYPOINT ["supervisord", "-c", "/supervisord.conf"]
