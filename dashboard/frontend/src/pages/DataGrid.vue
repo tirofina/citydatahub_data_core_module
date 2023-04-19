@@ -660,8 +660,9 @@ export default {
       let params = this.searchData;
       if (type) {
         params.options = this.dateSelected2;
-        params.time = this.dateSelected2 === 'between' ? this.dateTime[0] : this.dateTime;
-        params.endtime = this.dateSelected2 === 'between' ? this.dateTime[1] : null
+        params.timerel = this.dateSelected;
+        params.time = this.dateSelected === 'between' ? this.dateTime[0] : this.dateTime;
+        params.endtime = this.dateSelected === 'between' ? this.dateTime[1] : null
       }
       // console.log(this.searchData);
       // console.log(JSON.stringify(this.searchData));
