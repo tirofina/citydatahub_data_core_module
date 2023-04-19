@@ -318,9 +318,9 @@ export default {
       dateTime: '',
       dateSelected2: null,
       dateOptions2: [
-        { value: null, text: this.$i18n.t('message.selectOption'), disabled: true },
-        { value: 'normalizedHistory', text: this.$i18n.t('search.normalizedHistory') },
-        { value: 'temporalValues', text: this.$i18n.t('search.temporalValues') }
+        { text: this.$i18n.t('message.selectOption'), disabled: true },
+        { value: null, text: this.$i18n.t('search.temporalValues') },
+        { value: 'normalizedHistory', text: this.$i18n.t('search.normalizedHistory') }
       ],
     }
   },
