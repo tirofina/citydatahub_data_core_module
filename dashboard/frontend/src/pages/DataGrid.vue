@@ -574,6 +574,7 @@ export default {
         this.$alert(this.$i18n.t('message.selectDataModels'), '', {
           confirmButtonText: this.$i18n.t('comm.ok')
         });
+        this.isBtnLoading = false;
         return null;
       }
       // The structure of making search terms.
