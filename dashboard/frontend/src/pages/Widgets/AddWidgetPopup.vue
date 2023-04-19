@@ -42,7 +42,7 @@
               <el-select
                 class="mr-sm-2"
                 v-model="dataModel"
-                :placeholder="$t('message.selectOption')"
+                :placeholder="$t('message.selectOptionEntity')"
                 size="small"
                 style="width: 100%;"
                 @change="onDataModelChange"

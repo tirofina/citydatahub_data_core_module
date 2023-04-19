@@ -51,6 +51,7 @@
     "fileMaxDescription": "10MB이하 사이즈의 jpg/png 파일만 업로드 가능합니다.",
     "fileExist": "이미 등록된 파일이 있습니다. 삭제 후 재등록 가능합니다.",
     "selectOption": "값을 선택해주세요.",
+    "selectOptionEntity": "값를 선택해주세요. [Ctrl + F]로 검색.",
     "selectDateTime": "값을 선택해주세요.",
     "ZeroEqualRefresh": "0 입력시 갱신 안함",
     "selectMap": "값을 선택해주세요.",

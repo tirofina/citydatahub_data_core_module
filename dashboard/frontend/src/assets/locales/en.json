@@ -51,6 +51,7 @@
     "fileMaxDescription": "Max 10MB JPG or PNG file is allowed.",
     "fileExist": "There are already registered files. You can re-register after deleting it.",
     "selectOption": "Please select an option",
+    "selectOptionEntity": "Select entity, search with [Ctrl+f].",
     "selectDateTime": "Select date and time",
     "ZeroEqualRefresh": "0 means no refresh",
     "selectMap": "Select Map",
