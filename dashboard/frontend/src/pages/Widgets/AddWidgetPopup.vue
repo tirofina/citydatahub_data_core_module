@@ -1016,6 +1016,7 @@ export default {
           });
           break;
         case 'bar' :
+          this.formData.dataType = 'last';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
@@ -1042,6 +1043,7 @@ export default {
           });
           break;
         case 'line' :
+          this.formData.dataType = 'history';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
@@ -1149,7 +1151,7 @@ export default {
       // start exceptions
 
       // 1. String value cannot be selected for chart-type widgets.
-      const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line';
+      const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line' || chartType === 'boolean' || chartType === 'histogram' || chartType === 'scatter';
       if (notPermitStrChartType && this.validation.chartAttribute === "STRING") {
         this.$alert(this.$i18n.t('message.notSupportStringType'));
         return;
@@ -1168,7 +1170,7 @@ export default {
       }
 
       // 3-1. Number value only can be selected for scatter widgets.
-      const isNumberType = (data) => (['INTEGER', 'DOUBLE', 'NUMBER'].indexOf(data.valueType) < 0);
+      const isNumberType = (data) => (['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'].indexOf(data.valueType) < 0);
       if (chartType === 'scatter' && (isNumberType(this.attrs.x) || isNumberType(this.attrs.y))) {
         this.$alert(this.$i18n.t('message.onlySupportNumberType'));
         return;
@@ -1237,6 +1239,29 @@ export default {
         this.formData.extention2 = this.validation.chartAttribute;
       } else if (chartType === 'scatter') {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
+      }
+
+      // chartAttribute validation
+      if (chartType === 'histogram') {
+        if (this.validation.chartAttribute !== "INTEGER") {
+          this.$alert(this.$i18n.t('message.onlySupportIntegerType'));
+          return;
+        }
+      }
+
+      if (chartType === 'boolean') {
+        if (this.validation.chartAttribute !== "BOOLEAN") {
+          this.$alert(this.$i18n.t('message.notSupportType'));
+          return;
+        }
+      }
+
+      // TODO 하드코딩 방식에서 벗어나기
+      const notSupportedAttrs = ['isVirtualData', 'location', 'name', 'waterType', 'pipeType', 'operationStatus', 'waterProcessType', 'deviceId'];
+      
+      if (notPermitStrChartType && notSupportedAttrs.includes(this.formData.entityRetrieveVO.attrs[0])) {
+        this.$alert(this.$i18n.t('message.notSupportType'));
+        return;
       }
 
       if (this.visibleTreeOption) {
