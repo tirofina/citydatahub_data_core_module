@@ -96,7 +96,7 @@
                 :collapse-tags="isEntityIdMultiple"
                 size="small"
                 style="width: 100%;"
-                :placeholder="$t('message.selectOption')"
+                :placeholder="$t('message.selectOptionEntity')"
                 @change="onSelectedEntity"
                 :disabled="isEntityIdDisabled"
               >
@@ -146,6 +146,8 @@
                 id="inline-form-input-name"
                 class="mr-sm-2"
                 v-model="formData['chartTitle']"
+                placeholder="최대 32자"
+                maxlength="32"
               />
             </div>
           </div>
@@ -248,7 +250,7 @@
             <div class="form-group">
               <label class="control-label">{{ $t('widget.labelOfYaxis') }}
               </label>
-              <input type="text" class="form-control" v-model="formData['chartYName']"/>
+              <input type="text" class="form-control" v-model="formData['chartYName']" placeholder="최대 20자" maxlength="20"/>
             </div>
           </div>
           <div
@@ -257,7 +259,7 @@
           >
             <div class="form-group">
               <label class="control-label">{{ $t('widget.labelOfXaxis') }}</label>
-              <input type="text" class="form-control" v-model="formData['chartXName']"/>
+              <input type="text" class="form-control" v-model="formData['chartXName']" placeholder="최대 20자" maxlength="20"/>
             </div>
           </div>
           <div
@@ -1040,7 +1042,6 @@ export default {
           });
           break;
         case 'line' :
-          this.formData.dataType = this.formData.dataType || 'history';
           this.initDisplay({
             chartType: true,
             chartTitle: true,
