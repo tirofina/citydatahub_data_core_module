@@ -78,7 +78,8 @@
     "notSupportStringType": "You cannot select a chart value of String type in that chart type.",
     "onlySupportNumberType": "Only the X and y axes of the Number type can be selected for that chart type.",
     "selectXandYaxis": "Please set both the x and y axes.",
-    "selectTimeAndRel": "Please select a time condition/date."
+    "selectTimeAndRel": "Please select a time condition/date.",
+    "MaximumNumberOfEntities": "The maximum number of entities available in a widget is 10."
   },
   "search": {
     "subscribe": "Subscribe",
