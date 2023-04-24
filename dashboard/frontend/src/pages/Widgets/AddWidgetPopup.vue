@@ -1345,6 +1345,16 @@ export default {
         this.formData.dataType = 'last';
       }
 
+      // Code for limiting the number of entities
+      if (this.entityId.length > 0) {
+        const entityIdCount = this.entityId.join().split(',').length;
+
+        if (entityIdCount > 10) {
+          this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
+          return;
+        }
+      }
+
       // add register logic
       const file = this.imageFile;
       widgetApi.create(this.formData, file)
