@@ -15,7 +15,7 @@ services:
       NEW_DB_PASSWORD: hive123!
       NEW_DB_DATABASE: hive
     volumes:
-      - /usr/local/lib/postgresql/data:/var/lib/postgresql/data
+      - ${POSTGRESQL_LOCAL_PATH}:/var/lib/postgresql/data
     ports:
       - 54321:5432
 
@@ -26,12 +26,11 @@ services:
       context: ./hadoop
     restart: always
     hostname: hadoop
-    privileged: true
     environment:
       HADOOP_CONF_DIR: "/conf/hadoop"
     volumes:
       - ./conf:/conf
-      - /hdfs-data:/hdfs-data
+      - ${HADOOP_LOCAL_PATH}:/hdfs-data
 
   thrift:
     container_name: thrift
@@ -40,6 +39,7 @@ services:
       context: ./thrift
     hostname: thrift
     environment:
+      TZ: "Asia/Seoul"
       HADOOP_CONF_DIR: "/conf/hadoop"
     volumes:
       - ./conf/hadoop/core-site.xml:/usr/local/spark/conf/core-site.xml
@@ -48,8 +48,7 @@ services:
       - ./conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml
     ports:
       - 12378:10000 # for thrift-server
-    environment:
-      TZ: "Asia/Seoul"
+
 
 networks:
   default:
