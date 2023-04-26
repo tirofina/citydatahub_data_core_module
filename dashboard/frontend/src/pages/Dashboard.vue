@@ -183,6 +183,7 @@
  * @props props { ... }
  * @state data() { ... }
  */
+import { uuid } from "uuidv4";
 import VueGridLayout from 'vue-grid-layout';
 import Doughnut from '@/components/Chart/Doughnut';
 import LineChart from '@/components/Chart/LineChart';
@@ -298,98 +299,122 @@ export default {
         const serverURL = `ws://${window.location.host}/widgetevents`;
         this.websocket = new WebSocket(serverURL);
 
-        this.websocket.onopen = (event) => {
-          // console.log('websocket open');
-          // console.log(event);
-          this.onOpen();
+        this.websocket.onopen = event => {
+
         };
 
-        this.websocket.onmessage = (event) => {
-          // console.log('websocket onMessage');
-          // console.log(event);
-          this.onMessage(event);
+        this.websocket.onmessage = event => {
+          const socketData = JSON.parse(event.data);
+          // console.log(socketData);
+          const { chartType, dataType } = socketData;
+          if (chartType === 'text' || chartType === 'boolean' || chartType === 'custom_text') {
+            const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
+            this.layout[index].data = { result: JSON.parse(event.data) };
+            return null;
+          }
+
+          let resultData = null;
+          if (chartType === 'donut' || chartType === 'pie') {
+            resultData = setDonutChart(socketData);
+          }
+
+          if (chartType === 'bar') {
+            if (dataType === 'last') {
+              resultData = setBarChartLast(socketData);
+            } else {
+              resultData = setBarChartHistory(socketData);
+            }
+          }
+
+          if (chartType === 'line') {
+            resultData = setLineChart(socketData);
+          }
+
+          if (chartType === 'scatter') {
+            if (dataType === 'last') resultData = setScatterLastChart(socketData);
+            else resultData = setScatterHistoryChart(socketData);
+          }
+
+          if (chartType === 'histogram') {
+            const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
+            const { chartUnit, valueType } = this.layout[index];
+            if (valueType && valueType.toUpperCase() === 'STRING') {
+              resultData = setHistogramStrChart(socketData);
+            } else {
+              resultData = setHistogramNumberChart(socketData, chartUnit);
+            }
+          }
+
+          this.layout.forEach(item => {
+            if (item.widgetId === socketData.widgetId) {
+              item.data = resultData;
+              if (item.chartType === 'bar') {
+                item.options = barChartOptions(item);
+              } else if (item.chartType === 'line') {
+                item.options = lineChartOptions(item);
+              } else if (item.chartType === 'histogram') {
+                const { chartUnit, valueType } = item;
+                // 차트의 max xAxis 설정 위함
+                const N = socketData.data.length;
+                const maxX = N > 0 ? socketData.data[N - 1].x + (chartUnit / 2) : 10;
+                if (valueType && valueType.toUpperCase() === 'STRING') {
+                  item.options = histogramStrChartOptions(item);
+                } else {
+                  item.options = histogramNumberChartOptions(item, chartUnit, maxX);
+                }
+              } else {
+                item.options = chartOptions(item);
+              }
+              item.updateCnt++;
+            }
+          });
         };
 
         this.websocket.onclose = (event) => {
-          // console.log('websocket close');
-          // console.log(event);
+          console.log("WebSocket connection closed:", event);
+        };
+
+        this.websocket.onerror = (error) => {
+          if (error.message === "Broken pipe") {
+            this.reconnect();
+          } else {
+            console.error("WebSocket error:", error);
+          }
         };
       }
     },
-    sendMessage(message) {
+    async sendMessage(message) {
+      // Wait for the WebSocket to be in the OPEN state
+      const waitForWebSocketOpen = (timeout = 1000) => {
+        return new Promise((resolve, reject) => {
+          let elapsedTime = 0;
+          const interval = 100;
+          const checkWebSocketState = () => {
+            elapsedTime += interval;
+            if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+              resolve();
+            } else if (elapsedTime >= timeout) {
+              reject(new Error('WebSocket connection timeout'));
+            } else {
+              setTimeout(checkWebSocketState, interval);
+            }
+          };
+          checkWebSocketState();
+        });
+      };
+
+      try {
+        await waitForWebSocketOpen();
+      } catch (err) {
+        console.error('Failed to send message:', err);
+        return;
+      }
+
       message.dashboardId = this.selectedDashboard.dashboardId;
       this.websocket.send(JSON.stringify(message));
     },
-    onOpen() {
-    },
-    async onMessage(event) {
-      const socketData = JSON.parse(event.data);
-      // console.log(socketData);
-      const {chartType, dataType} = socketData;
-      if (chartType === 'text' || chartType === 'boolean' || chartType === 'custom_text') {
-        const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
-        this.layout[index].data = {result: JSON.parse(event.data)};
-        return null;
-      }
-
-      let resultData = null;
-      if (chartType === 'donut' || chartType === 'pie') {
-        resultData = setDonutChart(socketData);
-      }
-
-      if (chartType === 'bar') {
-        if (dataType === 'last') {
-          resultData = setBarChartLast(socketData);
-        } else {
-          resultData = setBarChartHistory(socketData);
-        }
-      }
-
-      if (chartType === 'line') {
-        resultData = setLineChart(socketData);
-      }
-
-      if (chartType === 'scatter') {
-        if (dataType === 'last') resultData = setScatterLastChart(socketData);
-        else resultData = setScatterHistoryChart(socketData);
-      }
-
-      if (chartType === 'histogram') {
-        const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
-        const {chartUnit, valueType} = this.layout[index];
-        if (valueType && valueType.toUpperCase() === 'STRING') {
-          resultData = setHistogramStrChart(socketData);
-        } else {
-          resultData = setHistogramNumberChart(socketData, chartUnit);
-        }
-      }
-
-      this.layout.forEach(item => {
-        if (item.widgetId === socketData.widgetId) {
-          item.data = resultData;
-          if (item.chartType === 'bar') {
-            item.options = barChartOptions(item);
-          } else if (item.chartType === 'line') {
-            item.options = lineChartOptions(item);
-          } else if (item.chartType === 'histogram') {
-            const {chartUnit, valueType} = item;
-            // 차트의 max xAxis 설정 위함
-            const N = socketData.data.length;
-            const maxX = N > 0 ? socketData.data[N-1].x + (chartUnit / 2) : 10;
-            if (valueType && valueType.toUpperCase() === 'STRING') {
-              item.options = histogramStrChartOptions(item);
-            } else {
-              item.options = histogramNumberChartOptions(item, chartUnit, maxX);
-            }
-          } else {
-            item.options = chartOptions(item);
-          }
-          item.updateCnt++;
-        }
-      });
-    },
     disconnect() {
-      if (this.websocket) {
+      if (this.websocket && this.websocket.readyState !== WebSocket.CLOSED) {
         this.websocket.close();
         this.websocket = null;
       }
@@ -398,8 +423,8 @@ export default {
       if (!this.websocket) {
         this.socketConnect();
       } else {
-        await this.disconnect();
-        await this.socketConnect();
+        this.disconnect();
+        this.socketConnect();
       }
     },
     onChartEdit(item) {
@@ -413,10 +438,10 @@ export default {
       this.dialogVisible = true;
     },
     layoutSave() {
-      const {dashboardId} = this.selectedDashboard;
+      const { dashboardId } = this.selectedDashboard;
       // make data
       const chartSize = this.layout.map(item => {
-        const {widgetId, i, x, y, w, h} = item;
+        const { widgetId, i, x, y, w, h } = item;
         return {
           dashboardId,
           widgetId,
@@ -447,7 +472,7 @@ export default {
       this.editItem = null;
     },
     onEditWidget(data) {
-      const {chartType, userId, widgetId, i} = data;
+      const { chartType, userId, widgetId, i } = data;
 
       if (chartType === 'Image') {
         this.getWidgetImage(i, widgetId);
@@ -462,22 +487,22 @@ export default {
 
       if (chartType !== 'custom_text' && chartType !== 'Image') {
         // call websocket
-        this.sendMessage({widgetId, userId, methods: 'update'});
+        this.sendMessage({ widgetId, userId, methods: 'update' });
       }
     },
     onRemoveWidget(data) {
-      const {chartType, widgetId, userId} = data;
+      const { chartType, widgetId, userId } = data;
       this.layout = this.layout.filter(item => item.widgetId !== widgetId);
 
       if (chartType !== 'custom_text' && chartType !== 'Image') {
         // call websocket
-        this.sendMessage({widgetId, userId, method: 'delete'});
+        this.sendMessage({ widgetId, userId, method: 'delete' });
       }
       // Increment the counter to ensure key is always unique.
       this.index--;
     },
     onAddWidget(data) {
-      const {chartType, widgetId, userId} = data;
+      const { chartType, widgetId, userId } = data;
       data.updateCnt = 0;
       this.layout.push(data);
 
@@ -487,7 +512,7 @@ export default {
 
       if (chartType !== 'custom_text' && chartType !== 'Image') {
         // call websocket
-        this.sendMessage({widgetId, userId, methods: 'create'});
+        this.sendMessage({ widgetId, userId, methods: 'create' });
       }
       // Increment the counter to ensure key is always unique.
       this.index++;
@@ -515,7 +540,7 @@ export default {
         .then(() => this.getWidgetList());
     },
     deleteDashboard() {
-      const {dashboardId} = this.selectedDashboard;
+      const { dashboardId } = this.selectedDashboard;
       dashboardApi.delete(dashboardId)
         .then(() => {
           this.$alert(this.$i18n.t('message.deleted'));
@@ -542,98 +567,117 @@ export default {
     getWidgetList() {
       this.layout = [];
       this.index = 0;
-      const {dashboardId} = this.selectedDashboard;
-      widgetApi.fetch(dashboardId)
-        .then(data => {
-          const items = data;
-          if (items.length > 0) {
-            items.forEach(item => {
-              const {
-                widgetId,
-                userId,
-                chartType,
-                chartTitle,
-                chartXName,
-                chartYName,
-                yaxisRange,
-                mapSearchConditionId
-              } = item;
-              const chartSize = JSON.parse(item.chartSize);
-              this.layout.push({
-                widgetId: widgetId,
-                x: chartSize.x,
-                y: chartSize.y,
-                w: chartSize.w,
-                h: chartSize.h,
-                i: this.index,
-                chartType: chartType,
-                title: chartTitle,
-                chartXName: chartXName || null,
-                chartYName: chartYName || null,
-                yaxisRange: yaxisRange || null,
-                data: null,
-                mapSearchConditionId: mapSearchConditionId,
-                updateCnt: 0,
-              });
-
-              if (chartType === 'histogram') {
-                const {extention1, extention2} = item;
-                this.layout[this.index].chartUnit = extention1;
-                this.layout[this.index].valueType = extention2;
-              }
-
-              if (chartType === 'custom_text') {
-                const {extention1, extention2} = item;
-                this.layout[this.index].data = {
-                  extention1,
-                  extention2,
-                }
-              } else if (chartType === 'Image') {
-                this.getBase64Image(this.index, item.file, item.extention1);
-              } else {
-                // send websocket message
-                this.sendMessage({widgetId, userId, methods: 'read'});
-              }
-              this.index++;
+      const { dashboardId } = this.selectedDashboard;
+      widgetApi.fetch(dashboardId).then(data => {
+        const items = data;
+        if (items.length > 0) {
+          items.forEach(item => {
+            const {
+              widgetId,
+              userId,
+              chartType,
+              chartTitle,
+              chartXName,
+              chartYName,
+              yaxisRange,
+              mapSearchConditionId
+            } = item;
+            // if (chartTitle.length > 30) {
+            //   chartTitle = chartTitle.substring(0, 30);
+            //   console.log(chartTitle);
+            // }
+            const chartSize = JSON.parse(item.chartSize);
+            this.layout.push({
+              widgetId: widgetId,
+              x: chartSize.x,
+              y: chartSize.y,
+              w: chartSize.w,
+              h: chartSize.h,
+              i: this.index,
+              chartType: chartType,
+              title: chartTitle,
+              chartXName: chartXName || null,
+              chartYName: chartYName || null,
+              yaxisRange: yaxisRange || null,
+              data: null,
+              mapSearchConditionId: mapSearchConditionId,
+              updateCnt: 0
             });
-          }
-        })
+
+            if (chartType === "histogram") {
+              const { extention1, extention2 } = item;
+              this.layout[this.index].chartUnit = extention1;
+              this.layout[this.index].valueType = extention2;
+            }
+
+            if (chartType === "custom_text") {
+              const { extention1, extention2 } = item;
+              this.layout[this.index].data = {
+                extention1,
+                extention2
+              };
+            } else if (chartType === "Image") {
+              this.getBase64Image(this.index, item.file, item.extention1);
+            } else {
+              // send websocket message
+              this.sendMessage({ widgetId, userId, methods: "read" });
+            }
+            this.index++;
+          });
+        }
+      });
     },
     getBase64Image(index, file, name) {
-      const url = `data:image/png;base64,${file}`
-      this.layout[index].data = {url, name};
+      const url = `data:image/png;base64,${file}`;
+      this.layout[index].data = { url, name };
     },
     async getWidgetImage(index, widgetId) {
-      const {dashboardId} = this.selectedDashboard;
+      const { dashboardId } = this.selectedDashboard;
       const file = await widgetApi.fetchImage(dashboardId, widgetId);
       const url = widgetApi.fetchImageUrl(dashboardId, widgetId);
-      this.layout[index].data = {url, file};
+      this.layout[index].data = { url, file };
     },
     isCardChart(item) {
       switch (item.chartType) {
-        case 'text':
-        case 'boolean':
-        case 'custom_text':
-        case 'Image':
+        case "text":
+        case "boolean":
+        case "custom_text":
+        case "Image":
           return true;
       }
       return false;
     },
     initSelectedDashboard() {
       this.selectedDashboard = {
-        dashboardName: null,
-        dashboardId: null,
-      }
+        dashboardName: "",
+        dashboardId: uuid()
+      };
+    },
+    // 새로고침, 창 끄기(X버튼 누름), 다른 사이트로 이동(주소창 입력으로), 외부 링크 클릭
+    unLoadEvent: function (event) {
+      this.disconnect();
     },
   },
+  // 대시보드 내 메뉴 클릭으로 다른 페이지 이동 시
+  beforeRouteLeave(to, from, next) {
+    this.disconnect();
+    next();
+  },
   mounted() {
-    // Reconnect the page in case it does not refresh or close.
-    this.reconnect();
+    window.addEventListener('beforeunload', this.unLoadEvent);
 
     this.index = this.layout.length > 0 ? this.layout.length - 1 : 0;
     this.getDashboard();
+
+    // Reconnect the page in case it does not refresh or close.
+    this.reconnect();
   },
-}
+  beforeDestroy() {
+    // TODO: 언제 호출되는지 확인 필요
+    console.log('beforeDestroy()', this.websocket);
+    window.removeEventListener('beforeunload', this.unLoadEvent);
+  }
+};
 </script>
 
 <style scoped>
