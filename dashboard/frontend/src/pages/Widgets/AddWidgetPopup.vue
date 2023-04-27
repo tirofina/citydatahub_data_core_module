@@ -1219,6 +1219,21 @@ export default {
       } else {
         this.formData.entityRetrieveVO = null;
       }
+      
+      // Code for limiting the number of entities
+      if (this.entityId.length > 0) {
+        const entityIdCount = this.entityId.join().split(',').length;
+
+        if (this.entityId.length > 1000) {
+          this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
+          return;
+        }
+
+        if (entityIdCount > 10) {
+          this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
+          return;
+        }
+      }   
 
       // api updateInterval default 0 setting
       // (Error occurs when requesting deletion of widget websocket.)
@@ -1256,7 +1271,7 @@ export default {
         }
       }
 
-      // TODO 하드코딩 방식에서 벗어나기
+      // TODO: 하드코딩 방식에서 벗어나기
       const notSupportedAttrs = ['isVirtualData', 'location', 'name', 'waterType', 'pipeType', 'operationStatus', 'waterProcessType', 'deviceId'];
       
       if (notPermitStrChartType && notSupportedAttrs.includes(this.formData.entityRetrieveVO.attrs[0])) {
@@ -1343,16 +1358,6 @@ export default {
 
       if (['line', 'bar', 'custom_text', 'histogram', 'scatter'].indexOf(chartType) < 0) {
         this.formData.dataType = 'last';
-      }
-
-      // Code for limiting the number of entities
-      if (this.entityId.length > 0) {
-        const entityIdCount = this.entityId.join().split(',').length;
-
-        if (entityIdCount > 10) {
-          this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
-          return;
-        }
       }
 
       // add register logic
