@@ -1,8 +1,7 @@
-version: '3.4'
-
 services:
   postgres:
     container_name: 7x_postgres
+    image: keti/sc/bigdatastorage/postgres:latest
     build:
       context: ./postgis
     restart: always
@@ -21,12 +20,13 @@ services:
 
   hadoop:
     container_name: hadoop
-    image: hadoop:latest
+    image: keti/sc/bigdatastorage/hadoop:latest
     build:
       context: ./hadoop
     restart: always
     hostname: hadoop
     environment:
+      TZ: Asia/Seoul
       HADOOP_CONF_DIR: "/conf/hadoop"
     volumes:
       - ./conf:/conf
@@ -34,12 +34,12 @@ services:
 
   thrift:
     container_name: thrift
-    image: thrift:latest
+    image: keti/sc/bigdatastorage/thrift:latest
     build:
       context: ./thrift
     hostname: thrift
     environment:
-      TZ: "Asia/Seoul"
+      TZ: Asia/Seoul
       HADOOP_CONF_DIR: "/conf/hadoop"
     volumes:
       - ./conf/hadoop/core-site.xml:/usr/local/spark/conf/core-site.xml
@@ -47,10 +47,10 @@ services:
       - ./conf/hadoop/hdfs-site.xml:/usr/local/spark/conf/hdfs-site.xml
       - ./conf/hive/hive-site.xml:/usr/local/spark/conf/hive-site.xml
     ports:
-      - 12378:10000 # for thrift-server
-
+      - 10000:10000 # for thrift-server
+      - 4040:4040
 
 networks:
   default:
-    external:
-      name: local-docker-bridge
+    name: citydatahub-datacore
+    external: true
