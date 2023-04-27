@@ -1,9 +1,9 @@
 {
-  "name": "citydatahub_usertool",
-  "version": "0.0.1",
+  "name": "datacore-usertool-frontend",
+  "version": "2.1.1",
   "private": true,
-  "description": "Vue light bootstrap dashboard",
-  "author": "cristijora <joracristi@gmail.com>",
+  "description": "City data hub datacore module - usertool frontend application",
+  "author": "IoTKETI",
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
