@@ -1665,7 +1665,13 @@ public class WidgetDashboardSVC {
 	    				object = map.get(attrs[i]);
 	    			}
 	    		}
-	    		legends.put(commonEntityVO.getId(), (String) object);
+				if (object instanceof String) {
+					legends.put(commonEntityVO.getId(), (String) object);
+				} else if (object instanceof Map) {
+					if (((Map) object).get("value") != null) {
+						legends.put(commonEntityVO.getId(), ((Map) object).get("value").toString());
+					}
+				}
 	    	}
 	    }
 	    
