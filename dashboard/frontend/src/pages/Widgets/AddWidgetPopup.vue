@@ -15,6 +15,7 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
+              <!--차트 유형-->
               <label class="control-label">{{ $t('widget.widgetType') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -24,7 +25,7 @@
                 style="width: 100%;"
                 @change="onChartTypeChange"
                 :disabled="isModify"
-              >
+              > 
                 <el-option
                   v-for="item in chartTypes"
                   :key="item.value"
@@ -38,6 +39,7 @@
           </div>
           <div class="col-md-4" v-if="display['chartType']">
             <div class="form-group">
+              <!-- 데이터 모델 ID -->
               <label class="control-label">{{ $t('widget.dataModelID') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -61,6 +63,7 @@
           </div>
           <div class="col-md-4" v-if="display['typeUri']">
             <div class="form-group">
+              <!-- Type URI-->
               <label class="control-label">{{ $t('widget.typeUri') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -87,6 +90,7 @@
             v-if="display['entityId']"
           >
             <div class="form-group">
+              <!-- Entity ID -->
               <label class="control-label">{{ $t('widget.entityInstanceID') }}</label>
 <!--              :multiple="isEntityIdMultiple && (['bar'].indexOf(formData['chartType']) > -1)"-->
               <el-select
@@ -116,6 +120,7 @@
             v-if="display['displayData']"
           >
             <div class="form-group">
+              <!--표시 데이터(일부 차트 타입에서만 표시됨)-->
               <label class="control-label">{{ $t('widget.displayData') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -141,6 +146,7 @@
             v-if="display['chartTitle']"
           >
             <div class="form-group">
+              <!--타이틀-->
               <label class="control-label">{{ $t('widget.widgetTitle') }}</label>
               <b-form-input
                 id="inline-form-input-name"
@@ -156,6 +162,7 @@
             v-if="display['yaxisRange']"
           >
             <div class="form-group">
+              <!--Y축 범위 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.rangeOfYaxis') }}</label>
               <b-form-input
                 id="inline-form-input-name"
@@ -170,6 +177,7 @@
             v-if="display['timerel']"
           >
             <div class="form-group">
+              <!--시간 조건 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('search.timeRelation') }}</label>
               <el-select
                 v-model="timerel"
@@ -194,6 +202,7 @@
             v-if="display['time']"
           >
             <div class="form-group">
+              <!--일시 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.time') }}</label>
               <el-date-picker
                 v-if="timerel !== 'between'"
@@ -223,6 +232,7 @@
             v-if="display['realtimeUpdateEnabled']"
           >
             <div class="form-group">
+              <!--실시간 갱신 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.autoRefresh') }}
               </label>
               <el-select
@@ -248,6 +258,7 @@
             v-if="display['chartYName']"
           >
             <div class="form-group">
+              <!--Y축명 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.labelOfYaxis') }}
               </label>
               <input type="text" class="form-control" v-model="formData['chartYName']" placeholder="최대 20자" maxlength="20"/>
@@ -258,6 +269,7 @@
             v-if="display['chartXName']"
           >
             <div class="form-group">
+              <!--X축명 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.labelOfXaxis') }}</label>
               <input type="text" class="form-control" v-model="formData['chartXName']" placeholder="최대 20자" maxlength="20"/>
             </div>
@@ -267,6 +279,7 @@
             v-if="display['updateInterval']"
           >
             <div class="form-group">
+              <!--갱신주기 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.refreshInterval') }}</label>
               <input
                 type="number"
@@ -281,6 +294,7 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
+              <!--노출 텍스트 (custom Text 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.textToDisplay') }}</label>
               <input
                 type="text"
@@ -296,6 +310,7 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
+              <!--폰트 사이즈 (Custom Text 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.fontSize') }}</label>
               <el-select
                 v-model="formData['extention2']"
@@ -319,6 +334,7 @@
             v-if="display['image']"
           >
             <div class="form-group">
+              <!--이미지 파일 (Image 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.imageFile') }}</label>
               <div>
                 <el-upload
@@ -339,6 +355,7 @@
             v-if="display['latestMap']"
           >
             <div class="form-group">
+              <!--사용자 지도 (Latest Map 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.userMapLatestData') }}</label>
               <div>
                 <el-select
@@ -373,6 +390,7 @@
         :optionFiltering="formData.chartType === 'scatter'"
         @popover-show="chartOptRadio = null"
       >
+        <!-- Line / Bar 차트 타입일 때 차트 값에서 필드 선택 시 뜨는 팝업-->
         <template v-slot:popover-content="{show, node}">
           <el-radio-group v-model="chartOptRadio" @change="() => onChartOptChange(show, node)">
             <el-radio :label="1" v-if="formData['chartType'] === 'scatter'">{{ $t('widget.XaxisSetting') }}</el-radio>
@@ -619,6 +637,7 @@ export default {
       },
       validation: {
         chartAttribute: null,
+        selectedValueType: null
       },
       chartTypes: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -977,6 +996,7 @@ export default {
       }
     },
     onChartOptChange(show, node) {
+      this.validation.selectedValueType = node.data.valueType;
       if (show && node) {
         switch (this.chartOptRadio) {
           case 1: this.attrs.x = node.data; break;
@@ -1150,10 +1170,35 @@ export default {
 
       // start exceptions
 
-      // 1. String value cannot be selected for chart-type widgets.
-      const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line' || chartType === 'boolean' || chartType === 'histogram' || chartType === 'scatter';
-      if (notPermitStrChartType && this.validation.chartAttribute === "STRING") {
-        this.$alert(this.$i18n.t('message.notSupportStringType'));
+      // 차트 유형
+      // Donut		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
+      // Bar		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
+      // Pie		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
+      // Line		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
+      // Text		제한 X
+      // Boolean		'BOOLEAN'
+      // Text(Custom)	제한 X
+      // Image		이미지
+      // Latest Map	제한 X
+      // Histogram	'INTEGER'
+      // Scatter		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
+
+      // 1. Data value selection limitation based on chart type
+      const chartTypeRestrictions = {
+        donut: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+        bar: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+        pie: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+        line: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+        boolean: ['BOOLEAN'],
+        histogram: ['INTEGER'],
+        scatter: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+      };
+
+      const allowedTypes = chartTypeRestrictions[chartType];
+
+      if (allowedTypes && !allowedTypes.includes(this.validation.selectedValueType)) {
+        const allowedTypesMessage = allowedTypes.join(', ');
+        this.$alert(`${this.$i18n.t('message.notSupportType')} ${chartType}: ${allowedTypesMessage}]`);
         return;
       }
 
@@ -1220,20 +1265,23 @@ export default {
         this.formData.entityRetrieveVO = null;
       }
       
-      // Code for limiting the number of entities
-      if (this.entityId.length > 0) {
-        const entityIdCount = this.entityId.join().split(',').length;
-
-        if (this.entityId.length > 1000) {
-          this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
-          return;
-        }
-
-        if (entityIdCount > 10) {
-          this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
-          return;
-        }
-      }   
+      let chartTypesNotToVerify = ['Image', 'Text', 'custom_text', 'boolean', 'map_latest', 'histogram'];
+      if (!chartTypesNotToVerify.includes(chartType)) {
+        // Code for limiting the number of entities
+        if (this.entityId.length > 0) {
+          const entityIdCount = this.entityId.join().split(',').length;
+          
+          if (this.entityId.length > 1000) {
+            this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
+            return;
+          }
+          // For 'Text' type, don't join and calculate count.
+          if (chartType !== 'Text' && entityIdCount > 10) {
+            this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
+            return;
+          }
+        }  
+      }
 
       // api updateInterval default 0 setting
       // (Error occurs when requesting deletion of widget websocket.)
@@ -1254,29 +1302,6 @@ export default {
         this.formData.extention2 = this.validation.chartAttribute;
       } else if (chartType === 'scatter') {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
-      }
-
-      // chartAttribute validation
-      if (chartType === 'histogram') {
-        if (this.validation.chartAttribute !== "INTEGER") {
-          this.$alert(this.$i18n.t('message.onlySupportIntegerType'));
-          return;
-        }
-      }
-
-      if (chartType === 'boolean') {
-        if (this.validation.chartAttribute !== "BOOLEAN") {
-          this.$alert(this.$i18n.t('message.notSupportType'));
-          return;
-        }
-      }
-
-      // TODO: 하드코딩 방식에서 벗어나기
-      const notSupportedAttrs = ['isVirtualData', 'location', 'name', 'waterType', 'pipeType', 'operationStatus', 'waterProcessType', 'deviceId'];
-      
-      if (notPermitStrChartType && notSupportedAttrs.includes(this.formData.entityRetrieveVO.attrs[0])) {
-        this.$alert(this.$i18n.t('message.notSupportType'));
-        return;
       }
 
       if (this.visibleTreeOption) {
@@ -1445,6 +1470,7 @@ export default {
       };
       this.validation = {
         chartAttribute: null,
+        selectedValueType: null,
       };
       this.dataModelDisabled = {dataModelId: false, typeUri: false};
       // Initialize when the widget window is closed.
