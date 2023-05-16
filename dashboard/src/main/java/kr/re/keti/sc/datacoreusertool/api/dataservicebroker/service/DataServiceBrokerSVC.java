@@ -576,11 +576,7 @@ public class DataServiceBrokerSVC {
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getType())) {
 			params.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), entityRetrieveVO.getType());
 		}
-		
-		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getId())) {
-			params.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), entityRetrieveVO.getId());
-		}
-		
+
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getLimit()) && !ValidateUtil.isEmptyData(entityRetrieveVO.getOffset())) {
 			params.put(FILTER_CONDITION_LIMIT, entityRetrieveVO.getLimit());
 			params.put(FILTER_CONDITION_OFFSET, entityRetrieveVO.getOffset());
