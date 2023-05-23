@@ -93,6 +93,7 @@
               <!-- Entity ID -->
               <label class="control-label">{{ $t('widget.entityInstanceID') }}</label>
 <!--              :multiple="isEntityIdMultiple && (['bar'].indexOf(formData['chartType']) > -1)"-->
+<!--              :multiple="isEntityIdMultiple && !(['text'].indexOf(formData['chartType']) > -1)" -->
               <el-select
                 class="mr-sm-2"
                 v-model="entityId"
@@ -549,6 +550,8 @@ export default {
       return !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
     },
     isEntityIdMultiple() {
+      // const {chartType} = this.formData;  // 차트 타입 할당
+      // if (chartType) return false;
       if (this.isLineOrBarChartType) return true;
       return this.formData['dataType'] === 'last';
     },
@@ -637,7 +640,6 @@ export default {
       },
       validation: {
         chartAttribute: null,
-        selectedValueType: null
       },
       chartTypes: [
         {value: null, text: this.$i18n.t('message.selectOption'), disabled: true},
@@ -771,13 +773,40 @@ export default {
           this.entityIds = result;
           const {dataType, chartType} = this.formData;
           this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
-
           return true;
         }).then(hasEntityIds => {
         if (hasEntityIds) {
           dataModelApi.attributes({dataModelId, typeUri})
             .then(data => {
+              // 해당 엔티티 ID에 대한 차트 값들을 load함
+              // 여기서 사전에 disabled 처리함
+              const chartTypeRestrictions = {
+                donut: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+                bar: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+                pie: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+                line: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+                boolean: ['BOOLEAN'],
+                histogram: ['INTEGER'],
+                scatter: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+              };
+
               this.treeData = data;
+              console.log(this.treeData);
+              console.log(this.treeData[0].valueType);
+
+              const {chartType} = this.formData;  // 차트 타입 추출
+              console.log(chartType);
+
+              const allowedTypes = chartTypeRestrictions[chartType];
+              console.log(allowedTypes);
+
+              this.treeData.forEach(valueData => {
+                // 해당 차트의 valueType이 chartType에 허용되는 데이터 타입인지 확인
+                if (allowedTypes && !allowedTypes.includes(valueData.valueType)) {
+                  valueData.searchable = false;  // 허용되지 않는 데이터 타입인 경우 searchable을 false로 설정
+                }
+                console.log(valueData.searchable);
+              });
             });
         }
       })
@@ -864,7 +893,7 @@ export default {
               this.time = entityRetrieveVO.time ? new Date(entityRetrieveVO.time) : null;
             }
 
-            if (['line', 'bar', 'donut', 'pie'].indexOf(chartType) > -1) {
+            if (['line', 'bar', 'donut', 'pie', 'text'].indexOf(chartType) > -1) {
               this.entityId = entityRetrieveVO.id.split(',');
             } else if (['scatter'].indexOf(chartType) > -1) {
               this.entityId = dataType === 'history' ? entityRetrieveVO.id : entityRetrieveVO.id.split(',');
@@ -928,14 +957,6 @@ export default {
         }
       });
     },
-    onChartClick(data, node) {
-      if (!this.visibleTreeOption) {
-        const {fullId, valueType} = data;
-        this.formData.chartAttribute = fullId;
-        this.validation.chartAttribute = valueType;
-        this.chartUnit = null;
-      }
-    },
     onDataTypeChange(value) {
       this.entityId = null;
       const {dataType, chartType} = this.formData;
@@ -995,8 +1016,20 @@ export default {
         }
       }
     },
+    // Line이랑 Bar 제외 나머지에서 차트 값 선택 시
+    onChartClick(data, node) {
+      if (!this.visibleTreeOption) {
+        const {fullId, valueType} = data;
+        this.formData.chartAttribute = fullId;
+        this.validation.chartAttribute = valueType;
+        console.log("onChartClick: "+this.validation.chartAttribute);
+        this.chartUnit = null;
+      }
+    },
+    // Line이랑 Bar에서 차트 값 선택 시
     onChartOptChange(show, node) {
-      this.validation.selectedValueType = node.data.valueType;
+      this.validation.chartAttribute = node.data.valueType;
+      console.log("onChartOptChange: "+this.validation.chartAttribute);
       if (show && node) {
         switch (this.chartOptRadio) {
           case 1: this.attrs.x = node.data; break;
@@ -1006,6 +1039,8 @@ export default {
         }
       }
     },
+
+    // alert 대신 disabled 사용하는 것 여기도 보기!
     onChartTypeChange(value, type) {
       // Form information exposed according to chart type.
       this.display['chartType'] = !(value === 'custom_text' || value === 'Image' || value === 'latestMap');
@@ -1196,7 +1231,7 @@ export default {
 
       const allowedTypes = chartTypeRestrictions[chartType];
 
-      if (allowedTypes && !allowedTypes.includes(this.validation.selectedValueType)) {
+      if (allowedTypes && !allowedTypes.includes(this.validation.chartAttribute)) {
         const allowedTypesMessage = allowedTypes.join(', ');
         this.$alert(`${this.$i18n.t('message.notSupportType')} ${chartType}: ${allowedTypesMessage}]`);
         return;
@@ -1265,7 +1300,8 @@ export default {
         this.formData.entityRetrieveVO = null;
       }
       
-      let chartTypesNotToVerify = ['Image', 'Text', 'custom_text', 'boolean', 'map_latest', 'histogram'];
+      let chartTypesNotToVerify = ['Image', 'text', 'custom_text', 'boolean', 'map_latest', 'histogram'];
+
       if (!chartTypesNotToVerify.includes(chartType)) {
         // Code for limiting the number of entities
         if (this.entityId.length > 0) {
@@ -1276,11 +1312,25 @@ export default {
             return;
           }
           // For 'Text' type, don't join and calculate count.
-          if (chartType !== 'Text' && entityIdCount > 10) {
+          if (chartType !== 'text' && entityIdCount > 10) {
             this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
             return;
           }
-        }  
+        }
+      }
+
+      // text 위젯의 경우 1개의 엔티티만 허용
+      if (chartType === 'text') {
+        // console.log("NAME: " + this.entityId);
+        // console.log("COUNT1: " + typeof(this.entityId));
+        // console.log("COUNT2: " + typeof(JSON.stringify(this.entityId)));
+        // console.log("COUNT3: " + JSON.stringify(this.entityId));
+        // console.log("COUNT4: " + JSON.stringify(this.entityId).length);
+        // console.log("COUNT5: " + JSON.stringify(this.entityId).indexOf(','));
+        if (JSON.stringify(this.entityId).length < 1000 && JSON.stringify(this.entityId).indexOf(',') !== -1) {
+          this.$alert(this.$i18n.t('message.OnlyOneEntityForTextType'));
+          return;
+        }
       }
 
       // api updateInterval default 0 setting
@@ -1470,7 +1520,6 @@ export default {
       };
       this.validation = {
         chartAttribute: null,
-        selectedValueType: null,
       };
       this.dataModelDisabled = {dataModelId: false, typeUri: false};
       // Initialize when the widget window is closed.

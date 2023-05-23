@@ -82,7 +82,8 @@
     "notSupportType": "This chart does not support that data type. Correct type [",
     "selectOptionEntity": "Select entity, search with [Ctrl+F].",
     "MaximumNumberOfEntities": "The maximum number of entities available in a widget is 10.",
-    "MaximumLengthOfEntities": "The maximum number of characters for applicable entities is 1000."
+    "MaximumLengthOfEntities": "The maximum number of characters for applicable entities is 1000.",
+    "OnlyOneEntityForTextType": "Only one entity can be selected for a text type widget."
     
   },
   "search": {
