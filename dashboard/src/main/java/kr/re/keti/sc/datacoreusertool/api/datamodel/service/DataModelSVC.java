@@ -294,9 +294,9 @@ public class DataModelSVC {
 				uiTree.setChild(uiAttrTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				uiTree.getChild().addAll(uiObjectMemberTreeVO);
 				
@@ -310,9 +310,9 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}
@@ -324,18 +324,18 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			} else {
 				UiTreeVO uiTree = setTreeAttrLabel(attribute, currentId, attribute.getValueType());
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}
@@ -364,18 +364,18 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(objectMember.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(objectMember.getValueType().name());
+					uiTree.setValueType(objectMember.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			} else {
 				UiTreeVO uiTree = setTreeObjectMemberLabel(objectMember, currentId, parentValueType);
 				// No valueType, it is treated as a String.
 				if(objectMember.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(objectMember.getValueType().name());
+					uiTree.setValueType(objectMember.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}

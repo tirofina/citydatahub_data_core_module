@@ -25,7 +25,7 @@
                 style="width: 100%;"
                 @change="onChartTypeChange"
                 :disabled="isModify"
-              > 
+              >
                 <el-option
                   v-for="item in chartTypes"
                   :key="item.value"
@@ -775,40 +775,40 @@ export default {
           this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
           return true;
         }).then(hasEntityIds => {
-        if (hasEntityIds) {
-          dataModelApi.attributes({dataModelId, typeUri})
-            .then(data => {
-              // 해당 엔티티 ID에 대한 차트 값들을 load함
-              // 여기서 사전에 disabled 처리함
-              const chartTypeRestrictions = {
-                donut: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-                bar: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-                pie: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-                line: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-                boolean: ['BOOLEAN'],
-                histogram: ['INTEGER'],
-                scatter: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-              };
+          if (hasEntityIds) {
+            dataModelApi.attributes({dataModelId, typeUri})
+              .then(data => {
+                // 해당 엔티티 ID에 대한 차트 값들을 load함
+                // 여기서 사전에 disabled 처리함
+                const chartTypeRestrictions = {
+                  donut: ['Integer', 'Double'],
+                  bar: ['Integer', 'Double'],
+                  pie: ['Integer', 'Double'],
+                  line: ['Integer', 'Double'],
+                  boolean: ['Boolean'],
+                  histogram: ['Integer'],
+                  scatter: ['Integer', 'Double']
+                };
 
-              this.treeData = data;
-              console.log(this.treeData);
-              console.log(this.treeData[0].valueType);
+                this.treeData = data;
+                console.log(this.treeData);
+                console.log(this.treeData[0].valueType);
 
-              const {chartType} = this.formData;  // 차트 타입 추출
-              console.log(chartType);
+                const {chartType} = this.formData;  // 차트 타입 추출
+                console.log(chartType);
 
-              const allowedTypes = chartTypeRestrictions[chartType];
-              console.log(allowedTypes);
+                const allowedTypes = chartTypeRestrictions[chartType];
+                console.log(allowedTypes);
 
-              this.treeData.forEach(valueData => {
-                // 해당 차트의 valueType이 chartType에 허용되는 데이터 타입인지 확인
-                if (allowedTypes && !allowedTypes.includes(valueData.valueType)) {
-                  valueData.searchable = false;  // 허용되지 않는 데이터 타입인 경우 searchable을 false로 설정
-                }
-                console.log(valueData.searchable);
+                this.treeData.forEach(valueData => {
+                  // 해당 차트의 valueType이 chartType에 허용되는 데이터 타입인지 확인
+                  if (allowedTypes && !allowedTypes.includes(valueData.valueType)) {
+                    valueData.searchable = false;  // 허용되지 않는 데이터 타입인 경우 searchable을 false로 설정
+                  }
+                  console.log(valueData.searchable);
+                });
               });
-            });
-        }
+          }
       })
     },
     getAttributed() {
@@ -1039,7 +1039,6 @@ export default {
         }
       }
     },
-
     // alert 대신 disabled 사용하는 것 여기도 보기!
     onChartTypeChange(value, type) {
       // Form information exposed according to chart type.
@@ -1205,28 +1204,15 @@ export default {
 
       // start exceptions
 
-      // 차트 유형
-      // Donut		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
-      // Bar		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
-      // Pie		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
-      // Line		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
-      // Text		제한 X
-      // Boolean		'BOOLEAN'
-      // Text(Custom)	제한 X
-      // Image		이미지
-      // Latest Map	제한 X
-      // Histogram	'INTEGER'
-      // Scatter		'INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'
-
       // 1. Data value selection limitation based on chart type
       const chartTypeRestrictions = {
-        donut: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-        bar: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-        pie: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-        line: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
-        boolean: ['BOOLEAN'],
-        histogram: ['INTEGER'],
-        scatter: ['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'],
+        donut: ['Integer', 'Double'],
+        bar: ['Integer', 'Double'],
+        pie: ['Integer', 'Double'],
+        line: ['Integer', 'Double'],
+        boolean: ['Boolean'],
+        histogram: ['Integer'],
+        scatter: ['Integer', 'Double']
       };
 
       const allowedTypes = chartTypeRestrictions[chartType];
@@ -1250,7 +1236,7 @@ export default {
       }
 
       // 3-1. Number value only can be selected for scatter widgets.
-      const isNumberType = (data) => (['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'].indexOf(data.valueType) < 0);
+      const isNumberType = (data) => (['Integer', 'Double'].indexOf(data.valueType) < 0);
       if (chartType === 'scatter' && (isNumberType(this.attrs.x) || isNumberType(this.attrs.y))) {
         this.$alert(this.$i18n.t('message.onlySupportNumberType'));
         return;
@@ -1299,14 +1285,14 @@ export default {
       } else {
         this.formData.entityRetrieveVO = null;
       }
-      
+
       let chartTypesNotToVerify = ['Image', 'text', 'custom_text', 'boolean', 'map_latest', 'histogram'];
 
       if (!chartTypesNotToVerify.includes(chartType)) {
         // Code for limiting the number of entities
         if (this.entityId.length > 0) {
           const entityIdCount = this.entityId.join().split(',').length;
-          
+
           if (this.entityId.length > 1000) {
             this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
             return;
