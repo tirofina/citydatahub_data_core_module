@@ -58,6 +58,31 @@ public class DataModelSVC {
 		
 		return response;
 	}
+
+	/**
+	 * Retrieve data model by entity type (short name)
+	 * @param type	Entity type
+	 * @return		Data model information retrieved by entity type.
+	 */
+	public ResponseEntity<DataModelVO> getDataModelByEntityType(String type) {
+		ResponseEntity<DataModelVO> result = null;
+		Map<String, String> header = new HashMap<String, String>();
+		Map<String, Object> param = new HashMap<String, Object>();
+
+		header.put(Constants.HTTP_HEADER_KEY_ACCEPT, Constants.ACCEPT_TYPE_APPLICATION_JSON);
+		param.put("type", type);
+
+		ResponseEntity<List<DataModelVO>> response = dataCoreRestSVC.getList(datamodelUrl, DEFAULT_PATH_URL, header,
+				null, param, new ParameterizedTypeReference<List<DataModelVO>>() {});
+
+		if (response != null && response.getBody() != null) {
+			result = ResponseEntity.status(response.getStatusCode()).body(response.getBody().get(0));
+		} else {
+			result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+
+		return result;
+	}
 	
 	/**
 	 * Retrieve data model
