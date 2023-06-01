@@ -405,13 +405,13 @@ public class DataModelSVC {
 		}
 		
 		if(!ValidateUtil.isEmptyData(attrType) && !ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + attrType + ":" + valueType + ")");
+			uiTree.setLabel(attrName + "(" + attrType.getCode() + ":" + valueType.getCode() + ")");
 		}
 		else if(!ValidateUtil.isEmptyData(attrType) && ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + attrType + ")");
+			uiTree.setLabel(attrName + "(" + attrType.getCode() + ")");
 		}
 		else if(ValidateUtil.isEmptyData(attrType) && !ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + valueType + ")");
+			uiTree.setLabel(attrName + "(" + valueType.getCode() + ")");
 		} else {
 			// Nothing
 		}
@@ -463,7 +463,7 @@ public class DataModelSVC {
 		
 		uiTree.setId(objectMemberName);
 		uiTree.setFullId(fullId);
-		uiTree.setLabel(objectMemberName + "(" + objectMemberValueType + ")");
+		uiTree.setLabel(objectMemberName + "(" + objectMemberValueType.getCode() + ")");
 		
 		// GEOJSON, OBJECT, and DATE types are excluded from the query target.
 		if (AttributeValueType.GEO_JSON.equals(objectMember.getValueType()) ||
