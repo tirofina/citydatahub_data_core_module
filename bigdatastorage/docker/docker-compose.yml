@@ -92,6 +92,7 @@ volumes:
   hbase_data:
   hbase_zookeeper_data:
 
+
 networks:
   default:
     name: citydatahub-datacore
