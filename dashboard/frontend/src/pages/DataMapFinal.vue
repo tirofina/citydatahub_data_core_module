@@ -756,7 +756,8 @@ export default {
       // Zoom reset.
       const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
       const locationKey = items['geoproperty_ui'];
-      this.$refs.geoMap.$mapPromise.then((map) => {
+      if (typeof(locationKey) !== 'undefined') {
+        this.$refs.geoMap.$mapPromise.then((map) => {
         const bounds = new window.google.maps.LatLngBounds();
         let loc = null;
         loc = new window.google.maps.LatLng(
@@ -774,6 +775,8 @@ export default {
       console.log(items);
 
       this.params = { id: items.id, type: items.type };
+      }
+
     },
     goHistoryView() {
       if (!this.params.id) {
@@ -1032,20 +1035,26 @@ export default {
 
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
-              const locationKey = resultItem['geoproperty_ui'];
-              this.markers.push({
-                position: {
-                  lat: resultItem[locationKey].value.coordinates[1],
-                  lng: resultItem[locationKey].value.coordinates[0],
-                },
-                mapInfo: resultItem,
-                displayValue: resultItem.displayValue,
-                icon: resultItem.icon
-              });
-              // Remove icons from source data.
-              delete resultItem.icon;
-              delete resultItem.displayValue;
-              data.push(resultItem);
+              try {
+                const locationKey = resultItem['geoproperty_ui'];
+                if (resultItem.hasOwnProperty(locationKey)) {
+                  this.markers.push({
+                    position: {
+                      lat: resultItem[locationKey].value.coordinates[1],
+                      lng: resultItem[locationKey].value.coordinates[0],
+                    },
+                    mapInfo: resultItem,
+                    displayValue: resultItem.displayValue,
+                    icon: resultItem.icon
+                  });
+                  // Remove icons from source data.
+                  delete resultItem.icon;
+                  delete resultItem.displayValue;
+                }
+                data.push(resultItem);
+              } catch (error) {
+                // console.error("Error occurred while processing resultItem", error);
+              }
             });
           });
 
