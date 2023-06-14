@@ -108,7 +108,9 @@
                 <div class="col-xl-4">
                   <div class="text-right mt-2 mb-2">
                     <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
-                    <el-button size="small" type="info" :disabled="isHistoryBtn" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
+
+                    <!-- Fetch Historical Data -->
+                    <el-button size="small" type="info" :disabled="!this.params.id" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
                   <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
                   <grid
@@ -780,7 +782,7 @@ export default {
     },
     goHistoryView() {
       if (!this.params.id) {
-        this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
+        // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
       }
       this.$router.push({ path: '/mapSearchHistorical', query: this.params});
