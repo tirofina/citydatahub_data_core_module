@@ -1010,53 +1010,60 @@ export default {
             'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
           ];
 
-          const iconData = [];
-          const tags = this.dynamicTags;
-          tags.map((item, index) => {
-            iconData.push({
-              type: item,
-              icon: url[index],
-            });
-          });
+          // dynamicTags와 url을 이용하여 iconData라는 객체를 생성 (Create iconData object using dynamicTags and url)
+          // iconData의 각 속성은 dynamicTags의 각 항목과 일치하며, 해당하는 값은 url의 각 항목임 (Each property of iconData matches each item of dynamicTags, and the corresponding value is each item of url)
+          const iconData = this.dynamicTags.reduce((acc, item, index) => {
+            acc[item] = url[index];
+            return acc;
+          }, {});
 
-          // init marker info
+          // 이 맵에서 사용할 마커들의 초기 배열을 설정 (Initialize the array of markers to be used in this map)
           this.markers = [];
+          // 데이터를 담을 배열을 초기화 (Initialize the array to store data)
           const data = [];
-          // marker info setting
-          items.map(item => {
-            item.commonEntityVOs.map(resultItem => {
-              iconData.map((item2, index) => {
-                if (item2.type === resultItem.type) {
-                  resultItem['icon'] = item2.icon
-                }
-              });
-            });
-          });
 
-          items.map(item => {
-            item.commonEntityVOs.map(resultItem => {
+          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 모든 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수 (Function to find all properties with GeoProperty type in a given object (obj) and create markers based on that property)
+          function createMarkersFromGeoProperty(obj, resultItem) {
+            let markers = [];
+            for (let key in obj) {
+              // 현재 속성이 GeoProperty 타입인 경우, 마커를 생성 (If the current property is of GeoProperty type, create a marker)
+              if (key === 'type' && obj[key] === 'GeoProperty') {
+                const { coordinates } = obj.value;
+                markers.push({
+                  position: {
+                    lat: coordinates[1],
+                    lng: coordinates[0],
+                  },
+                  mapInfo: resultItem,
+                  displayValue: resultItem.displayValue,
+                  icon: resultItem.icon
+                });
+              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                // 현재 속성이 객체인 경우, 재귀적으로 이 함수를 호출하여 해당 객체 내의 GeoProperty 타입 속성을 찾음 (If the current property is an object, recursively call this function to find the GeoProperty type property in the object)
+                markers = [...markers, ...createMarkersFromGeoProperty(obj[key], resultItem)];
+              }
+            }
+            return markers;
+          }
+
+          // 주어진 items 각각에 대해 아래를 실행 (Perform the following for each of the given items)
+          items.forEach(item => {
+            // 각 아이템의 commonEntityVOs 배열을 순회 (Traverse the commonEntityVOs array of each item)
+            item.commonEntityVOs.forEach(resultItem => {
+              // resultItem의 타입에 따른 아이콘을 설정 (Set the icon according to the type of resultItem)
+              resultItem.icon = iconData[resultItem.type] || null;
               try {
-                const locationKey = resultItem['geoproperty_ui'];
-                if (resultItem.hasOwnProperty(locationKey)) {
-                  this.markers.push({
-                    position: {
-                      lat: resultItem[locationKey].value.coordinates[1],
-                      lng: resultItem[locationKey].value.coordinates[0],
-                    },
-                    mapInfo: resultItem,
-                    displayValue: resultItem.displayValue,
-                    icon: resultItem.icon
-                  });
-                  // Remove icons from source data.
-                  delete resultItem.icon;
-                  delete resultItem.displayValue;
-                }
+                // resultItem에서 GeoProperty 타입 속성을 찾아 해당 속성을 기반으로 마커를 생성 (Find the GeoProperty type property in resultItem and create a marker based on it)
+                const newMarkers = createMarkersFromGeoProperty(resultItem, resultItem);
+                // 새로 생성된 마커들을 기존 마커 배열에 추가 (Add the newly created markers to the existing marker array)
+                this.markers = [...this.markers, ...newMarkers];
+                // 데이터 배열에 resultItem을 추가 (Add resultItem to the data array)
                 data.push(resultItem);
               } catch (error) {
                 // console.error("Error occurred while processing resultItem", error);
               }
             });
-          });
+        });
 
           this.$refs.geoMap.$mapPromise.then((map) => {
             // auto focus, auto zoom in out
