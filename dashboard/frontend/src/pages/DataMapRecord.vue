@@ -236,6 +236,7 @@
  * @components SearchConfiguration, ElementTree, DynamicSearch
  * JsonViewer, LineChart, GmapMap, GmapMarker, GmapCluster
  */
+import { dataModelApi } from '@/moudules/apis';
 import {gmapApi as google, loadGmapApi} from 'vue2-google-maps';
 import GmapMap from 'vue2-google-maps/src/components/map';
 import GmapCluster from 'vue2-google-maps/src/components/cluster';
@@ -902,12 +903,16 @@ export default {
   mounted() {
     const { id, type } = this.$route.query;
     if (type) {
-      this.selected = type;
-      this.selected2 = id;
-      this.getMapRecord();
-      this.getEntityList();
+      dataModelApi.query({dataModelId: null, dataModelType: type}).then((dataModel) => {
+        this.selected = dataModel.id;
+        this.selected2 = id;
+        this.getMapRecord();
+        this.getEntityList();
+      }).catch(err => console.error('mounted(param) error', err));
     }
+
     this.getDataModelList();
+
     setTimeout(() => {
       this.loadControls();
     }, 1000);

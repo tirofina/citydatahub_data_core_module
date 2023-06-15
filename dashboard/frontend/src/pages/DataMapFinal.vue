@@ -51,7 +51,7 @@
                   </div>
                   <div class="col text-right">
                     <el-button size="small" class="button-new-tag mt-1" style="margin-right: 0;" @click="onShowPopup">+ Data Model(s)</el-button>
-                    <el-button size="small" type="info" style="margin-right: 1px;" @click="getEntitiesIsMap">{{ $t('comm.search') }}</el-button>
+                    <el-button size="small" type="info" style="margin-right: 1px;" :disabled="this.dynamicTags.length == 0" @click="getEntitiesIsMap">{{ $t('comm.search') }}</el-button>
                   </div>
                 </div>
               </div>
@@ -107,7 +107,7 @@
                 </div>
                 <div class="col-xl-4">
                   <div class="text-right mt-2 mb-2">
-                    <el-button size="small" type="info" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
+                    <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
                     <el-button size="small" type="info" :disabled="isHistoryBtn" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
                   <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
@@ -172,7 +172,7 @@
       </template>
       <template v-slot:addQuery>
         <b-form inline class="mb-4">
-          <label class="mr-sm-2">ID</label>
+          <label class="mr-sm-2">Attribute</label>
           <b-form-input
             id="inline-form-input-name"
             class="mb-2 mr-sm-2 mb-sm-0"
@@ -254,7 +254,7 @@
  * @components Grid, SearchConfiguration, ElementTree, DynamicSearch
  * JsonViewer, GmapMap, GmapMarker, GmapCluster
  */
-import { latestApi } from '@/moudules/apis';
+import { latestApi, dataModelApi } from '@/moudules/apis';
 import { loadGmapApi, gmapApi as google } from 'vue2-google-maps';
 import GmapMap from 'vue2-google-maps/src/components/map';
 import GmapCluster from 'vue2-google-maps/src/components/cluster';
@@ -366,7 +366,7 @@ export default {
       searchCondition: [],
       subscriptionCondition: [],
       isChangeName: false,
-      isRemoveBtn: true
+      isRemoveBtn: true,
     }
   },
   methods: {
@@ -611,7 +611,9 @@ export default {
           return item.disabled = false;
         }
       });
+
       this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+
     },
     handleClose() {
       this.dialogVisible = false;
@@ -769,6 +771,8 @@ export default {
         map.setZoom(zoom > 18 ? 18 : zoom);
       });
 
+      console.log(items);
+
       this.params = { id: items.id, type: items.type };
     },
     goHistoryView() {
@@ -776,7 +780,7 @@ export default {
         this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
       }
-      this.$router.push({ path: '/map-search-historical', query: this.params });
+      this.$router.push({ path: '/mapSearchHistorical', query: this.params});
     },
     updateCoordinates(location) {
       console.log(location);
@@ -823,14 +827,7 @@ export default {
       this.isInfoWindow = false;
     },
     onDataModelChange(value) {
-      this.$http.get(`/datamodels/attrstree?id=${ value }`)
-        .then(response => {
-          const status = response.status;
-          if (status === 204) {
-            return null;
-          }
-          this.treeData = response.data;
-        });
+      dataModelApi.attributes({dataModelId: value, typeUri: null}).then(data => this.treeData = data).catch((err) => null);
     },
     onChecked(event) {
       // all check

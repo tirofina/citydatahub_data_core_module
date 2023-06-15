@@ -3,14 +3,14 @@
     <b-form-select :disabled="index === 0" v-model="formData['temp']" :options="condition" size="sm" class="mb-2 mr-sm-2 mb-sm-0 mt-2 col-md-3" style="width: 5vmax;"></b-form-select>
     <b-form-select v-model="formData['operator']" :options="operators" size="sm" class="mb-2 mr-sm-2 mb-sm-0 mt-2 col-md-3" style="width: 5vmax;"></b-form-select>
     <b-form-input
-      v-if="setSearchType === 'INTEGER' || setSearchType === 'DOUBLE' || setSearchType === 'ARRAY_INTEGER' || setSearchType === 'ARRAY_DOUBLE'"
+      v-if="setSearchType === 'Integer' || setSearchType === 'Double' || setSearchType === 'ArrayInteger' || setSearchType === 'ArrayDouble'"
       class="mb-2 mr-sm-2 mb-sm-0 mt-2 col-md-4"
       style="width: 8vmax;"
       v-model="formData['value']"
       type="number"
     ></b-form-input>
     <b-form-select
-      v-else-if="setSearchType === 'BOOLEAN' || setSearchType === 'ARRAY_BOOLEAN'"
+      v-else-if="setSearchType === 'Boolean' || setSearchType === 'ArrayBoolean'"
       v-model="formData['value']"
       :options="[{ value: null, text: 'Selected', disabled: true }, { value: true, text: true }, { value: false, text: false },]"
       size="sm"
@@ -55,7 +55,7 @@ export default {
       formData(val) {
         // Set the operator according to the changed value type.
         this.setSearchType = val.valueType;
-        if (val.valueType === 'INTEGER' || val.valueType === 'DOUBLE' || val.valueType === 'ARRAY_INTEGER' || val.valueType === 'ARRAY_DOUBLE') {
+        if (val.valueType === 'Integer' || val.valueType === 'Double' || val.valueType === 'ArrayInteger' || val.valueType === 'ArrayDouble') {
           this.operators = [
             { value: null, text: 'Selected', disabled: true },
             { value: 'OPR_01', text: '=' },
@@ -65,7 +65,7 @@ export default {
             { value: 'OPR_05', text: '>' },
             { value: 'OPR_06', text: '≥' },
           ];
-        } else if (val.valueType === 'BOOLEAN' || val.valueType === 'ARRAY_BOOLEAN') {
+        } else if (val.valueType === 'Boolean' || val.valueType === 'ArrayBoolean') {
           this.operators = [
             { value: null, text: 'Selected', disabled: true },
             { value: 'OPR_01', text: '=' },
@@ -113,7 +113,7 @@ export default {
       // Set the operator according to the value type.
       const val = this.formData;
       this.setSearchType = val.valueType;
-      if (val.valueType === 'INTEGER' || val.valueType === 'DOUBLE' || val.valueType === 'ARRAY_INTEGER' || val.valueType === 'ARRAY_DOUBLE') {
+      if (val.valueType === 'Integer' || val.valueType === 'Double' || val.valueType === 'ArrayInteger' || val.valueType === 'ArrayDouble') {
         this.operators = [
           { value: null, text: 'Selected', disabled: true },
           { value: 'OPR_01', text: '=' },
@@ -123,7 +123,7 @@ export default {
           { value: 'OPR_05', text: '>' },
           { value: 'OPR_06', text: '≥' },
         ];
-      } else if (val.valueType === 'BOOLEAN' || val.valueType === 'ARRAY_BOOLEAN') {
+      } else if (val.valueType === 'Boolean' || val.valueType === 'ArrayBoolean') {
         this.operators = [
           { value: null, text: 'Selected', disabled: true },
           { value: 'OPR_01', text: '=' },
