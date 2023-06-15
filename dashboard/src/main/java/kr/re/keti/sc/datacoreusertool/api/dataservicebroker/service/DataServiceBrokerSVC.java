@@ -326,7 +326,7 @@ public class DataServiceBrokerSVC {
 		try {
 			params = creatParams(entityRetrieveVO, true, request);
 		} catch (DataCoreUIException e) {
-			log.error("Exception occurred while retrieving entity latest value from Data Service Broker. Response Status Code: %s, Response Payload: %s", e.getHttpStatus(), e.getErrorPayload());
+			log.error(String.format("Exception occurred while retrieving entity latest value from Data Service Broker. Response Status Code: %s, Response Payload: %s", e.getHttpStatus(), e.getErrorPayload()), e);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
 
@@ -336,8 +336,6 @@ public class DataServiceBrokerSVC {
 		if (properties.getSpringSecurityEnabled()) {
 			headers.put(Constants.HTTP_HEADER_AUTHORIZATION, BEARER + request.getSession().getAttribute(AUTHTOKEN));
 		}
-
-		params.put("id", entityRetrieveVO.getId());
 
 		// 1. Retrieve count
 		ResponseEntity<AttributeCountVO> count = dataCoreRestSVC.getList(dataservicebrokerUrl, ENTITY_HISTORY_COUNT_PATH_URL, headers, null, params, AttributeCountVO.class);
@@ -484,10 +482,10 @@ public class DataServiceBrokerSVC {
 		CommonEntityListResponseVO commonEntityListResponseVO = new CommonEntityListResponseVO();
 		
 		if(!ValidateUtil.isEmptyData(commonEntityVO)) {
-			List<String> geoPropertyAttributeNames = dataModelSVC.getDataModelAttrs(dataModel, Constants.OBSERVED_AT_ATTR, DataServiceBrokerCode.AttributeType.GEO_PROPERTY.getCode());
+			List<String> attributeNames = dataModelSVC.getDataModelAttrs(dataModel, Constants.OBSERVED_AT_ATTR);
 			
 			List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
-			for(String attrLabel : geoPropertyAttributeNames) {
+			for(String attrLabel : attributeNames) {
 				List<Object> objects = null;
 				
 				if("temporalValues".equals(entityRetrieveVO.getOptions())) {
@@ -505,9 +503,13 @@ public class DataServiceBrokerSVC {
 					CommonEntityVO temp = new CommonEntityVO();
 					temp.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), commonEntityVO.getId());
 					temp.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), commonEntityVO.getType());
-					temp.put(GEOPROPERTY_UI, attrLabel);
-					temp.put(attrLabel, object);
 
+					if (object instanceof Map) {
+						if (((Map) object).get("type") != null && DataServiceBrokerCode.AttributeType.GEO_PROPERTY.getCode().equals(((Map) object).get("type"))) {
+							temp.put(GEOPROPERTY_UI, attrLabel);
+						}
+					}
+					temp.put(attrLabel, object);
 					result.add(temp);
 				}
 			}
@@ -516,7 +518,7 @@ public class DataServiceBrokerSVC {
 				Collections.reverse(result);
 			}
 			
-			commonEntityListResponseVO.setAttrsLabel(geoPropertyAttributeNames);
+			commonEntityListResponseVO.setAttrsLabel(attributeNames);
 			commonEntityListResponseVO.setCommonEntityVOs(result);
 			commonEntityListResponseVO.setTotalCount(result.size());
 		}
@@ -566,6 +568,10 @@ public class DataServiceBrokerSVC {
 	private void addCommonQuery(EntityRetrieveVO entityRetrieveVO, Map<String, Object> params) {
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getType())) {
 			params.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), entityRetrieveVO.getType());
+		}
+
+		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getId())) {
+			params.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), entityRetrieveVO.getId());
 		}
 
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getLimit()) && !ValidateUtil.isEmptyData(entityRetrieveVO.getOffset())) {
