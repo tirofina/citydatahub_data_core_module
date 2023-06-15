@@ -109,10 +109,11 @@
                   <div class="text-right mt-2 mb-2">
                     <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
 
-                    <!-- Fetch Historical Data -->
+                    <!-- Fetch Historical Data 기록 데이터 가져오기 -->
                     <el-button size="small" type="info" :disabled="!this.params.id" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
                   <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
+                  <!-- 우측 하단의 grid, 구독 정보를 확인하세요, Entity ID, 엔티티 ID -->
                   <grid
                     :data="gridData"
                     :columns="[{ header: $i18n.t('search.entityID'), name: 'id', align: 'center' }]"
@@ -774,13 +775,14 @@ export default {
         map.setZoom(zoom > 18 ? 18 : zoom);
       });
 
-      console.log(items);
+      // console.log(items);
 
       this.params = { id: items.id, type: items.type };
       }
 
     },
     goHistoryView() {
+      console.error(this.params);
       if (!this.params.id) {
         // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
@@ -994,6 +996,8 @@ export default {
 
       this.isInfoWindow = false;
 
+
+// 여기여기여기
       const typeParams = this.setTypeParams('search');
       this.$http.post('/entities/multimodel', typeParams)
         .then(response => {
@@ -1012,26 +1016,26 @@ export default {
             'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
           ];
 
-          // dynamicTags와 url을 이용하여 iconData라는 객체를 생성 (Create iconData object using dynamicTags and url)
-          // iconData의 각 속성은 dynamicTags의 각 항목과 일치하며, 해당하는 값은 url의 각 항목임 (Each property of iconData matches each item of dynamicTags, and the corresponding value is each item of url)
+          // dynamicTags와 url을 이용하여 iconData라는 객체를 생성
+          // iconData의 각 속성은 dynamicTags의 각 항목과 일치하며, 해당하는 값은 url의 각 항목임
           const iconData = this.dynamicTags.reduce((acc, item, index) => {
             acc[item] = url[index];
             return acc;
           }, {});
 
-          // 이 맵에서 사용할 마커들의 초기 배열을 설정 (Initialize the array of markers to be used in this map)
+          // 이 맵에서 사용할 마커의 초기 배열을 설정
           this.markers = [];
-          // 데이터를 담을 배열을 초기화 (Initialize the array to store data)
+          // 데이터를 담을 배열을 초기화
           const data = [];
 
-          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 모든 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수 (Function to find all properties with GeoProperty type in a given object (obj) and create markers based on that property)
-          function createMarkersFromGeoProperty(obj, resultItem) {
-            let markers = [];
-            for (let key in obj) {
-              // 현재 속성이 GeoProperty 타입인 경우, 마커를 생성 (If the current property is of GeoProperty type, create a marker)
-              if (key === 'type' && obj[key] === 'GeoProperty') {
-                const { coordinates } = obj.value;
-                markers.push({
+          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 첫번째 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수
+          function createFirstMarkerFromGeoProperty(obj, resultItem) {
+            let marker = null;
+
+            Object.keys(obj).some(key => {
+              if (obj[key] && obj[key].type === 'GeoProperty') {
+                const { coordinates } = obj[key].value;
+                marker = {
                   position: {
                     lat: coordinates[1],
                     lng: coordinates[0],
@@ -1039,13 +1043,18 @@ export default {
                   mapInfo: resultItem,
                   displayValue: resultItem.displayValue,
                   icon: resultItem.icon
-                });
+                };
+                return true;
               } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                // 현재 속성이 객체인 경우, 재귀적으로 이 함수를 호출하여 해당 객체 내의 GeoProperty 타입 속성을 찾음 (If the current property is an object, recursively call this function to find the GeoProperty type property in the object)
-                markers = [...markers, ...createMarkersFromGeoProperty(obj[key], resultItem)];
+                marker = createFirstMarkerFromGeoProperty(obj[key], resultItem);
+                if (marker) {
+                  return true;
+                }
               }
-            }
-            return markers;
+              return false;
+            });
+
+            return marker;
           }
 
           // 주어진 items 각각에 대해 아래를 실행 (Perform the following for each of the given items)
@@ -1056,16 +1065,19 @@ export default {
               resultItem.icon = iconData[resultItem.type] || null;
               try {
                 // resultItem에서 GeoProperty 타입 속성을 찾아 해당 속성을 기반으로 마커를 생성 (Find the GeoProperty type property in resultItem and create a marker based on it)
-                const newMarkers = createMarkersFromGeoProperty(resultItem, resultItem);
-                // 새로 생성된 마커들을 기존 마커 배열에 추가 (Add the newly created markers to the existing marker array)
-                this.markers = [...this.markers, ...newMarkers];
-                // 데이터 배열에 resultItem을 추가 (Add resultItem to the data array)
-                data.push(resultItem);
+                const newMarker = createFirstMarkerFromGeoProperty(resultItem, resultItem);
+                if (newMarker) {
+                  // 새로 생성된 마커를 기존 마커 배열에 추가 (Add the newly created marker to the existing marker array)
+                  this.markers.push(newMarker);
+                  // 데이터 배열에 resultItem을 추가 (Add resultItem to the data array)
+                  data.push(resultItem);
+                }
               } catch (error) {
                 // console.error("Error occurred while processing resultItem", error);
               }
             });
-        });
+          });
+
 
           this.$refs.geoMap.$mapPromise.then((map) => {
             // auto focus, auto zoom in out
