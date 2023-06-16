@@ -284,6 +284,8 @@
               <label class="control-label">{{ $t('widget.refreshInterval') }}</label>
               <input
                 type="number"
+                min="0"
+                max="2147483646"
                 class="form-control"
                 :placeholder="$t('message.ZeroEqualRefresh')"
                 v-model="formData['updateInterval']"
@@ -494,6 +496,7 @@
         </div>
         <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('widget.deleteWidget') }}</el-button>
       </el-popover>
+      <!-- <el-button class="ml-1" type="primary" @click="widgetSave" size="small" :disabled="entityIds.length < 1" >{{ $t('comm.save') }}</el-button> -->
       <el-button class="ml-1" type="primary" @click="widgetSave" size="small">{{ $t('comm.save') }}</el-button>
     </template>
   </WidgetPopup>

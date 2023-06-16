@@ -11,7 +11,7 @@
     <!--          </div>-->
     <!--        </div>-->
     <div class="container-fluid">
-      <div class="header text-right">
+      <div class="header text-right" v-show="dashboardList.length">
         <div class="accordion" @click="accordion = !accordion">
           <i class="nc-icon nc-stre-up" v-if="accordion"></i>
           <i class="nc-icon nc-stre-down" v-else-if="!accordion"></i>
@@ -60,35 +60,50 @@
                   >{{ $t("comm.ok") }}</el-button
                 >
               </div>
-              <el-button slot="reference" class="mr-0" size="small" type="info">
-                {{ $t("dashboard.deleteDashboard") }}
-              </el-button>
+                <!-- Delete Dashboard -->
+                <el-button
+                  slot="reference"
+                  class="mr-0"
+                  size="small"
+                  type="danger"
+                >
+                  {{ $t("dashboard.deleteDashboard") }}
+                </el-button>
             </el-popover>
-            <el-button
-              class="mr-2"
-              size="small"
-              type="info"
-              @click="updateDashboard"
-            >
-              {{ $t("dashboard.saveDashboard") }}
-            </el-button>
-            <el-button
-              class="mr-2"
-              size="small"
-              type="info"
-              @click="addDashboard"
-            >
-              {{ $t("dashboard.addDashboard") }}
-            </el-button>
+
+              <!-- Save Dashboard -->
+              <el-button
+                v-show="dashboardList.length"
+                class="mr-2"
+                size="small"
+                type="success"
+                @click="updateDashboard"
+              >
+                {{ $t("dashboard.saveDashboard") }}
+              </el-button>
+
+              <!-- Add Dashboard -->
+              <el-button
+                v-show="dashboardList.length"
+                class="mr-2"
+                size="small"
+                type="primary"
+                @click="addDashboard"
+              >
+                + {{$t("dashboard.addDashboard")}}
+              </el-button>
+
           </div>
         </div>
       </div>
       <div class="row">
+
         <div class="col-md-9 col-sm-12">
           <div class="dashboard-title">
             <h3 v-if="!isTitleEdited" @dblclick="activeTitleEdit">
               {{ selectedDashboard.dashboardName }}
             </h3>
+
             <input
               v-else
               type="text"
@@ -97,21 +112,42 @@
               @blur="inactiveTitleEdit"
             />
           </div>
+
         </div>
         <div class="col-md-3 col-sm-12">
           <div class="row flex-row-reverse mt-2">
-            <el-button type="info" @click="layoutSave" size="small">{{
-              $t("dashboard.saveLayout")
-            }}</el-button>
+
+            <!-- Add Dashboard -->
             <el-button
+              v-show="!dashboardList.length"
+              class="mr-2  fade-button"
+              size="small"
+              type="primary"
+              @click="addDashboard"
+            >
+              + {{$t("dashboard.addDashboard")}}
+            </el-button>
+
+            <!-- Save Layout -->
+            <el-button
+              v-show="dashboardList.length"
+              @click="layoutSave"
+              size="small"
+              type="success"
+            >
+              {{$t("dashboard.saveLayout")
+            }}</el-button>
+            <!-- Add Widget -->
+            <el-button
+              v-show="dashboardList.length"
               class="mr-2"
               size="small"
               type="primary"
               @click="showChartPopup"
             >
-              +
-              {{ $t("dashboard.addWidget") }}
+              + {{$t("dashboard.addWidget")}}
             </el-button>
+
           </div>
         </div>
       </div>
@@ -604,6 +640,7 @@ export default {
       });
     },
     addDashboard() {
+      this.accordion = true;
       const dashboard = {
         dashboardName: this.$i18n.t("message.defaultWidgetTitle")
       };
@@ -634,6 +671,7 @@ export default {
         })
         .finally(() => {
           this.messageVisible = false;
+          this.accordion = false;
         });
     },
     updateDashboard() {
@@ -910,4 +948,14 @@ label {
   margin: -5px;
   top: 0;
 }
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.fade-button {
+  animation: fadeInOut 1s ease-in-out infinite;
+}
+
 </style>
