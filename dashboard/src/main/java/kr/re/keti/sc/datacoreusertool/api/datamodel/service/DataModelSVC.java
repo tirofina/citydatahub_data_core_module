@@ -211,6 +211,59 @@ public class DataModelSVC {
 		
 		return ResponseEntity.status(response.getStatusCode()).body(attributeList);
 	}
+
+	/**
+	 * Retrive attribute of data model
+	 * @param dataModelVO	Data model VO
+	 * @param attrType	Attribute type
+	 * @return			List of attribute name of Data Model
+	 */
+	public List<String> getDataModelAttrs(DataModelVO dataModelVO, String attrType) {
+		return getDataModelAttrs (dataModelVO, attrType, null);
+	}
+
+	/**
+	 * Retrive attribute of data model
+	 * @param dataModelVO	Data model VO
+	 * @param attrType	Attribute type
+     * @param propertyType	Property type
+	 * @return			List of attribute name of Data Model
+	 */
+	public List<String> getDataModelAttrs(DataModelVO dataModelVO, String attrType, String propertyType) {
+		List<String> attributeList = new ArrayList<String>();
+
+		if (!ValidateUtil.isEmptyData(dataModelVO)) {
+			List<Attribute> attributes = dataModelVO.getAttributes();
+
+			if(Constants.TOP_LEVEL_ATTR.equals(attrType)) {
+				for(Attribute attribute : attributes) {
+					attributeList.add(attribute.getName());
+				}
+			}
+			else if(Constants.OBSERVED_AT_ATTR.equals(attrType)) {
+				//TODO: Recursive
+				for(Attribute attribute : attributes) {
+					if(attribute.getHasObservedAt() != null && attribute.getHasObservedAt()) {
+						if (propertyType == null || propertyType.equals(attribute.getAttributeType().getCode()) ) {
+							attributeList.add(attribute.getName());
+						}
+					}
+				}
+			}
+			else if(Constants.ALL_LEVEL_ATTR.equals(attrType)) {
+				getAttrsType(null, attributes, attributeList);
+			}
+			else {
+				log.error("Unsupported retrieve attrType: " + attrType);
+				//TODO: handle ERROR
+				return attributeList;
+			}
+			Collections.sort(attributeList);
+		}
+
+		return attributeList;
+	}
+
 	
 	/**
 	 * Get list of attribute type

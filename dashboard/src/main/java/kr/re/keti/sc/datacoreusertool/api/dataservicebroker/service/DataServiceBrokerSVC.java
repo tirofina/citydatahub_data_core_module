@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import kr.re.keti.sc.datacoreusertool.common.exception.DataCoreUIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -320,25 +321,33 @@ public class DataServiceBrokerSVC {
 		entityRetrieveVO.setTypeUri(dataModel.getTypeUri());
 		
 		CommonEntityListResponseVO commonEntityListResponseVO = new CommonEntityListResponseVO();
-		Map<String, Object> params = creatParams(entityRetrieveVO, true, request);
+		Map<String, Object> params = null;
+
+		try {
+			params = creatParams(entityRetrieveVO, true, request);
+		} catch (DataCoreUIException e) {
+			log.error(String.format("Exception occurred while retrieving entity latest value from Data Service Broker. Response Status Code: %s, Response Payload: %s", e.getHttpStatus(), e.getErrorPayload()), e);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put(Constants.HTTP_HEADER_KEY_ACCEPT, Constants.ACCEPT_TYPE_APPLICATION_JSON);
 		headers.put(Constants.HTTP_HEADER_LINK, convertLinkFormat(dataModel.getContext()));
 		if (properties.getSpringSecurityEnabled()) {
 			headers.put(Constants.HTTP_HEADER_AUTHORIZATION, BEARER + request.getSession().getAttribute(AUTHTOKEN));
 		}
-		
+
 		// 1. Retrieve count
 		ResponseEntity<AttributeCountVO> count = dataCoreRestSVC.getList(dataservicebrokerUrl, ENTITY_HISTORY_COUNT_PATH_URL, headers, null, params, AttributeCountVO.class);
 		
-		if(count != null &&HttpStatus.SERVICE_UNAVAILABLE.equals(count.getStatusCode())) {
+		if(count != null && HttpStatus.SERVICE_UNAVAILABLE.equals(count.getStatusCode())) {
 			return ResponseEntity.status(count.getStatusCode()).build();
 		}
 		
 		if(count == null || count.getBody() == null || count.getBody().getTotalCount() < 1) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
-		
+
 		// Search results is more than 1000, only up to 1000 are searched.
 		if(count.getBody().getTotalCount() > properties.getEntityHistoryLimit()) {
 			params.put(FILTER_CONDITION_OFFSET, DEFAULT_OFFSET);
@@ -357,7 +366,7 @@ public class DataServiceBrokerSVC {
 			
 			for(CommonEntityVO commonEntityVO : commonEntityVOs) {
 				// Reconfigured to group by Entity Level as the same Attribute is grouped 
-				CommonEntityListResponseVO temp = reconstruction(commonEntityVO, entityRetrieveVO);
+				CommonEntityListResponseVO temp = reconstruction(dataModel, commonEntityVO, entityRetrieveVO);
 				renewalcommonEntityVOs.addAll(temp.getCommonEntityVOs());
 			}
 			
@@ -456,7 +465,7 @@ public class DataServiceBrokerSVC {
 			CommonEntityVO commonEntityVO = response.getBody();
 			
 			// Reconfigured to group by Entity Level as the same Attribute is grouped 
-			commonEntityListResponseVO = reconstruction(commonEntityVO, entityRetrieveVO);
+			commonEntityListResponseVO = reconstruction(dataModel, commonEntityVO, entityRetrieveVO);
 			
 			return ResponseEntity.status(response.getStatusCode()).body(commonEntityListResponseVO);
 		}
@@ -464,60 +473,44 @@ public class DataServiceBrokerSVC {
 	
 	/**
 	 * Reconstruction entity VO
+	 * @param dataModel		DataModelVO
 	 * @param commonEntityVO		CommonEntityVO
 	 * @param entityRetrieveVO		EntityRetrieveVO
 	 * @return						List of entity retrieved by CommonEntityVO ando EntityRetrieveVO.
 	 */
-	private CommonEntityListResponseVO reconstruction(CommonEntityVO commonEntityVO, EntityRetrieveVO entityRetrieveVO) {
+	private CommonEntityListResponseVO reconstruction(DataModelVO dataModel, CommonEntityVO commonEntityVO, EntityRetrieveVO entityRetrieveVO) {
 		CommonEntityListResponseVO commonEntityListResponseVO = new CommonEntityListResponseVO();
 		
 		if(!ValidateUtil.isEmptyData(commonEntityVO)) {
-			List<String> attrLabels = dataModelSVC.getDataModelAttrs(entityRetrieveVO.getDataModelId(), entityRetrieveVO.getTypeUri(), Constants.OBSERVED_AT_ATTR).getBody(); 
+			List<String> attributeNames = dataModelSVC.getDataModelAttrs(dataModel, Constants.OBSERVED_AT_ATTR);
 			
 			List<CommonEntityVO> result = new ArrayList<CommonEntityVO>();
-			for(String attrLabel : attrLabels) {
-				List<Object> object = null;
+			for(String attrLabel : attributeNames) {
+				List<Object> objects = null;
 				
 				if("temporalValues".equals(entityRetrieveVO.getOptions())) {
 					Map<String, Object> objectMap = (Map<String, Object>) commonEntityVO.get(attrLabel);
-					if(!ValidateUtil.isEmptyData(object)) {
-						object = (List<Object>) objectMap.get("values");
-					}
+					objects = (List<Object>) objectMap.get("values");
 				} else {
-					object = (List<Object>) commonEntityVO.get(attrLabel);
+					objects = (List<Object>) commonEntityVO.get(attrLabel);
 				}
 				
-				if(ValidateUtil.isEmptyData(object)) {
+				if(ValidateUtil.isEmptyData(objects)) {
 					continue;
 				}
-				
-				for(int i = 0; i < object.size(); i++) {
-					CommonEntityVO temp = null;
-					
-					if(result.size() > i) {
-						temp = result.get(i);
-					}
-					
-					if(ValidateUtil.isEmptyData(temp)) {
-						temp = new CommonEntityVO();
-						temp.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), commonEntityVO.getId());
-						temp.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), commonEntityVO.getType());
-						
-						for(String key : commonEntityVO.keySet()) {
-							if(commonEntityVO.get(key).toString().contains(GEOPROPERTY)) {
-								temp.put(GEOPROPERTY_UI, key);
-								break;
-							}
+
+				for (Object object : objects) {
+					CommonEntityVO temp = new CommonEntityVO();
+					temp.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), commonEntityVO.getId());
+					temp.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), commonEntityVO.getType());
+
+					if (object instanceof Map) {
+						if (((Map) object).get("type") != null && DataServiceBrokerCode.AttributeType.GEO_PROPERTY.getCode().equals(((Map) object).get("type"))) {
+							temp.put(GEOPROPERTY_UI, attrLabel);
 						}
 					}
-					temp.put(attrLabel, object.get(i));
-					temp.put("index", i + 1);
-					
-					if(result.size() > i) {
-						result.set(i, temp);
-					} else {
-						result.add(i, temp);
-					}
+					temp.put(attrLabel, object);
+					result.add(temp);
 				}
 			}
 			
@@ -525,7 +518,7 @@ public class DataServiceBrokerSVC {
 				Collections.reverse(result);
 			}
 			
-			commonEntityListResponseVO.setAttrsLabel(attrLabels);
+			commonEntityListResponseVO.setAttrsLabel(attributeNames);
 			commonEntityListResponseVO.setCommonEntityVOs(result);
 			commonEntityListResponseVO.setTotalCount(result.size());
 		}
@@ -575,6 +568,10 @@ public class DataServiceBrokerSVC {
 	private void addCommonQuery(EntityRetrieveVO entityRetrieveVO, Map<String, Object> params) {
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getType())) {
 			params.put(DataServiceBrokerCode.DefaultAttributeKey.TYPE.getCode(), entityRetrieveVO.getType());
+		}
+
+		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getId())) {
+			params.put(DataServiceBrokerCode.DefaultAttributeKey.ID.getCode(), entityRetrieveVO.getId());
 		}
 
 		if(!ValidateUtil.isEmptyData(entityRetrieveVO.getLimit()) && !ValidateUtil.isEmptyData(entityRetrieveVO.getOffset())) {
@@ -629,15 +626,15 @@ public class DataServiceBrokerSVC {
 		} else {
 			if(isHistory) {
 				Date date = new Date();
-				
+
 				if(ValidateUtil.isEmptyData(entityRetrieveVO.getId())) {
 					// 1. Retrieve latest values
 					ResponseEntity<CommonEntityListResponseVO> responseEntity = getEntities(false, entityRetrieveVO, request, null);
-					
+
 					if(responseEntity != null && !ValidateUtil.isEmptyData(responseEntity.getBody())) {
 						try {
 							String modifiedAt = null;
-							for(CommonEntityVO commonEntityVO : responseEntity.getBody().getCommonEntityVOs()) {								
+							for(CommonEntityVO commonEntityVO : responseEntity.getBody().getCommonEntityVOs()) {
 								if(modifiedAt == null) {
 									modifiedAt = commonEntityVO.getModifiedAt();
 								} else {
@@ -646,7 +643,7 @@ public class DataServiceBrokerSVC {
 									}
 								}
 							}
-							
+
 							if(modifiedAt != null) {
 								date = DateUtil.strToDate(modifiedAt);
 							}
@@ -654,11 +651,11 @@ public class DataServiceBrokerSVC {
 							log.warn("Fail to get the last modifiedAt.", e);
 						}
 					}
-					
+
 				} else {
 					// 1. Retrieve latest value
 					ResponseEntity<CommonEntityVO> responseEntity = getEntityById(entityRetrieveVO.getId(), entityRetrieveVO, request, null);
-					
+
 					if(responseEntity != null && !ValidateUtil.isEmptyData(responseEntity.getBody())) {
 						try {
 							CommonEntityVO commonEntityVO = responseEntity.getBody();
@@ -669,7 +666,7 @@ public class DataServiceBrokerSVC {
 						}
 					}
 				}
-				
+
 				// 2. Last value -X days after set to be searchable
 				String defaultDate = DateUtil.calcDate(date, -properties.getEntityHistoryDays(), 0, 0, 0);
 				params.put(FILTER_CONDITION_TIMEREL, "after");
@@ -1060,7 +1057,7 @@ public class DataServiceBrokerSVC {
 	
 	/**
 	 * Get data model by ID
-	 * @param dataModelId	Data model ID
+	 * @param entityRetrieveVO	EntityRetrieveVO
 	 * @return				Data model
 	 */
 	private DataModelVO getDataModel(EntityRetrieveVO entityRetrieveVO) {
