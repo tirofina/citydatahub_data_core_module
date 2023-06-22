@@ -86,7 +86,9 @@
                     :draggable="true"
                     @dragend="updateCoordinates"
                   >
-                    <gmap-cluster :gridSize="10">
+                    <gmap-cluster :gridSize="10"
+                    @click="onClusterClick($event)"
+                    >
                       <gmap-marker
                         v-for="(m, index) in markers"
                         :key="m.position.id"
@@ -109,7 +111,7 @@
                   <div class="text-right mt-2 mb-2">
                     <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
 
-                    <!-- Fetch Historical Data 기록 데이터 가져오기 -->
+                    <!-- Fetch Historical Data [기록 데이터 가져오기] -->
                     <el-button size="small" type="info" :disabled="!this.params.id" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
                   <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
@@ -217,6 +219,7 @@
       </template>
     </SearchConfiguration>
 
+<!--dialogVisible2 마커를 눌렀을 때 나오는 다이얼로그, 상세정보-->
     <el-dialog
       title="Model Attribute"
       :visible.sync="dialogVisible2"
@@ -248,6 +251,7 @@
         <el-button type="primary" @click="dialogVisible2 = false" size="small">{{ $t('comm.ok') }}</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 <script>
@@ -391,7 +395,7 @@ export default {
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
-          console.log(event);
+          // console.log(event);
           this.onOpen();
         };
 
@@ -400,8 +404,8 @@ export default {
         };
 
         this.websocket.onclose = (event) => {
-          console.log(event);
-          console.log('websocket close');
+          // console.log(event);
+          // console.log('websocket close');
         };
       }
     },
@@ -752,37 +756,63 @@ export default {
       this.isDisabledSearch = !value;
     },
     onGridClick(event) {
+      // console.error("GRID_CLICKED");
+      // grid 클릭
       if (event.targetType !== 'cell') {
         return null;
       }
 
-      // Zoom reset.
-      const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
-      const locationKey = items['geoproperty_ui'];
-      if (typeof(locationKey) !== 'undefined') {
-        this.$refs.geoMap.$mapPromise.then((map) => {
-        const bounds = new window.google.maps.LatLngBounds();
-        let loc = null;
-        loc = new window.google.maps.LatLng(
-          items[locationKey].value.coordinates[1],
-          items[locationKey].value.coordinates[0],
-        );
-        bounds.extend(loc);
+      // 'search'에 해당하는 typeParams를 설정
+      const typeParams = this.setTypeParams('search');
 
-        map.fitBounds(bounds);
-        map.panToBounds(bounds);
-        const zoom = map.getZoom();
-        map.setZoom(zoom > 18 ? 18 : zoom);
-      });
+      // GeoProperty를 찾아주는 비동기 함수
+      async function findGeoProperty() {
+        // 데이터 모델 조회
+        const response = await dataModelApi.query({ dataModelId: typeParams[0].dataModelId, dataModelType: null });
 
-      // console.log(items);
+        // 응답에서 attributeType이 'GeoProperty'인 속성 찾기
+        const geoPropertyAttribute = response.attributes.find(attribute => attribute.attributeType === 'GeoProperty');
 
-      this.params = { id: items.id, type: items.type };
+        // GeoProperty 속성이 존재하면 해당 속성의 이름 반환, 그렇지 않으면 undefined 반환
+        return geoPropertyAttribute ? geoPropertyAttribute.name : undefined;
       }
+
+      findGeoProperty().then(representativeGeoProperty => {
+        // 이 지점에서 representativeGeoProperty는 비동기 호출이 완료된 후의 값을 가짐
+
+        // 특정 row에 대한 정보를 가져옴
+        const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
+
+        // 대표 GeoProperty 위치 정보를 가져옴
+        const locationKey = items[representativeGeoProperty];
+
+        // 위치 정보가 존재하고, 그 값이 좌표 배열이라면
+        if (locationKey && Array.isArray(locationKey.value.coordinates)) {
+          const [lng, lat] = locationKey.value.coordinates; // 순서를 주의. 일반적으로 GeoJSON은 [경도, 위도] 순서를 사용
+
+          // 해당 위치를 중심으로 지도 이동
+          this.$refs.geoMap.$mapPromise.then((map) => {
+            const bounds = new window.google.maps.LatLngBounds();
+            const loc = new window.google.maps.LatLng(lat, lng);
+
+            // 지도를 특정 위치로 이동시키고 확대
+            bounds.extend(loc);
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
+
+            // 현재 줌 레벨을 가져와서 최대 줌 레벨(현재 18)을 넘지 않도록 설정
+            const zoom = map.getZoom();
+            map.setZoom(zoom > 18 ? 18 : zoom);
+          });
+
+          // 파라미터 업데이트
+          this.params = { id: items.id, type: items.type };
+        }
+      });
 
     },
     goHistoryView() {
-      console.error(this.params);
+      // console.error(this.params);
       if (!this.params.id) {
         // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
@@ -805,7 +835,9 @@ export default {
     tabClick(tab, event, activeName) {
       console.log(activeName);
     },
+    // 마커 클릭 시
     onMarkerClick(map) {
+      // console.error("MarkerClicked");
       const REMOVE_KEYS = ['uniqueKey', 'rowKey', 'rowSpanMap', 'sortKey', 'uniqueKey', '_attributes', '_disabledPriority', '_relationListItemMap'];
       const resultMapList = [];
       let resultMapData = {};
@@ -956,7 +988,7 @@ export default {
         });
     },
     deleteSubscriptions(isAlert) {
-      console.log(this.subscriptionId);
+      // console.log(this.subscriptionId);
       this.$http.delete(`/subscriptions/${ this.subscriptionId }`)
         .then(response => {
           const status = response.status;
@@ -996,10 +1028,38 @@ export default {
 
       this.isInfoWindow = false;
 
-
-// 여기여기여기
+      // 마커 찍는 부분
       const typeParams = this.setTypeParams('search');
-      this.$http.post('/entities/multimodel', typeParams)
+
+      const url = [
+        'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/pink-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      ];
+
+      const iconData = [];
+      const tags = this.dynamicTags;
+      tags.map((item, index) => {
+        iconData.push({
+          type: item,
+          icon: url[index],
+        });
+      });
+
+      // 데이터 모델 조회 => 순서 상 맨 처음으로 attributeType이 GeoProperty을 갖는 것을 대표 값으로 선택
+      dataModelApi.query({dataModelId: typeParams[0].dataModelId , dataModelType: null}).
+      then(response => {
+        // 주어진 배열에서 첫번째로 attributeType이 GeoProperty인 속성을 찾는 함수
+        function setRepresentativeGeoProperty(attributes) {
+          return attributes.find(attribute => attribute.attributeType === 'GeoProperty');
+        }
+
+        const geoPropertyAttribute = setRepresentativeGeoProperty(response.attributes);
+        const representativeGeoProperty = geoPropertyAttribute ? geoPropertyAttribute.name : undefined;
+
+        this.$http.post('/entities/multimodel', typeParams)
         .then(response => {
           const items = response.data;
           const status = response.status;
@@ -1008,92 +1068,63 @@ export default {
             return null;
           }
 
-          const url = [
-            'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/orange-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/pink-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-          ];
-
-          // dynamicTags와 url을 이용하여 iconData라는 객체를 생성
-          // iconData의 각 속성은 dynamicTags의 각 항목과 일치하며, 해당하는 값은 url의 각 항목임
-          const iconData = this.dynamicTags.reduce((acc, item, index) => {
-            acc[item] = url[index];
-            return acc;
-          }, {});
-
-          // 이 맵에서 사용할 마커의 초기 배열을 설정
+          // init marker info
           this.markers = [];
-          // 데이터를 담을 배열을 초기화
           const data = [];
+          // marker info setting
+          items.map(item => {
+            item.commonEntityVOs.map(resultItem => {
+              iconData.map((item2, index) => {
+                if (item2.type === resultItem.type) {
+                  resultItem['icon'] = item2.icon
+                }
+              });
+            });
+          });
 
-          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 첫번째 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수
-          function createFirstMarkerFromGeoProperty(obj, resultItem) {
-            let marker = null;
-
-            Object.keys(obj).some(key => {
-              if (obj[key] && obj[key].type === 'GeoProperty') {
-                const { coordinates } = obj[key].value;
-                marker = {
+          items.map(item => {
+            item.commonEntityVOs.map(resultItem => {
+              const locationKey = resultItem[representativeGeoProperty];
+              // 확인: resultItem[locationKey]이 정의되어 있는지, 그리고 그 값이 좌표를 나타내는 배열인지
+              if(locationKey && Array.isArray(locationKey.value.coordinates)){
+                this.markers.push({
                   position: {
-                    lat: coordinates[1],
-                    lng: coordinates[0],
+                    lat: locationKey.value.coordinates[1],
+                    lng: locationKey.value.coordinates[0],
                   },
                   mapInfo: resultItem,
                   displayValue: resultItem.displayValue,
                   icon: resultItem.icon
-                };
-                return true;
-              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                marker = createFirstMarkerFromGeoProperty(obj[key], resultItem);
-                if (marker) {
-                  return true;
-                }
+                });
+                // console.error(this.markers);
+                // Remove icons from source data.
+                delete resultItem.icon;
+                delete resultItem.displayValue;
+                data.push(resultItem);
               }
-              return false;
-            });
-
-            return marker;
-          }
-
-          // 주어진 items 각각에 대해 아래를 실행 (Perform the following for each of the given items)
-          items.forEach(item => {
-            // 각 아이템의 commonEntityVOs 배열을 순회 (Traverse the commonEntityVOs array of each item)
-            item.commonEntityVOs.forEach(resultItem => {
-              // resultItem의 타입에 따른 아이콘을 설정 (Set the icon according to the type of resultItem)
-              resultItem.icon = iconData[resultItem.type] || null;
-              try {
-                // resultItem에서 GeoProperty 타입 속성을 찾아 해당 속성을 기반으로 마커를 생성 (Find the GeoProperty type property in resultItem and create a marker based on it)
-                const newMarker = createFirstMarkerFromGeoProperty(resultItem, resultItem);
-                if (newMarker) {
-                  // 새로 생성된 마커를 기존 마커 배열에 추가 (Add the newly created marker to the existing marker array)
-                  this.markers.push(newMarker);
-                  // 데이터 배열에 resultItem을 추가 (Add resultItem to the data array)
-                  data.push(resultItem);
-                }
-              } catch (error) {
-                // console.error("Error occurred while processing resultItem", error);
+              else {
+                // console.error('Invalid locationKey or coordinates');
               }
             });
-          });
 
+            this.$refs.geoMap.$mapPromise.then((map) => {
+              // auto focus, auto zoom in out
+              const bounds = new window.google.maps.LatLngBounds();
+              let loc = null;
+              this.markers.map(item => {
+                // console.error(item.position.lat, item.position.lng);
+                loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
+                bounds.extend(loc);
+              });
+              map.fitBounds(bounds);
+              map.panToBounds(bounds);
+              const zoom = map.getZoom();
+              map.setZoom(zoom > 12 ? 12 : zoom);
 
-          this.$refs.geoMap.$mapPromise.then((map) => {
-            // auto focus, auto zoom in out
-            const bounds = new window.google.maps.LatLngBounds();
-            let loc = null;
-            this.markers.map(item => {
-              loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
-              bounds.extend(loc);
+              // const zoom = this.$refs.geoMap.$mapObject.getZoom();
+              // this.$refs.geoMap.$mapObject.setZoom(zoom > 12 ? 12 : zoom);
             });
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
-            const zoom = map.getZoom();
-            map.setZoom(zoom > 12 ? 12 : zoom);
 
-            // const zoom = this.$refs.geoMap.$mapObject.getZoom();
-            // this.$refs.geoMap.$mapObject.setZoom(zoom > 12 ? 12 : zoom);
           });
           this.gridData = data;
           this.$refs.tuiGrid1.invoke('resetData', this.gridData);
@@ -1117,6 +1148,7 @@ export default {
             this.isInfoWindow = true;
           }, 1000);
         });
+      });
     }
   },
   mounted() {
