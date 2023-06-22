@@ -37,7 +37,7 @@
                     v-model="searchValue"
                     :disabled="isDisabledSearch"
                   ></b-form-input>
-                  <el-button size="small" type="info" @click="handleShowPopup">{{ $t('search.options') }}</el-button>
+                  <el-button size="small" type="info" @click="handleShowPopup" v-if="keywordIsEmpty && !isBtnLoading">{{ $t('search.options') }}</el-button>
                   <el-button size="small" type="primary" @click="getMapRecord" v-if="!isBtnLoading">{{ $t('comm.search') }}</el-button>
                   <el-button size="small" type="primary" :loading="true" v-if="isBtnLoading">{{ $t('search.searching') }}</el-button>
                 </b-form>
@@ -261,7 +261,10 @@ export default {
     GmapCluster
   },
   computed: {
-    google
+    google,
+    keywordIsEmpty() {
+      return !this.searchValue || this.searchValue === '';
+    }
   },
   beforeMount () {
     axios.get('/getapikey')

@@ -135,10 +135,11 @@
       </div>
     </div>
     <SearchConfiguration
+      :searchValue="searchValue"
       :visible="dialogVisible"
+      :activeName="searchValue ? 'second' : 'first'"
       @close-event="handleClose"
       @tab-click="tabClick"
-      activeName="first"
     >
       <template v-slot:selectBox>
         <el-select
@@ -165,9 +166,7 @@
           class="mb-2 mr-sm-2 mb-sm-0"
           :placeholder="$i18n.t('search.provideKeyword')"
           v-model="searchValue"
-          :disabled="isDisabledSearch"
         ></b-form-input>
-        <el-checkbox v-model="searchChecked" @change="onSearchChecked"></el-checkbox>
       </template>
       <template v-slot:tree>
         <ElementTree :treeData="treeData" @on-tree-event="onTreeEvent" :checkList="dynamicQuery" nodeKey="query">
@@ -290,7 +289,10 @@ export default {
     GmapCluster
   },
   computed: {
-    google
+    google,
+    keywordIsEmpty() {
+      return !this.searchValue || this.searchValue === '';
+    },
   },
   beforeMount () {
     axios.get('/getapikey')
@@ -308,6 +310,7 @@ export default {
   // },
   data () {
     return {
+      searchChecked: false,
       gridSize: 0,
       googleMap: null,
       lastShape: null,
@@ -340,7 +343,6 @@ export default {
       treeId: null,
       treeRow: null,
       treeNode: null,
-      isDisabledSearch: true,
       searchChecked: false,
       detailData: {},
       detailId: null,
@@ -735,7 +737,6 @@ export default {
       this.dialogVisible = true;
       this.addList = [];
       this.dynamicQuery = {};
-      this.isDisabledSearch = true;
       this.searchChecked = false;
     },
     handleInputConfirm(val) {
@@ -749,9 +750,6 @@ export default {
       this.selected = val;
       this.dialogVisible = true;
       this.isSelectDisabled = true;
-    },
-    onSearchChecked(value) {
-      this.isDisabledSearch = !value;
     },
     onGridClick(event) {
       // console.log("GRID_CLICKED");
