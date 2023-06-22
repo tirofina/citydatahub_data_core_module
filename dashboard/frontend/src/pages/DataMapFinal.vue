@@ -86,9 +86,7 @@
                     :draggable="true"
                     @dragend="updateCoordinates"
                   >
-                    <gmap-cluster :gridSize="10"
-                    @click="onClusterClick($event)"
-                    >
+                    <gmap-cluster :gridSize="10">
                       <gmap-marker
                         v-for="(m, index) in markers"
                         :key="m.position.id"
@@ -756,7 +754,7 @@ export default {
       this.isDisabledSearch = !value;
     },
     onGridClick(event) {
-      // console.error("GRID_CLICKED");
+      // console.log("GRID_CLICKED");
       // grid 클릭
       if (event.targetType !== 'cell') {
         return null;
@@ -812,7 +810,7 @@ export default {
 
     },
     goHistoryView() {
-      // console.error(this.params);
+      // console.log(this.params);
       if (!this.params.id) {
         // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
@@ -837,7 +835,7 @@ export default {
     },
     // 마커 클릭 시
     onMarkerClick(map) {
-      // console.error("MarkerClicked");
+      // console.log("MarkerClicked");
       const REMOVE_KEYS = ['uniqueKey', 'rowKey', 'rowSpanMap', 'sortKey', 'uniqueKey', '_attributes', '_disabledPriority', '_relationListItemMap'];
       const resultMapList = [];
       let resultMapData = {};
@@ -1084,6 +1082,7 @@ export default {
 
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
+              // console.error(resultItem);
               const locationKey = resultItem[representativeGeoProperty];
               // 확인: resultItem[locationKey]이 정의되어 있는지, 그리고 그 값이 좌표를 나타내는 배열인지
               if(locationKey && Array.isArray(locationKey.value.coordinates)){
@@ -1112,7 +1111,7 @@ export default {
               const bounds = new window.google.maps.LatLngBounds();
               let loc = null;
               this.markers.map(item => {
-                // console.error(item.position.lat, item.position.lng);
+                // console.log(item.position.lat, item.position.lng);
                 loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
                 bounds.extend(loc);
               });
