@@ -677,10 +677,10 @@ export default {
       this.$http.post('/entities', { dataModelId: this.selected })
         .then(response => {
           const status = response.status;
-          const items = response.data;
           if (status === 204) {
             return null;
           }
+          const items = response.data;
 
           let result = [{ value: null, text: this.$i18n.t('message.selectOption'), disabled: true }];
           items.commonEntityVOs.map(item => {
@@ -760,12 +760,6 @@ export default {
           .then(response => {
             const status = response.status;
             // TODO : The alignment specification has been changed, so the front needs to reverse processing and change later.
-            const items = response.data.commonEntityVOs.reverse();
-
-            if (this.flightPath) {
-              this.flightPath.setMap(null);
-              this.flightPath = null;
-            }
 
             if (status === 204) {
               this.$alert(this.$i18n.t('message.noSearchResult'));
@@ -776,6 +770,12 @@ export default {
               return null;
             }
 
+            const items = response.data.commonEntityVOs.reverse();
+
+              if (this.flightPath) {
+                this.flightPath.setMap(null);
+                this.flightPath = null;
+              }
             // init marker info
             this.markers = [];
             const markerPath = [];
@@ -895,11 +895,12 @@ export default {
       this.$http.post('/temporal/entities', params)
         .then(response => {
           const status = response.status;
-          const items = response.data.commonEntityVOs;
           if (status === 204) {
             this.$alert(this.$i18n.t('message.noSearchResult'));
             return null;
           }
+
+          const items = response.data.commonEntityVOs;
 
           // console.log(items);
 
