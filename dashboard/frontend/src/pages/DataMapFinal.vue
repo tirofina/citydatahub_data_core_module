@@ -108,7 +108,6 @@
                 <div class="col-xl-4">
                   <div class="text-right mt-2 mb-2">
                     <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
-
                     <!-- Fetch Historical Data [기록 데이터 가져오기] -->
                     <el-button size="small" type="info" :disabled="!this.params.id" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
@@ -834,6 +833,7 @@ export default {
     },
     goHistoryView() {
       // console.log(this.params);
+
       if (!this.params.id) {
         // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
@@ -1052,7 +1052,6 @@ export default {
 
       this.isInfoWindow = false;
 
-      // 마커 찍는 부분
       const typeParams = this.setTypeParams('search');
 
       const url = [
@@ -1094,17 +1093,34 @@ export default {
 
           // init marker info
           this.markers = [];
+          // 데이터를 담을 배열을 초기화
           const data = [];
-          // marker info setting
-          items.map(item => {
-            item.commonEntityVOs.map(resultItem => {
-              iconData.map((item2, index) => {
-                if (item2.type === resultItem.type) {
-                  resultItem['icon'] = item2.icon
+
+          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 첫번째 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수
+          function createFirstMarkerFromGeoProperty(obj, resultItem) {
+            let marker = null;
+
+            Object.keys(obj).some(key => {
+              if (obj[key] && obj[key].type === 'GeoProperty') {
+                const { coordinates } = obj[key].value;
+                marker = {
+                  position: {
+                    lat: coordinates[1],
+                    lng: coordinates[0],
+                  },
+                  mapInfo: resultItem,
+                  displayValue: resultItem.displayValue,
+                  icon: resultItem.icon
+                };
+                return true;
+              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                marker = createFirstMarkerFromGeoProperty(obj[key], resultItem);
+                if (marker) {
+                  return true;
                 }
-              });
+              }
+              return false;
             });
-          });
 
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
