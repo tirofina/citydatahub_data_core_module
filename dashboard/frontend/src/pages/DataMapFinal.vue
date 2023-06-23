@@ -159,7 +159,8 @@
           </el-option>
         </el-select>
       </template>
-      <template v-slot:inputBox>
+      <template v-slot:inputBox
+        v-if="this.modelSelected">
         <label class="mr-sm-2 ml-4">{{ $t('search.keywords') }}</label>
         <b-form-input
           id="inline-form-input-name"
@@ -183,7 +184,15 @@
           ></b-form-input>
           <div class="ml-1">
             <el-button size="small" type="info" @click="addDynamicSearch">{{ $t('comm.add') }}</el-button>
-            <el-button size="small" type="primary" @click="handleDynamicSearchSave">{{ $t('comm.save') }}</el-button>
+            <el-button
+              size="small"
+              type="primary"
+              @click="handleDynamicSearchSave"
+              v-show="addList.length && addList[addList.length-1].operator && addList[addList.length-1].value"
+            >
+              {{ $t('comm.save') }}
+            </el-button>
+
           </div>
         </b-form>
         <DynamicSearch v-for="(map, index) in addList" :formData="map" :index="index" @remove="searchRemove" />
@@ -202,7 +211,17 @@
           </div>
           <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('comm.reset') }}</el-button>
         </el-popover>
-        <el-button class="ml-1" type="primary" @click="handleSave" size="small">{{ $t('comm.save') }}</el-button>
+        <!-- <el-button class="ml-1" type="primary" @click="handleSave" size="small">{{ $t('comm.save') }}</el-button> -->
+        <el-button
+          class="ml-1"
+          type="primary"
+          @click="handleSave"
+          size="small"
+          v-show="isSelectDisabled"
+        >
+          {{ $t('comm.save') }}
+        </el-button>
+
       </template>
       <template v-slot:radios>
         <ElementTree
@@ -310,6 +329,7 @@ export default {
   // },
   data () {
     return {
+      modelSelected: false,
       searchChecked: false,
       gridSize: 0,
       googleMap: null,
@@ -343,6 +363,7 @@ export default {
       treeId: null,
       treeRow: null,
       treeNode: null,
+      modelSelected: false,
       searchChecked: false,
       detailData: {},
       detailId: null,
@@ -377,6 +398,9 @@ export default {
     }
   },
   methods: {
+    handleInputChange(value) {
+      this.showSaveButton = value;
+    },
     focusOut() {
       this.isChangeName = false;
       if (!this.latestName) {
@@ -532,7 +556,6 @@ export default {
       this.gridData = []; // init entity id list
       this.$refs.tuiGrid1.invoke('resetData', this.gridData);
     },
-
     setTypeParams(type) {
       const typeParams = [];
       this.dynamicTags.forEach(value => {
@@ -684,6 +707,7 @@ export default {
       }
       this.treeData = tempTree;
     },
+    // Attribute 추가 및 저장
     handleDynamicSearchSave() {
       const tempTree = [ ...this.treeData ];
       this.treeData = [];
@@ -738,6 +762,7 @@ export default {
       this.addList = [];
       this.dynamicQuery = {};
       this.searchChecked = false;
+      this.modelSelected = false;
     },
     handleInputConfirm(val) {
       this.onDataModelChange(val);
@@ -829,7 +854,7 @@ export default {
       };
     },
     tabClick(tab, event, activeName) {
-      console.log(activeName);
+      // console.log(activeName);
     },
     // 마커 클릭 시
     onMarkerClick(map) {
@@ -861,8 +886,10 @@ export default {
       this.infoWindowLabel = null;
       this.isInfoWindow = false;
     },
+    // 모델 선택 시
     onDataModelChange(value) {
       dataModelApi.attributes({dataModelId: value, typeUri: null}).then(data => this.treeData = data).catch((err) => null);
+      this.modelSelected = true;
     },
     onChecked(event) {
       // all check
@@ -967,6 +994,7 @@ export default {
         operator: null,
         value: null
       });
+        console.error(this.addList);
     },
     goSubscriptions(isAlert) {
       this.$http.post('/subscriptions', this.subscribeList)
