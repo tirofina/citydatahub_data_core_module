@@ -415,7 +415,6 @@ export default {
 
         this.websocket.onmessage = event => {
           const socketData = JSON.parse(event.data);
-          // console.log(socketData);
           const { chartType, dataType } = socketData;
           if (chartType === 'text' || chartType === 'boolean' || chartType === 'custom_text') {
             const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
@@ -448,14 +447,17 @@ export default {
           if (chartType === 'histogram') {
             const index = this.layout.findIndex(item => item.widgetId === socketData.widgetId);
             const { chartUnit, valueType } = this.layout[index];
-            if (valueType && valueType.toUpperCase() === 'STRING') {
+            if (valueType && valueType.toUpperCase() === 'String') {
               resultData = setHistogramStrChart(socketData);
             } else {
               resultData = setHistogramNumberChart(socketData, chartUnit);
             }
           }
-
+          // 위젯 로딩
           this.layout.forEach(item => {
+            // console.error(item);
+            // console.error(item.data);
+            // console.error(item.data.datasets.label);
             if (item.widgetId === socketData.widgetId) {
               item.data = resultData;
               if (item.chartType === 'bar') {
@@ -467,7 +469,7 @@ export default {
                 // 차트의 max xAxis 설정 위함
                 const N = socketData.data.length;
                 const maxX = N > 0 ? socketData.data[N - 1].x + (chartUnit / 2) : 10;
-                if (valueType && valueType.toUpperCase() === 'STRING') {
+                if (valueType && valueType.toUpperCase() === 'String') {
                   item.options = histogramStrChartOptions(item);
                 } else {
                   item.options = histogramNumberChartOptions(item, chartUnit, maxX);
