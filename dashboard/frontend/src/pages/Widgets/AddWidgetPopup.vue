@@ -759,60 +759,64 @@ export default {
       this.activeName = active;
     },
     async getEntityList(dataModelId, typeUri) {
-      this.$http.post('/entityIds', {dataModelId, typeUri})
-        .then(response => {
-          const status = response.status;
-          const items = response.data;
+      try {
+        const { status, data: items } = await this.$http.post('/entityIds', {dataModelId, typeUri});
 
-          if (status === 204) {
-            this.entityIds = [];
-            this.treeData = [];
-            return false;
+        if (status === 204) {
+          this.resetData();
+          return;
+        }
+
+        this.processEntityIds(items);
+        const hasEntityIds = this.entityIds.length > 0;
+
+        if (hasEntityIds) {
+          const data = await dataModelApi.attributes({dataModelId, typeUri});
+          this.treeData = this.processTreeData(data);
+        }
+
+      } catch (error) {
+        console.error('Error in getEntityList:', error);
+      }
+    },
+    resetData() {
+      this.entityIds = [];
+      this.treeData = [];
+    },
+    processEntityIds(items) {
+      const result = items.map(item => ({value: item, text: item, disabled: false}));
+      result.unshift({value: '', text: 'all', disabled: false});
+      this.entityIds = result;
+
+      const {dataType, chartType} = this.formData;
+      this.entityIds.at(0).disabled = dataType === 'history' && ['scatter', 'histogram'].includes(chartType);
+    },
+    setSearchableToFalse(valueData) {
+      const chartTypeRestrictions = {
+        donut: ['Integer', 'Double'],
+        bar: ['Integer', 'Double'],
+        pie: ['Integer', 'Double'],
+        line: ['Integer', 'Double'],
+        boolean: ['Boolean'],
+        histogram: ['Integer'],
+        scatter: ['Integer', 'Double']
+      };
+      const allowedTypes = chartTypeRestrictions[this.formData.chartType];
+
+      if (typeof valueData === 'object' && valueData !== null) {
+        if ('valueType' in valueData && allowedTypes && !allowedTypes.includes(valueData.valueType)) {
+          valueData.searchable = false;
+        }
+        for (let key in valueData) {
+          if (typeof valueData[key] === 'object' && valueData[key] !== null) {
+            this.setSearchableToFalse(valueData[key]);
           }
-          let result = [{value: '', text: 'all', disabled: false}];
-          items.map(item => {
-            return result.push({value: item, text: item, disabled: false});
-          });
-          this.entityIds = result;
-          const {dataType, chartType} = this.formData;
-          this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
-          return true;
-        }).then(hasEntityIds => {
-          if (hasEntityIds) {
-            dataModelApi.attributes({dataModelId, typeUri})
-              .then(data => {
-                // 해당 엔티티 ID에 대한 차트 값들을 load함
-                // 여기서 사전에 disabled 처리함
-                const chartTypeRestrictions = {
-                  donut: ['Integer', 'Double'],
-                  bar: ['Integer', 'Double'],
-                  pie: ['Integer', 'Double'],
-                  line: ['Integer', 'Double'],
-                  boolean: ['Boolean'],
-                  histogram: ['Integer'],
-                  scatter: ['Integer', 'Double']
-                };
-
-                this.treeData = data;
-                console.log(this.treeData);
-                console.log(this.treeData[0].valueType);
-
-                const {chartType} = this.formData;  // 차트 타입 추출
-                console.log(chartType);
-
-                const allowedTypes = chartTypeRestrictions[chartType];
-                console.log(allowedTypes);
-
-                this.treeData.forEach(valueData => {
-                  // 해당 차트의 valueType이 chartType에 허용되는 데이터 타입인지 확인
-                  if (allowedTypes && !allowedTypes.includes(valueData.valueType)) {
-                    valueData.searchable = false;  // 허용되지 않는 데이터 타입인 경우 searchable을 false로 설정
-                  }
-                  console.log(valueData.searchable);
-                });
-              });
-          }
-      })
+        }
+      }
+    },
+    processTreeData(data) {
+      data.forEach(this.setSearchableToFalse);
+      return data;
     },
     getAttributed() {
       dataModelApi.attributes(value)
