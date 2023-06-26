@@ -12,7 +12,7 @@ const request = async (method, url, data) => {
       data,
     });
 
-    console.info("HTTP: " + response.status);
+    // console.info("HTTP: " + response.status);
     if (response.status >= 200 && response.status <= 299) {
       return response.data;
     } else {

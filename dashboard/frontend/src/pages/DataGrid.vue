@@ -26,7 +26,7 @@
                     v-model="searchValue"
                     :disabled="isDisabledSearch"
                   ></b-form-input>
-                  <el-button size="small" type="info" @click="handleShowPopup">{{ $t('search.options') }}</el-button>
+                  <el-button size="small" type="info" @click="handleShowPopup" v-if="keywordIsEmpty && !isBtnLoading">{{ $t('search.options') }}</el-button>
                   <el-button size="small" type="primary" @click="getTotalData" v-if="!isBtnLoading">{{ $t('comm.search') }}</el-button>
                   <el-button size="small" type="primary" :loading="true" v-if="isBtnLoading">{{ $t('search.searching') }}</el-button>
                 </b-form>
@@ -344,6 +344,11 @@ export default {
         { name: "userNm", header: this.$i18n.t('comm.name'), align: "center" },
         { name: "regDt", header: this.$i18n.t('comm.regDt'), align: "center" }
       ]
+    }
+  },
+  computed: {
+    keywordIsEmpty() {
+      return !this.searchValue || this.searchValue === '';
     }
   },
   methods: {
