@@ -51,7 +51,7 @@
                   </div>
                   <div class="col text-right">
                     <el-button size="small" class="button-new-tag mt-1" style="margin-right: 0;" @click="onShowPopup">+ Data Model(s)</el-button>
-                    <el-button size="small" type="info" style="margin-right: 1px;" @click="getEntitiesIsMap">{{ $t('comm.search') }}</el-button>
+                    <el-button size="small" type="info" style="margin-right: 1px;" :disabled="this.dynamicTags.length == 0" @click="getEntitiesIsMap">{{ $t('comm.search') }}</el-button>
                   </div>
                 </div>
               </div>
@@ -107,10 +107,13 @@
                 </div>
                 <div class="col-xl-4">
                   <div class="text-right mt-2 mb-2">
-                    <el-button size="small" type="info" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
-                    <el-button size="small" type="info" :disabled="isHistoryBtn" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
+                    <el-button size="small" type="info" :disabled="this.subscribeList.length == 0" @click="goSubscriptions(true)">{{ $t('search.subscribe') }}</el-button>
+
+                    <!-- Fetch Historical Data [기록 데이터 가져오기] -->
+                    <el-button size="small" type="info" :disabled="!this.params.id" @click="goHistoryView">{{ $t('search.fetchHistoricalData') }}</el-button>
                   </div>
                   <strong style="font-size: 12px;">* {{ $t('message.checkSubscription') }}</strong>
+                  <!-- 우측 하단의 grid, 구독 정보를 확인하세요, Entity ID, 엔티티 ID -->
                   <grid
                     :data="gridData"
                     :columns="[{ header: $i18n.t('search.entityID'), name: 'id', align: 'center' }]"
@@ -132,10 +135,11 @@
       </div>
     </div>
     <SearchConfiguration
+      :searchValue="searchValue"
       :visible="dialogVisible"
+      :activeName="searchValue ? 'second' : 'first'"
       @close-event="handleClose"
       @tab-click="tabClick"
-      activeName="first"
     >
       <template v-slot:selectBox>
         <el-select
@@ -155,16 +159,15 @@
           </el-option>
         </el-select>
       </template>
-      <template v-slot:inputBox>
+      <template v-slot:inputBox
+        v-if="this.modelSelected">
         <label class="mr-sm-2 ml-4">{{ $t('search.keywords') }}</label>
         <b-form-input
           id="inline-form-input-name"
           class="mb-2 mr-sm-2 mb-sm-0"
           :placeholder="$i18n.t('search.provideKeyword')"
-          v-model="searchValue"
-          :disabled="isDisabledSearch"
+          v-model="validatedSearchValue"
         ></b-form-input>
-        <el-checkbox v-model="searchChecked" @change="onSearchChecked"></el-checkbox>
       </template>
       <template v-slot:tree>
         <ElementTree :treeData="treeData" @on-tree-event="onTreeEvent" :checkList="dynamicQuery" nodeKey="query">
@@ -172,7 +175,7 @@
       </template>
       <template v-slot:addQuery>
         <b-form inline class="mb-4">
-          <label class="mr-sm-2">ID</label>
+          <label class="mr-sm-2">Attribute</label>
           <b-form-input
             id="inline-form-input-name"
             class="mb-2 mr-sm-2 mb-sm-0"
@@ -181,7 +184,15 @@
           ></b-form-input>
           <div class="ml-1">
             <el-button size="small" type="info" @click="addDynamicSearch">{{ $t('comm.add') }}</el-button>
-            <el-button size="small" type="primary" @click="handleDynamicSearchSave">{{ $t('comm.save') }}</el-button>
+            <el-button
+              size="small"
+              type="primary"
+              @click="handleDynamicSearchSave"
+              v-show="addList.length && addList[addList.length-1].operator && addList[addList.length-1].value"
+            >
+              {{ $t('comm.save') }}
+            </el-button>
+
           </div>
         </b-form>
         <DynamicSearch v-for="(map, index) in addList" :formData="map" :index="index" @remove="searchRemove" />
@@ -200,7 +211,17 @@
           </div>
           <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('comm.reset') }}</el-button>
         </el-popover>
-        <el-button class="ml-1" type="primary" @click="handleSave" size="small">{{ $t('comm.save') }}</el-button>
+        <!-- <el-button class="ml-1" type="primary" @click="handleSave" size="small">{{ $t('comm.save') }}</el-button> -->
+        <el-button
+          class="ml-1"
+          type="primary"
+          @click="handleSave"
+          size="small"
+          v-show="!keywordIsEmpty || isSelectDisabled"
+        >
+          {{ $t('comm.save') }}
+        </el-button>
+
       </template>
       <template v-slot:radios>
         <ElementTree
@@ -214,6 +235,7 @@
       </template>
     </SearchConfiguration>
 
+    <!--dialogVisible2 마커를 눌렀을 때 나오는 다이얼로그, 상세정보-->
     <el-dialog
       title="Model Attribute"
       :visible.sync="dialogVisible2"
@@ -245,6 +267,7 @@
         <el-button type="primary" @click="dialogVisible2 = false" size="small">{{ $t('comm.ok') }}</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 <script>
@@ -254,7 +277,7 @@
  * @components Grid, SearchConfiguration, ElementTree, DynamicSearch
  * JsonViewer, GmapMap, GmapMarker, GmapCluster
  */
-import { latestApi } from '@/moudules/apis';
+import { latestApi, dataModelApi } from '@/moudules/apis';
 import { loadGmapApi, gmapApi as google } from 'vue2-google-maps';
 import GmapMap from 'vue2-google-maps/src/components/map';
 import GmapCluster from 'vue2-google-maps/src/components/cluster';
@@ -285,7 +308,27 @@ export default {
     GmapCluster
   },
   computed: {
-    google
+    google,
+    keywordIsEmpty() {
+      return !this.searchValue || this.searchValue === '';
+    },
+
+    validatedSearchValue: {
+      get() {
+        return this.searchValue;
+      },
+      set(newValue) {
+        // 공백만 있는 문자열을 제거
+        newValue = newValue.trim();
+
+        // 문자열과 숫자만 가능하도록 정규식을 이용하여 필터링
+        newValue = newValue.replace(/[^a-z0-9]/gi, '');
+
+        this.searchValue = newValue;
+      }
+    }
+
+
   },
   beforeMount () {
     axios.get('/getapikey')
@@ -335,7 +378,7 @@ export default {
       treeId: null,
       treeRow: null,
       treeNode: null,
-      isDisabledSearch: true,
+      modelSelected: false,
       searchChecked: false,
       detailData: {},
       detailId: null,
@@ -366,10 +409,13 @@ export default {
       searchCondition: [],
       subscriptionCondition: [],
       isChangeName: false,
-      isRemoveBtn: true
+      isRemoveBtn: true,
     }
   },
   methods: {
+    handleInputChange(value) {
+      this.showSaveButton = value;
+    },
     focusOut() {
       this.isChangeName = false;
       if (!this.latestName) {
@@ -388,7 +434,7 @@ export default {
         this.websocket = new WebSocket(serverURL);
 
         this.websocket.onopen = (event) => {
-          console.log(event);
+          // console.log(event);
           this.onOpen();
         };
 
@@ -397,8 +443,8 @@ export default {
         };
 
         this.websocket.onclose = (event) => {
-          console.log(event);
-          console.log('websocket close');
+          // console.log(event);
+          // console.log('websocket close');
         };
       }
     },
@@ -608,12 +654,16 @@ export default {
     handleTagClose(tag) {
       this.dataModels.forEach(item => {
         if (item.value === tag) {
+          this.modelSelected = false;
           return item.disabled = false;
         }
       });
+
       this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+
     },
     handleClose() {
+      this.modelSelected = false;
       this.dialogVisible = false;
       this.dialogVisible2 = false;
       this.isSelectDisabled = false;
@@ -665,6 +715,7 @@ export default {
       this.dynamicQuery = {};
       this.visible3 = false;
       this.displayAttribute[this.attributeValue] = null;
+      this.modelSelected = false;
       this.attributeValue = null;
     },
     searchRemove(id, index) {
@@ -675,6 +726,7 @@ export default {
       }
       this.treeData = tempTree;
     },
+    // Attribute 추가 및 저장
     handleDynamicSearchSave() {
       const tempTree = [ ...this.treeData ];
       this.treeData = [];
@@ -728,8 +780,8 @@ export default {
       this.dialogVisible = true;
       this.addList = [];
       this.dynamicQuery = {};
-      this.isDisabledSearch = true;
       this.searchChecked = false;
+      this.modelSelected = false;
     },
     handleInputConfirm(val) {
       this.onDataModelChange(val);
@@ -743,43 +795,72 @@ export default {
       this.dialogVisible = true;
       this.isSelectDisabled = true;
     },
-    onSearchChecked(value) {
-      this.isDisabledSearch = !value;
-    },
     onGridClick(event) {
+      // console.log("GRID_CLICKED");
+      // grid 클릭
       if (event.targetType !== 'cell') {
         return null;
       }
 
-      // Zoom reset.
-      const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
-      const locationKey = items['geoproperty_ui'];
-      this.$refs.geoMap.$mapPromise.then((map) => {
-        const bounds = new window.google.maps.LatLngBounds();
-        let loc = null;
-        loc = new window.google.maps.LatLng(
-          items[locationKey].value.coordinates[1],
-          items[locationKey].value.coordinates[0],
-        );
-        bounds.extend(loc);
+      // 'search'에 해당하는 typeParams를 설정
+      const typeParams = this.setTypeParams('search');
 
-        map.fitBounds(bounds);
-        map.panToBounds(bounds);
-        const zoom = map.getZoom();
-        map.setZoom(zoom > 18 ? 18 : zoom);
+      // GeoProperty를 찾아주는 비동기 함수
+      async function findGeoProperty() {
+        // 데이터 모델 조회
+        const response = await dataModelApi.query({ dataModelId: typeParams[0].dataModelId, dataModelType: null });
+
+        // 응답에서 attributeType이 'GeoProperty'인 속성 찾기
+        const geoPropertyAttribute = response.attributes.find(attribute => attribute.attributeType === 'GeoProperty');
+
+        // GeoProperty 속성이 존재하면 해당 속성의 이름 반환, 그렇지 않으면 undefined 반환
+        return geoPropertyAttribute ? geoPropertyAttribute.name : undefined;
+      }
+
+      findGeoProperty().then(representativeGeoProperty => {
+        // 이 지점에서 representativeGeoProperty는 비동기 호출이 완료된 후의 값을 가짐
+
+        // 특정 row에 대한 정보를 가져옴
+        const items = this.$refs.tuiGrid1.invoke('getRow', event.rowKey);
+
+        // 대표 GeoProperty 위치 정보를 가져옴
+        const locationKey = items[representativeGeoProperty];
+
+        // 위치 정보가 존재하고, 그 값이 좌표 배열이라면
+        if (locationKey && Array.isArray(locationKey.value.coordinates)) {
+          const [lng, lat] = locationKey.value.coordinates; // 순서를 주의. 일반적으로 GeoJSON은 [경도, 위도] 순서를 사용
+
+          // 해당 위치를 중심으로 지도 이동
+          this.$refs.geoMap.$mapPromise.then((map) => {
+            const bounds = new window.google.maps.LatLngBounds();
+            const loc = new window.google.maps.LatLng(lat, lng);
+
+            // 지도를 특정 위치로 이동시키고 확대
+            bounds.extend(loc);
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
+
+            // 현재 줌 레벨을 가져와서 최대 줌 레벨(현재 18)을 넘지 않도록 설정
+            const zoom = map.getZoom();
+            map.setZoom(zoom > 18 ? 18 : zoom);
+          });
+
+          // 파라미터 업데이트
+          this.params = { id: items.id, type: items.type };
+        }
       });
 
-      this.params = { id: items.id, type: items.type };
     },
     goHistoryView() {
+      // console.log(this.params);
       if (!this.params.id) {
-        this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
+        // this.$alert(this.$i18n.t('message.clickItem', [this.$i18n.t('search.entityID')]));
         return null;
       }
-      this.$router.push({ path: '/map-search-historical', query: this.params });
+      this.$router.push({ path: '/mapSearchHistorical', query: this.params});
     },
     updateCoordinates(location) {
-      console.log(location);
+      // console.log(location);
     },
     updateEdited(event) {
       const ne = event.getNorthEast();
@@ -792,9 +873,11 @@ export default {
       };
     },
     tabClick(tab, event, activeName) {
-      console.log(activeName);
+      // console.log(activeName);
     },
+    // 마커 클릭 시
     onMarkerClick(map) {
+      // console.log("MarkerClicked");
       const REMOVE_KEYS = ['uniqueKey', 'rowKey', 'rowSpanMap', 'sortKey', 'uniqueKey', '_attributes', '_disabledPriority', '_relationListItemMap'];
       const resultMapList = [];
       let resultMapData = {};
@@ -822,15 +905,13 @@ export default {
       this.infoWindowLabel = null;
       this.isInfoWindow = false;
     },
+    // 모델 선택 시
     onDataModelChange(value) {
-      this.$http.get(`/datamodels/attrstree?id=${ value }`)
-        .then(response => {
-          const status = response.status;
-          if (status === 204) {
-            return null;
-          }
-          this.treeData = response.data;
-        });
+      dataModelApi.attributes({dataModelId: value, typeUri: null}).
+        then(data =>
+          this.treeData = data,
+          this.modelSelected = true)
+          .catch((err) => null);
     },
     onChecked(event) {
       // all check
@@ -952,7 +1033,7 @@ export default {
         });
     },
     deleteSubscriptions(isAlert) {
-      console.log(this.subscriptionId);
+      // console.log(this.subscriptionId);
       this.$http.delete(`/subscriptions/${ this.subscriptionId }`)
         .then(response => {
           const status = response.status;
@@ -992,8 +1073,38 @@ export default {
 
       this.isInfoWindow = false;
 
+      // 마커 찍는 부분
       const typeParams = this.setTypeParams('search');
-      this.$http.post('/entities/multimodel', typeParams)
+
+      const url = [
+        'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/pink-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+        'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      ];
+
+      const iconData = [];
+      const tags = this.dynamicTags;
+      tags.map((item, index) => {
+        iconData.push({
+          type: item,
+          icon: url[index],
+        });
+      });
+
+      // 데이터 모델 조회 => 순서 상 맨 처음으로 attributeType이 GeoProperty을 갖는 것을 대표 값으로 선택
+      dataModelApi.query({dataModelId: typeParams[0].dataModelId , dataModelType: null}).
+      then(response => {
+        // 주어진 배열에서 첫번째로 attributeType이 GeoProperty인 속성을 찾는 함수
+        function setRepresentativeGeoProperty(attributes) {
+          return attributes.find(attribute => attribute.attributeType === 'GeoProperty');
+        }
+
+        const geoPropertyAttribute = setRepresentativeGeoProperty(response.attributes);
+        const representativeGeoProperty = geoPropertyAttribute ? geoPropertyAttribute.name : undefined;
+
+        this.$http.post('/entities/multimodel', typeParams)
         .then(response => {
           const items = response.data;
           const status = response.status;
@@ -1001,23 +1112,6 @@ export default {
             this.$alert(this.$i18n.t('message.noSearchResult'));
             return null;
           }
-
-          const url = [
-            'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/orange-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/pink-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
-            'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-          ];
-
-          const iconData = [];
-          const tags = this.dynamicTags;
-          tags.map((item, index) => {
-            iconData.push({
-              type: item,
-              icon: url[index],
-            });
-          });
 
           // init marker info
           this.markers = [];
@@ -1035,38 +1129,48 @@ export default {
 
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
-              const locationKey = resultItem['geoproperty_ui'];
-              this.markers.push({
-                position: {
-                  lat: resultItem[locationKey].value.coordinates[1],
-                  lng: resultItem[locationKey].value.coordinates[0],
-                },
-                mapInfo: resultItem,
-                displayValue: resultItem.displayValue,
-                icon: resultItem.icon
+              // console.error(resultItem);
+              const locationKey = resultItem[representativeGeoProperty];
+              // 확인: resultItem[locationKey]이 정의되어 있는지, 그리고 그 값이 좌표를 나타내는 배열인지
+              if(locationKey && Array.isArray(locationKey.value.coordinates)){
+                this.markers.push({
+                  position: {
+                    lat: locationKey.value.coordinates[1],
+                    lng: locationKey.value.coordinates[0],
+                  },
+                  mapInfo: resultItem,
+                  displayValue: resultItem.displayValue,
+                  icon: resultItem.icon
+                });
+                // console.error(this.markers);
+                // Remove icons from source data.
+                delete resultItem.icon;
+                delete resultItem.displayValue;
+                data.push(resultItem);
+              }
+              else {
+                // console.error('Invalid locationKey or coordinates');
+              }
+            });
+
+            this.$refs.geoMap.$mapPromise.then((map) => {
+              // auto focus, auto zoom in out
+              const bounds = new window.google.maps.LatLngBounds();
+              let loc = null;
+              this.markers.map(item => {
+                // console.log(item.position.lat, item.position.lng);
+                loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
+                bounds.extend(loc);
               });
-              // Remove icons from source data.
-              delete resultItem.icon;
-              delete resultItem.displayValue;
-              data.push(resultItem);
-            });
-          });
+              map.fitBounds(bounds);
+              map.panToBounds(bounds);
+              const zoom = map.getZoom();
+              map.setZoom(zoom > 12 ? 12 : zoom);
 
-          this.$refs.geoMap.$mapPromise.then((map) => {
-            // auto focus, auto zoom in out
-            const bounds = new window.google.maps.LatLngBounds();
-            let loc = null;
-            this.markers.map(item => {
-              loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
-              bounds.extend(loc);
+              // const zoom = this.$refs.geoMap.$mapObject.getZoom();
+              // this.$refs.geoMap.$mapObject.setZoom(zoom > 12 ? 12 : zoom);
             });
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
-            const zoom = map.getZoom();
-            map.setZoom(zoom > 12 ? 12 : zoom);
 
-            // const zoom = this.$refs.geoMap.$mapObject.getZoom();
-            // this.$refs.geoMap.$mapObject.setZoom(zoom > 12 ? 12 : zoom);
           });
           this.gridData = data;
           this.$refs.tuiGrid1.invoke('resetData', this.gridData);
@@ -1090,6 +1194,7 @@ export default {
             this.isInfoWindow = true;
           }, 1000);
         });
+      });
     }
   },
   mounted() {

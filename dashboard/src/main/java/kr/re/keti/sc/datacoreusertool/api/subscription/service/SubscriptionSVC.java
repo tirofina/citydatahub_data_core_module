@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import kr.re.keti.sc.datacoreusertool.api.datamodel.vo.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -152,36 +153,40 @@ public class SubscriptionSVC {
 		List<String> attrs = null;
 		String widgetId = null;
 		String dashboardId = null;
+		List<String> notificationAttributeUris = new ArrayList<>();
 		
 		subscriptionVO.setType(DEFAULT_SUBSCRIPTION_TYPE);
 		
 		for(SubscriptionUIVO subscriptionUIVO : subscriptionUIVOs) {
 			EntityInfo entityInfo = new EntityInfo();
 			
-			// type -> typeUri
-			ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModelbyId(subscriptionUIVO.getType());
+			ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModelbyTypeUri(subscriptionUIVO.getTypeUri());
 			if(dataModelVO.getBody() != null) {
 				entityInfo.setType(dataModelVO.getBody().getTypeUri());
 				context.addAll(dataModelVO.getBody().getContext());
+
+				expandAttributeUri(subscriptionUIVO.getAttrs(), dataModelVO.getBody().getAttributes(), notificationAttributeUris);
+
 			} else {
-				entityInfo.setType(subscriptionUIVO.getType());
+				entityInfo.setType(subscriptionUIVO.getTypeUri());
 			}
 			entityInfo.setId(subscriptionUIVO.getId());
 			
 			entities.add(entityInfo);
-			
 			dashboardId = subscriptionUIVO.getDashboardId();
 			widgetId = subscriptionUIVO.getWidgetId();
 			attrs = subscriptionUIVO.getAttrs();
+
 		}
 		subscriptionVO.setEntities(entities);
-		
+
+
 		endpoint.setAccept(Constants.ACCEPT_TYPE_APPLICATION_JSON);
 		if(!ValidateUtil.isEmptyData(dashboardId) && !ValidateUtil.isEmptyData(widgetId)) {
 			endpoint.setUri(datacoreusertoolWidgetUrl);
 			subscriptionVO.setId("urn" + ":" + userId + ":" + dashboardId + ":" + widgetId);
-			if(!ValidateUtil.isEmptyData(attrs)) {
-				notification.setAttributes(attrs);
+			if(!ValidateUtil.isEmptyData(notificationAttributeUris) && !ValidateUtil.isEmptyData(attrs)) {
+				notification.setAttributes(notificationAttributeUris);
 			}
 		} else {
 			endpoint.setUri(datacoreusertoolUrl);
@@ -208,6 +213,20 @@ public class SubscriptionSVC {
         cal.add(Calendar.DATE, 1);
         
         return cal.getTime();
+	}
+
+	private void expandAttributeUri(List<String> shortNames, List<Attribute> attributes, List<String> uris) {
+		for (Attribute attribute : attributes) {
+			for (String shortName : shortNames) {
+				if (attribute.getName().equals(shortName)) {
+					uris.add(attribute.getAttributeUri());
+				}
+			}
+
+			if (!ValidateUtil.isEmptyData(attribute.getChildAttributes())) {
+				expandAttributeUri (shortNames, attribute.getChildAttributes(), uris);
+			}
+		}
 	}
 	
 	/**

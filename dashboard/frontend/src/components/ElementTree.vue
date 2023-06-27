@@ -43,7 +43,8 @@
             @show="() => popoverShow(node.id)"
           >
             <slot name="popover-content" :node="node" :show="popover.visible[node.id]"/>
-            <el-button
+            <!-- 범례 선택 버튼 -->
+            <el-button v-if="data.searchable"
               @click.stop
               slot="reference"
               type="text"

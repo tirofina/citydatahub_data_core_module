@@ -204,7 +204,10 @@ public class SubscriptionVO implements TermExpandable {
         List<String> expandedAttributes = new ArrayList<>();
         for (String attributeName : attributes) {
             String fullUriByRequest = requestContextMap.get(attributeName);
-            String fullUriByDataModel = dataModelContextMap.get(attributeName);
+            String fullUriByDataModel = null;
+            if (dataModelContextMap != null) {
+                fullUriByDataModel = dataModelContextMap.get(attributeName);
+            }
             if (isFullUri(attributeName)
                 || !isExpansionTarget(fullUriByRequest, fullUriByDataModel)) {
                 expandedAttributes.add(attributeName);

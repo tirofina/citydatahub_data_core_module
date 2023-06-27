@@ -6,7 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,12 +46,19 @@ public class DataModelController {
 	@GetMapping(value="/datamodels")
 	@ApiOperation(value = "Retrieve DataModel", notes = "Retrieve DataModel")
 	public ResponseEntity<DataModelVO> getDataModel(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value="id") String id) throws Exception {
-		
-		// 1. Retrieve data model
-		ResponseEntity<DataModelVO> dataModelVO = dataModelSVC.getDataModelbyId(id);
-		
-		return dataModelVO;
+			@RequestParam(value="id", defaultValue = "") String id,
+			@RequestParam(value="type", defaultValue = "") String type) throws Exception {
+
+		// 1. Check parameters
+		if (id.isEmpty() && type.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+
+		if (id.isEmpty()) {
+			return dataModelSVC.getDataModelByEntityType(type);
+		} else {
+			return dataModelSVC.getDataModelbyId(id);
+		}
 	}
 	
 	/**

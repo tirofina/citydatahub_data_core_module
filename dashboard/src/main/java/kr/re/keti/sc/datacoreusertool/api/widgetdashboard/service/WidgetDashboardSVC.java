@@ -885,11 +885,7 @@ public class WidgetDashboardSVC {
 	/**
 	 * retrieve historical data & send to websocket session
 	 * @param entityRetrieveVO	EntityRetrieveVO
-	 * @param widgetId			Widget ID
-	 * @param userId			User ID
-	 * @param sessionId			Session ID
-	 * @param chartType			Chart type
-	 * @param dataType			Data type
+	 * @param widgetSessionVO	Widget Session VO
 	 */
 	private void retreiveHistoryAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		WidgetChartHistoryDataVO widgetChartHistoryDataVO = new WidgetChartHistoryDataVO();
@@ -988,11 +984,7 @@ public class WidgetDashboardSVC {
 	/**
 	 * Retrieve latest map data
 	 * @param entityRetrieveVOs		List of EntityRetrieveVO
-	 * @param widgetId				Widget ID
-	 * @param userId				User ID
-	 * @param sessionId				Session ID
-	 * @param chartType				Chart type
-	 * @param dataType				Data type
+	 * @param widgetSessionVO		Widget Session VO
 	 */
 	private void retreiveLastMapAttributeAndSendToWidgetSession(List<EntityRetrieveVO> entityRetrieveVOs, WidgetSessionVO widgetSessionVO) {
 		
@@ -1019,12 +1011,7 @@ public class WidgetDashboardSVC {
 	/**
 	 * Retrieve latest data
 	 * @param entityRetrieveVO	EntityRetrieveVO
-	 * @param widgetId			Widget ID
-	 * @param userId			User ID
-	 * @param isMultiEntities	Multiple entities or not
-	 * @param sessionId			Session ID
-	 * @param chartType			Chart type
-	 * @param dataType			Data type
+	 * @param widgetSessionVO	Widget Session VO
 	 */
 	private void retreiveLastAttributeAndSendToWidgetSession(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		
@@ -1122,12 +1109,7 @@ public class WidgetDashboardSVC {
 	/**
 	 * create schedule (retrieve latest data)
 	 * @param entityRetrieveVO	EntityRetrieveVO
-	 * @param widgetId			Widget ID
-	 * @param userId			User ID
-	 * @param chartType			Chart type
-	 * @param dataType			Data type
-	 * @param period			Period
-	 * @param isMultiEntities	Multiple entities or not
+	 * @param widgetSessionVO	Widget Session VO
 	 */
 	private void createLastAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		Runnable runnalbe = new Runnable() {
@@ -1144,12 +1126,7 @@ public class WidgetDashboardSVC {
 	/**
 	 * create schedule (retrieve historical data)
 	 * @param entityRetrieveVO	EntityRetrieveVO
-	 * @param widgetId			Widget ID
-	 * @param userId			User ID
-	 * @param chartType			Chart type
-	 * @param dataType			Data type
-	 * @param period			Period
-	 * @param isMultiEntities	Multiple entities or not
+	 * @param widgetSessionVO	Widget Session VO
 	 */
 	private void createHistoryAttributeTaskSchedule(EntityRetrieveVO entityRetrieveVO, WidgetSessionVO widgetSessionVO) {
 		Runnable runnalbe = new Runnable() {
@@ -1173,7 +1150,7 @@ public class WidgetDashboardSVC {
 		List<SubscriptionUIVO> subscriptionUIVOs = new ArrayList<SubscriptionUIVO>();
 		SubscriptionUIVO subscriptionUIVO = new SubscriptionUIVO();
 		
-		subscriptionUIVO.setType(entityRetrieveVO.getType());
+		subscriptionUIVO.setTypeUri(entityRetrieveVO.getTypeUri());
 		subscriptionUIVO.setId(entityRetrieveVO.getId());
 		subscriptionUIVO.setAttrs(entityRetrieveVO.getAttrs());
 		subscriptionUIVO.setWidgetId(widgetId);
@@ -1196,7 +1173,7 @@ public class WidgetDashboardSVC {
 		for(EntityRetrieveVO entityRetrieveVO : entityRetrieveVOs) {
 			SubscriptionUIVO subscriptionUIVO = new SubscriptionUIVO();
 			
-			subscriptionUIVO.setType(entityRetrieveVO.getType());
+			subscriptionUIVO.setTypeUri(entityRetrieveVO.getTypeUri());
 			subscriptionUIVO.setId(entityRetrieveVO.getId());
 			subscriptionUIVO.setAttrs(entityRetrieveVO.getAttrs());
 			subscriptionUIVO.setWidgetId(widgetId);
@@ -1299,7 +1276,7 @@ public class WidgetDashboardSVC {
 	 * Convert WidgetChartHistoryDataVO to String message
 	 * @param widgetChartHistoryDataVO	WidgetChartHistoryDataVO
 	 * @param legendCommonEntity 
-	 * @param legend 
+	 * @param widgetSessionVO
 	 * @return							WidgetChartHistoryData message 
 	 */
 	private String commonEntityResponseVOtoMessage(WidgetChartHistoryDataVO widgetChartHistoryDataVO, 
@@ -1665,7 +1642,13 @@ public class WidgetDashboardSVC {
 	    				object = map.get(attrs[i]);
 	    			}
 	    		}
-	    		legends.put(commonEntityVO.getId(), (String) object);
+				if (object instanceof String) {
+					legends.put(commonEntityVO.getId(), (String) object);
+				} else if (object instanceof Map) {
+					if (((Map) object).get("value") != null) {
+						legends.put(commonEntityVO.getId(), ((Map) object).get("value").toString());
+					}
+				}
 	    	}
 	    }
 	    

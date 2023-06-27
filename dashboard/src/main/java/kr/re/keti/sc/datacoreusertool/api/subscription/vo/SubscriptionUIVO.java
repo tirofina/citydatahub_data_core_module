@@ -20,7 +20,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SubscriptionUIVO {
 	/** DataModel */
-	private String type;
+	private String typeUri;
 	/** Entity ID */
 	private String id;
 	/** Attributes */
