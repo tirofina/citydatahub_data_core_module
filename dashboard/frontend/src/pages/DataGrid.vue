@@ -349,6 +349,7 @@ export default {
   computed: {
     keywordIsEmpty() {
       return !this.searchValue || this.searchValue === '';
+<<<<<<< HEAD
     },
 
     validatedSearchValue: {
@@ -364,6 +365,8 @@ export default {
 
         this.searchValue = newValue;
       }
+=======
+>>>>>>> 017649ae53c22e036d4b57801f384a12037c03ec
     }
   },
   methods: {
