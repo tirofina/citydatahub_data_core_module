@@ -13,7 +13,7 @@
     </b-form>
     <div class="mt-3">
       <el-tabs v-if="activeName" v-model="actName" @tab-click="tabClick">
-        <el-tab-pane label="Search Options" name="first">
+        <el-tab-pane v-if="!this.searchValue || this.searchValue === ''" label="Search Options" name="first">
           <div class="col-12 row mt-2">
             <slot name="searchOption"></slot>
           </div>
@@ -99,16 +99,17 @@ export default {
     visible: Boolean, // show dialog
     activeName: String, // active Tab Name
     isChart: Boolean, // Check chartType
+    searchValue: String,
   },
   watch: {
     activeName(value) {
-      console.log(value);
+      // console.log(value);
       this.actName = value;
-    }
+    },
   },
   data() {
     return {
-      actName: 'first',
+      actName: this.searchValue ? 'second' : 'first',
     }
   },
   methods: {

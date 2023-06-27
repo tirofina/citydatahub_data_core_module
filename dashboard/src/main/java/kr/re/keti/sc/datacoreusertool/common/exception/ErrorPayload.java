@@ -2,6 +2,8 @@ package kr.re.keti.sc.datacoreusertool.common.exception;
 
 import kr.re.keti.sc.datacoreusertool.api.dataservicebroker.vo.CommonEntityVO;
 import kr.re.keti.sc.datacoreusertool.common.code.WidgetDashboardCode;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Error payload class
@@ -104,4 +106,8 @@ public class ErrorPayload extends CommonEntityVO {
         this.setDebugMessage(debugMessage);
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE);
+    }
 }

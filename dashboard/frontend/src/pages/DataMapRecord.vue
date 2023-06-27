@@ -37,7 +37,7 @@
                     v-model="searchValue"
                     :disabled="isDisabledSearch"
                   ></b-form-input>
-                  <el-button size="small" type="info" @click="handleShowPopup">{{ $t('search.options') }}</el-button>
+                  <el-button size="small" type="info" @click="handleShowPopup" v-if="keywordIsEmpty && !isBtnLoading">{{ $t('search.options') }}</el-button>
                   <el-button size="small" type="primary" @click="getMapRecord" v-if="!isBtnLoading">{{ $t('comm.search') }}</el-button>
                   <el-button size="small" type="primary" :loading="true" v-if="isBtnLoading">{{ $t('search.searching') }}</el-button>
                 </b-form>
@@ -236,6 +236,7 @@
  * @components SearchConfiguration, ElementTree, DynamicSearch
  * JsonViewer, LineChart, GmapMap, GmapMarker, GmapCluster
  */
+import { dataModelApi } from '@/moudules/apis';
 import {gmapApi as google, loadGmapApi} from 'vue2-google-maps';
 import GmapMap from 'vue2-google-maps/src/components/map';
 import GmapCluster from 'vue2-google-maps/src/components/cluster';
@@ -260,7 +261,10 @@ export default {
     GmapCluster
   },
   computed: {
-    google
+    google,
+    keywordIsEmpty() {
+      return !this.searchValue || this.searchValue === '';
+    }
   },
   beforeMount () {
     axios.get('/getapikey')
@@ -673,10 +677,10 @@ export default {
       this.$http.post('/entities', { dataModelId: this.selected })
         .then(response => {
           const status = response.status;
-          const items = response.data;
           if (status === 204) {
             return null;
           }
+          const items = response.data;
 
           let result = [{ value: null, text: this.$i18n.t('message.selectOption'), disabled: true }];
           items.commonEntityVOs.map(item => {
@@ -740,94 +744,121 @@ export default {
           timeproperty: this.dateSelected === 'after' ? 'modifiedAt' : null,
         };
       }
-      this.$http.post('/temporal/entities', params)
-        .then(response => {
-          const status = response.status;
-          // TODO : The alignment specification has been changed, so the front needs to reverse processing and change later.
-          const items = response.data.commonEntityVOs.reverse();
+      // 데이터 모델 조회 => 순서 상 맨 처음으로 attributeType이 GeoProperty을 갖는 것을 대표 값으로 선택
+      dataModelApi.query({dataModelId: params.dataModelId , dataModelType: null}).
+      then(response => {
+        // 주어진 배열에서 첫번째로 attributeType이 GeoProperty인 속성을 찾는 함수
+        function setRepresentativeGeoProperty(attributes) {
+          return attributes.find(attribute => attribute.attributeType === 'GeoProperty');
+        }
 
-          if (this.flightPath) {
-            this.flightPath.setMap(null);
-            this.flightPath = null;
-          }
+        const geoPropertyAttribute = setRepresentativeGeoProperty(response.attributes);
+        const representativeGeoProperty = geoPropertyAttribute ? geoPropertyAttribute.name : undefined;
 
-          if (status === 204) {
-            this.$alert(this.$i18n.t('message.noSearchResult'));
-            this.markers = [];
-            this.flightPath = null;
-            this.isBtnLoading = false;
-            this.animateCircle(null);
-            return null;
-          }
 
-          // init marker info
-          this.markers = [];
-          const markerPath = [];
-          items.map(item => {
-            const locationKey = item['geoproperty_ui'];
-            this.markers.push({
-              position: {
-                lat: item[locationKey].value.coordinates[1],
-                lng: item[locationKey].value.coordinates[0],
-              },
-              mapInfo: item,
-              displayValue: item.displayValue,
-            });
-            markerPath.push({
-              lat: item[locationKey].value.coordinates[1],
-              lng: item[locationKey].value.coordinates[0],
-            });
-          });
+        this.$http.post('/temporal/entities', params)
+          .then(response => {
+            const status = response.status;
+            // TODO : The alignment specification has been changed, so the front needs to reverse processing and change later.
 
-          if (this.markers.length === 0) {
-            this.$alert(this.$i18n.t('message.noSearchResult'));
-            this.flightPath = null;
-            this.isBtnLoading = false;
-            return null;
-          }
+            if (status === 204) {
+              this.$alert(this.$i18n.t('message.noSearchResult'));
+              this.markers = [];
+              this.flightPath = null;
+              this.isBtnLoading = false;
+              this.animateCircle(null);
+              return null;
+            }
 
-          const lineSymbol = {
-            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            strokeColor: '#6991fd',
-            scale: 4
-          };
-          this.$refs.geoMap.$mapPromise.then((map) => {
-            // Draw the path of the marker.
-            this.flightPath = new window.google.maps.Polyline({
-              path: markerPath,
-              strokeColor: '#FF0000',
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              icons: [
-                {
-                  icon: lineSymbol,
-                  offset: '100%',
-                }
-              ]
-            });
-            this.animateCircle(this.flightPath);
+            const items = response.data.commonEntityVOs.reverse();
 
-            // auto focus, auto zoom in out
-            const bounds = new window.google.maps.LatLngBounds();
-            let loc = null;
-            this.markers.map(item => {
-              // I'll use a separate one.
-              loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
-              bounds.extend(loc);
-            });
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
-            const zoom = map.getZoom();
-            map.setZoom(zoom > 12 ? 12 : zoom);
-            setTimeout(() => {
-              this.flightPath.setMap(map);
-              if (Object.keys(this.chartList).length > 0) {
-                this.getChartData();
+              if (this.flightPath) {
+                this.flightPath.setMap(null);
+                this.flightPath = null;
               }
-            }, 1000);
-            this.isBtnLoading = false;
+            // init marker info
+            this.markers = [];
+            const markerPath = [];
+
+            items.map(item => {
+              const locationKey = item[representativeGeoProperty];
+              if(locationKey && Array.isArray(locationKey.value.coordinates)){
+                this.markers.push({
+                  position: {
+                    lat: locationKey.value.coordinates[1],
+                    lng: locationKey.value.coordinates[0],
+                  },
+                  mapInfo: item,
+                  displayValue: item.displayValue,
+                });
+                markerPath.push({
+                  lat: locationKey.value.coordinates[1],
+                  lng: locationKey.value.coordinates[0],
+                  time: locationKey.observedAt,
+                });
+
+              }
+              else {
+                // console.error('Invalid locationKey or coordinates');
+              }
+            });
+
+            if (this.markers.length === 0) {
+              this.$alert(this.$i18n.t('message.noSearchResult'));
+              this.flightPath = null;
+              this.isBtnLoading = false;
+              return null;
+            }
+
+            const lineSymbol = {
+              path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              strokeColor: '#6991fd',
+              scale: 4
+            };
+
+            //markerPath배열을 observedAt 기준으로 정렬
+            markerPath.sort(function(a, b) {
+              return Date.parse(a.time) - Date.parse(b.time);
+            });
+
+            this.$refs.geoMap.$mapPromise.then((map) => {
+              // Draw the path of the marker.
+              this.flightPath = new window.google.maps.Polyline({
+                path: markerPath,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                icons: [
+                  {
+                    icon: lineSymbol,
+                    offset: '100%',
+                  }
+                ]
+              });
+              this.animateCircle(this.flightPath);
+
+              // auto focus, auto zoom in out
+              const bounds = new window.google.maps.LatLngBounds();
+              let loc = null;
+              this.markers.map(item => {
+                // I'll use a separate one.
+                loc = new window.google.maps.LatLng(item.position.lat, item.position.lng);
+                bounds.extend(loc);
+              });
+              map.fitBounds(bounds);
+              map.panToBounds(bounds);
+              const zoom = map.getZoom();
+              map.setZoom(zoom > 12 ? 12 : zoom);
+              setTimeout(() => {
+                this.flightPath.setMap(map);
+                if (Object.keys(this.chartList).length > 0) {
+                  this.getChartData();
+                }
+              }, 1000);
+              this.isBtnLoading = false;
+            });
           });
-        });
+      });
     },
     animateCircle(flightPath) {
       if (this.intervalId || flightPath === null) {
@@ -838,6 +869,7 @@ export default {
       }
       let count = 0;
       this.intervalId = setInterval(() => {
+        // flight 마커 이동속도
         count = (count + 1) % 200;
         const icons = flightPath.get('icons');
         icons[0].offset = count / 2 + '%';
@@ -863,13 +895,14 @@ export default {
       this.$http.post('/temporal/entities', params)
         .then(response => {
           const status = response.status;
-          const items = response.data.commonEntityVOs;
           if (status === 204) {
             this.$alert(this.$i18n.t('message.noSearchResult'));
             return null;
           }
 
-          console.log(items);
+          const items = response.data.commonEntityVOs;
+
+          // console.log(items);
 
           let entityId = null;
           let tempData = {};
@@ -902,12 +935,16 @@ export default {
   mounted() {
     const { id, type } = this.$route.query;
     if (type) {
-      this.selected = type;
-      this.selected2 = id;
-      this.getMapRecord();
-      this.getEntityList();
+      dataModelApi.query({dataModelId: null, dataModelType: type}).then((dataModel) => {
+        this.selected = dataModel.id;
+        this.selected2 = id;
+        this.getMapRecord();
+        this.getEntityList();
+      }).catch(err => console.error('mounted(param) error', err));
     }
+
     this.getDataModelList();
+
     setTimeout(() => {
       this.loadControls();
     }, 1000);

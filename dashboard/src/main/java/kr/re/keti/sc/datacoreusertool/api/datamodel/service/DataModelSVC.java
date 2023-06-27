@@ -58,6 +58,31 @@ public class DataModelSVC {
 		
 		return response;
 	}
+
+	/**
+	 * Retrieve data model by entity type (short name)
+	 * @param type	Entity type
+	 * @return		Data model information retrieved by entity type.
+	 */
+	public ResponseEntity<DataModelVO> getDataModelByEntityType(String type) {
+		ResponseEntity<DataModelVO> result = null;
+		Map<String, String> header = new HashMap<String, String>();
+		Map<String, Object> param = new HashMap<String, Object>();
+
+		header.put(Constants.HTTP_HEADER_KEY_ACCEPT, Constants.ACCEPT_TYPE_APPLICATION_JSON);
+		param.put("type", type);
+
+		ResponseEntity<List<DataModelVO>> response = dataCoreRestSVC.getList(datamodelUrl, DEFAULT_PATH_URL, header,
+				null, param, new ParameterizedTypeReference<List<DataModelVO>>() {});
+
+		if (response != null && response.getBody() != null) {
+			result = ResponseEntity.status(response.getStatusCode()).body(response.getBody().get(0));
+		} else {
+			result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+
+		return result;
+	}
 	
 	/**
 	 * Retrieve data model
@@ -186,6 +211,59 @@ public class DataModelSVC {
 		
 		return ResponseEntity.status(response.getStatusCode()).body(attributeList);
 	}
+
+	/**
+	 * Retrive attribute of data model
+	 * @param dataModelVO	Data model VO
+	 * @param attrType	Attribute type
+	 * @return			List of attribute name of Data Model
+	 */
+	public List<String> getDataModelAttrs(DataModelVO dataModelVO, String attrType) {
+		return getDataModelAttrs (dataModelVO, attrType, null);
+	}
+
+	/**
+	 * Retrive attribute of data model
+	 * @param dataModelVO	Data model VO
+	 * @param attrType	Attribute type
+     * @param propertyType	Property type
+	 * @return			List of attribute name of Data Model
+	 */
+	public List<String> getDataModelAttrs(DataModelVO dataModelVO, String attrType, String propertyType) {
+		List<String> attributeList = new ArrayList<String>();
+
+		if (!ValidateUtil.isEmptyData(dataModelVO)) {
+			List<Attribute> attributes = dataModelVO.getAttributes();
+
+			if(Constants.TOP_LEVEL_ATTR.equals(attrType)) {
+				for(Attribute attribute : attributes) {
+					attributeList.add(attribute.getName());
+				}
+			}
+			else if(Constants.OBSERVED_AT_ATTR.equals(attrType)) {
+				//TODO: Recursive
+				for(Attribute attribute : attributes) {
+					if(attribute.getHasObservedAt() != null && attribute.getHasObservedAt()) {
+						if (propertyType == null || propertyType.equals(attribute.getAttributeType().getCode()) ) {
+							attributeList.add(attribute.getName());
+						}
+					}
+				}
+			}
+			else if(Constants.ALL_LEVEL_ATTR.equals(attrType)) {
+				getAttrsType(null, attributes, attributeList);
+			}
+			else {
+				log.error("Unsupported retrieve attrType: " + attrType);
+				//TODO: handle ERROR
+				return attributeList;
+			}
+			Collections.sort(attributeList);
+		}
+
+		return attributeList;
+	}
+
 	
 	/**
 	 * Get list of attribute type
@@ -294,9 +372,9 @@ public class DataModelSVC {
 				uiTree.setChild(uiAttrTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				uiTree.getChild().addAll(uiObjectMemberTreeVO);
 				
@@ -310,9 +388,9 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}
@@ -324,18 +402,18 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			} else {
 				UiTreeVO uiTree = setTreeAttrLabel(attribute, currentId, attribute.getValueType());
 				// No valueType, it is treated as a String.
 				if(attribute.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(attribute.getValueType().name());
+					uiTree.setValueType(attribute.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}
@@ -364,18 +442,18 @@ public class DataModelSVC {
 				uiTree.setChild(uiTreeVO);
 				// No valueType, it is treated as a String.
 				if(objectMember.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(objectMember.getValueType().name());
+					uiTree.setValueType(objectMember.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			} else {
 				UiTreeVO uiTree = setTreeObjectMemberLabel(objectMember, currentId, parentValueType);
 				// No valueType, it is treated as a String.
 				if(objectMember.getValueType() == null) {
-					uiTree.setValueType(AttributeValueType.STRING.name());
+					uiTree.setValueType(AttributeValueType.STRING.getCode());
 				} else {
-					uiTree.setValueType(objectMember.getValueType().name());
+					uiTree.setValueType(objectMember.getValueType().getCode());
 				}
 				treeStructure.add(uiTree);
 			}
@@ -405,13 +483,13 @@ public class DataModelSVC {
 		}
 		
 		if(!ValidateUtil.isEmptyData(attrType) && !ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + attrType + ":" + valueType + ")");
+			uiTree.setLabel(attrName + "(" + attrType.getCode() + ":" + valueType.getCode() + ")");
 		}
 		else if(!ValidateUtil.isEmptyData(attrType) && ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + attrType + ")");
+			uiTree.setLabel(attrName + "(" + attrType.getCode() + ")");
 		}
 		else if(ValidateUtil.isEmptyData(attrType) && !ValidateUtil.isEmptyData(valueType)) {
-			uiTree.setLabel(attrName + "(" + valueType + ")");
+			uiTree.setLabel(attrName + "(" + valueType.getCode() + ")");
 		} else {
 			// Nothing
 		}
@@ -463,7 +541,7 @@ public class DataModelSVC {
 		
 		uiTree.setId(objectMemberName);
 		uiTree.setFullId(fullId);
-		uiTree.setLabel(objectMemberName + "(" + objectMemberValueType + ")");
+		uiTree.setLabel(objectMemberName + "(" + objectMemberValueType.getCode() + ")");
 		
 		// GEOJSON, OBJECT, and DATE types are excluded from the query target.
 		if (AttributeValueType.GEO_JSON.equals(objectMember.getValueType()) ||

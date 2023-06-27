@@ -15,6 +15,7 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
+              <!--차트 유형-->
               <label class="control-label">{{ $t('widget.widgetType') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -38,6 +39,7 @@
           </div>
           <div class="col-md-4" v-if="display['chartType']">
             <div class="form-group">
+              <!-- 데이터 모델 ID -->
               <label class="control-label">{{ $t('widget.dataModelID') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -61,6 +63,7 @@
           </div>
           <div class="col-md-4" v-if="display['typeUri']">
             <div class="form-group">
+              <!-- Type URI-->
               <label class="control-label">{{ $t('widget.typeUri') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -87,8 +90,10 @@
             v-if="display['entityId']"
           >
             <div class="form-group">
+              <!-- Entity ID -->
               <label class="control-label">{{ $t('widget.entityInstanceID') }}</label>
-<!--              :multiple="isEntityIdMultiple && (['bar'].indexOf(formData['chartType']) > -1)"-->
+              <!-- :multiple="isEntityIdMultiple && (['bar'].indexOf(formData['chartType']) > -1)"-->
+              <!-- :multiple="isEntityIdMultiple && !(['text'].indexOf(formData['chartType']) > -1)" -->
               <el-select
                 class="mr-sm-2"
                 v-model="entityId"
@@ -116,6 +121,7 @@
             v-if="display['displayData']"
           >
             <div class="form-group">
+              <!--표시 데이터(일부 차트 타입에서만 표시됨)-->
               <label class="control-label">{{ $t('widget.displayData') }}</label>
               <el-select
                 class="mr-sm-2"
@@ -141,6 +147,7 @@
             v-if="display['chartTitle']"
           >
             <div class="form-group">
+              <!--타이틀-->
               <label class="control-label">{{ $t('widget.widgetTitle') }}</label>
               <b-form-input
                 id="inline-form-input-name"
@@ -156,6 +163,7 @@
             v-if="display['yaxisRange']"
           >
             <div class="form-group">
+              <!--Y축 범위 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.rangeOfYaxis') }}</label>
               <b-form-input
                 id="inline-form-input-name"
@@ -170,6 +178,7 @@
             v-if="display['timerel']"
           >
             <div class="form-group">
+              <!--시간 조건 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('search.timeRelation') }}</label>
               <el-select
                 v-model="timerel"
@@ -194,6 +203,7 @@
             v-if="display['time']"
           >
             <div class="form-group">
+              <!--일시 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.time') }}</label>
               <el-date-picker
                 v-if="timerel !== 'between'"
@@ -223,6 +233,7 @@
             v-if="display['realtimeUpdateEnabled']"
           >
             <div class="form-group">
+              <!--실시간 갱신 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.autoRefresh') }}
               </label>
               <el-select
@@ -248,6 +259,7 @@
             v-if="display['chartYName']"
           >
             <div class="form-group">
+              <!--Y축명 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.labelOfYaxis') }}
               </label>
               <input type="text" class="form-control" v-model="formData['chartYName']" placeholder="최대 20자" maxlength="20"/>
@@ -258,6 +270,7 @@
             v-if="display['chartXName']"
           >
             <div class="form-group">
+              <!--X축명 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.labelOfXaxis') }}</label>
               <input type="text" class="form-control" v-model="formData['chartXName']" placeholder="최대 20자" maxlength="20"/>
             </div>
@@ -267,9 +280,12 @@
             v-if="display['updateInterval']"
           >
             <div class="form-group">
+              <!--갱신주기 (일부 차트에서만 보임)-->
               <label class="control-label">{{ $t('widget.refreshInterval') }}</label>
               <input
                 type="number"
+                min="0"
+                max="2147483646"
                 class="form-control"
                 :placeholder="$t('message.ZeroEqualRefresh')"
                 v-model="formData['updateInterval']"
@@ -281,6 +297,7 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
+              <!--노출 텍스트 (custom Text 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.textToDisplay') }}</label>
               <input
                 type="text"
@@ -296,6 +313,7 @@
             v-if="display['custom_text']"
           >
             <div class="form-group">
+              <!--폰트 사이즈 (Custom Text 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.fontSize') }}</label>
               <el-select
                 v-model="formData['extention2']"
@@ -319,6 +337,7 @@
             v-if="display['image']"
           >
             <div class="form-group">
+              <!--이미지 파일 (Image 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.imageFile') }}</label>
               <div>
                 <el-upload
@@ -339,6 +358,7 @@
             v-if="display['latestMap']"
           >
             <div class="form-group">
+              <!--사용자 지도 (Latest Map 차트 타입에서만 보임)-->
               <label class="control-label">{{ $t('widget.userMapLatestData') }}</label>
               <div>
                 <el-select
@@ -373,6 +393,7 @@
         :optionFiltering="formData.chartType === 'scatter'"
         @popover-show="chartOptRadio = null"
       >
+        <!-- Line / Bar 차트 타입일 때 차트 값에서 필드 선택 시 뜨는 팝업-->
         <template v-slot:popover-content="{show, node}">
           <el-radio-group v-model="chartOptRadio" @change="() => onChartOptChange(show, node)">
             <el-radio :label="1" v-if="formData['chartType'] === 'scatter'">{{ $t('widget.XaxisSetting') }}</el-radio>
@@ -457,8 +478,7 @@
           <el-button size="small" type="primary" @click="handleDynamicSearchSave">{{ $t('comm.save') }}</el-button>
         </div>
       </b-form>
-      <DynamicSearch v-for="(map, index) in addList" :key="index" :formData="map" :index="index"
-                     @remove="searchRemove"/>
+      <DynamicSearch v-for="(map, index) in addList" :key="index" :formData="map" :index="index" @remove="searchRemove"/>
     </template>
     <template v-slot:buttonGroup>
       <el-popover
@@ -475,6 +495,7 @@
         </div>
         <el-button slot="reference" class="mr-2" type="danger" size="small">{{ $t('widget.deleteWidget') }}</el-button>
       </el-popover>
+      <!-- <el-button class="ml-1" type="primary" @click="widgetSave" size="small" :disabled="entityIds.length < 1" >{{ $t('comm.save') }}</el-button> -->
       <el-button class="ml-1" type="primary" @click="widgetSave" size="small">{{ $t('comm.save') }}</el-button>
     </template>
   </WidgetPopup>
@@ -528,9 +549,11 @@ export default {
     isChartAttributeString() {
       const chartAttribute = this.validation.chartAttribute;
       if (!chartAttribute) return false;
-      return !(chartAttribute === 'DOUBLE' || chartAttribute === 'INTEGER');
+      return !(chartAttribute === 'Double' || chartAttribute === 'Integer');
     },
     isEntityIdMultiple() {
+      // const {chartType} = this.formData;  // 차트 타입 할당
+      // if (chartType) return false;
       if (this.isLineOrBarChartType) return true;
       return this.formData['dataType'] === 'last';
     },
@@ -571,6 +594,7 @@ export default {
   },
   data() {
     return {
+      valueData: [],
       isEditImage: false,
       messageVisible: false,
       time: null,
@@ -734,34 +758,93 @@ export default {
     tabClick(tab, event, active) {
       this.activeName = active;
     },
-    async getEntityList(dataModelId, typeUri) {
-      this.$http.post('/entityIds', {dataModelId, typeUri})
-        .then(response => {
-          const status = response.status;
-          const items = response.data;
+  async  getEntityList(dataModelId, typeUri) {
+      try {
+        const { status, data: items } = await this.$http.post('/entityIds', {dataModelId, typeUri});
 
-          if (status === 204) {
-            this.entityIds = [];
-            this.treeData = [];
-            return false;
-          }
-          let result = [{value: '', text: 'all', disabled: false}];
-          items.map(item => {
-            return result.push({value: item, text: item, disabled: false});
-          });
-          this.entityIds = result;
-          const {dataType, chartType} = this.formData;
-          this.entityIds.at(0).disabled = dataType === 'history' && (['scatter', 'histogram'].indexOf(chartType) >= 0);
-
-          return true;
-        }).then(hasEntityIds => {
-        if (hasEntityIds) {
-          dataModelApi.attributes({dataModelId, typeUri})
-            .then(data => {
-              this.treeData = data;
-            });
+        if (status === 204) {
+          this.resetData();
+          return;
         }
-      })
+
+        this.processEntityIds(items);
+        const hasEntityIds = this.entityIds.length > 0;
+
+        if (hasEntityIds) {
+          const data = await dataModelApi.attributes({dataModelId, typeUri});
+          this.treeData = this.processTreeData(data);
+
+          let chartAttribute = this.formData['chartAttribute'];
+
+          const deepFind = (obj, key, value) => {
+            if (!obj || typeof obj !== 'object') return null;
+            if (obj[key] === value) return obj;
+
+            for (let i in obj) {
+              if (obj.hasOwnProperty(i)){
+                let found = deepFind(obj[i], key, value);
+                if (found) return found;
+              }
+            }
+
+            return null;
+          }
+
+          let matchedObject = this.valueData.filter(value => typeof value === 'object').map(value => deepFind(value, 'fullId', chartAttribute)).filter(Boolean)[0];
+
+          if (matchedObject) {
+            // Matched object를 이용해 formData와 validation 속성을 업데이트
+            this.formData.chartAttribute = matchedObject.fullId;
+            this.validation.chartAttribute = matchedObject.valueType;
+            this.chartUnit = null;
+          }
+        }
+      } catch (error) {
+        console.error('Error in getEntityList:', error);
+      }
+    },
+    resetData() {
+      this.entityIds = [];
+      this.treeData = [];
+    },
+    processEntityIds(items) {
+      const result = items.map(item => ({value: item, text: item, disabled: false}));
+      result.unshift({value: '', text: 'all', disabled: false});
+      this.entityIds = result;
+
+      const {dataType, chartType} = this.formData;
+      this.entityIds.at(0).disabled = dataType === 'history' && ['scatter', 'histogram'].includes(chartType);
+    },
+    setSearchableToFalse(valueData) {
+      // 각 속성의 type값 추출
+      // console.log(valueData);
+      this.valueData.push(valueData);
+
+      const chartTypeRestrictions = {
+        donut: ['Integer', 'Double'],
+        bar: ['Integer', 'Double'],
+        pie: ['Integer', 'Double'],
+        line: ['Integer', 'Double'],
+        boolean: ['Boolean'],
+        histogram: ['Integer'],
+        scatter: ['Integer', 'Double']
+      };
+      const allowedTypes = chartTypeRestrictions[this.formData.chartType];
+
+      if (typeof valueData === 'object' && valueData !== null) {
+        if ('valueType' in valueData && allowedTypes && !allowedTypes.includes(valueData.valueType)) {
+          valueData.searchable = false;
+        }
+        for (let key in valueData) {
+          if (typeof valueData[key] === 'object' && valueData[key] !== null) {
+            this.setSearchableToFalse(valueData[key]);
+          }
+        }
+      }
+    },
+    processTreeData(data) {
+      data.forEach(this.setSearchableToFalse);
+      return data;
     },
     getAttributed() {
       dataModelApi.attributes(value)
@@ -822,6 +905,10 @@ export default {
         .then(data => {
           const {chartType, entityRetrieveVO, file, extention1, extention2, dataType, chartAttribute} = data;
           this.formData = data;
+          // console.error("getWidgetInfo "+this.formData.entityRetrieveVO.type);
+          if (this.formData['chartAttribute']) {
+            this.valueData.push(this.formData['chartAttribute']);
+          }
 
           if (chartType === 'histogram') {
             this.chartUnit = extention1;
@@ -845,7 +932,7 @@ export default {
               this.time = entityRetrieveVO.time ? new Date(entityRetrieveVO.time) : null;
             }
 
-            if (['line', 'bar', 'donut', 'pie'].indexOf(chartType) > -1) {
+            if (['line', 'bar', 'donut', 'pie', 'text'].indexOf(chartType) > -1) {
               this.entityId = entityRetrieveVO.id.split(',');
             } else if (['scatter'].indexOf(chartType) > -1) {
               this.entityId = dataType === 'history' ? entityRetrieveVO.id : entityRetrieveVO.id.split(',');
@@ -909,14 +996,6 @@ export default {
         }
       });
     },
-    onChartClick(data, node) {
-      if (!this.visibleTreeOption) {
-        const {fullId, valueType} = data;
-        this.formData.chartAttribute = fullId;
-        this.validation.chartAttribute = valueType;
-        this.chartUnit = null;
-      }
-    },
     onDataTypeChange(value) {
       this.entityId = null;
       const {dataType, chartType} = this.formData;
@@ -976,12 +1055,24 @@ export default {
         }
       }
     },
+    // Line이랑 Bar 제외 나머지에서 차트 값 선택 시
+    onChartClick(data, node) {
+      if (!this.visibleTreeOption) {
+        const {fullId, valueType} = data;
+        this.formData.chartAttribute = fullId;
+        this.validation.chartAttribute = valueType;
+        this.chartUnit = null;
+      }
+    },
+    // Line이랑 Bar에서 차트 값 선택 시
     onChartOptChange(show, node) {
       if (show && node) {
         switch (this.chartOptRadio) {
           case 1: this.attrs.x = node.data; break;
           case 2: this.attrs.y = node.data; break;
-          case 3: this.formData['chartAttribute'] = node.data.fullId; break;
+          case 3: this.formData['chartAttribute'] = node.data.fullId;
+                  this.validation.chartAttribute = node.data.valueType;
+                  break;
           case 4: this.legendDisplay = node.data.fullId; break;
         }
       }
@@ -1145,17 +1236,33 @@ export default {
       this.widgetSave(true);
     },
     widgetSave() {
+      // console.error(this.formData.entityRetrieveVO);
       const query = [];
       const chartType = this.formData['chartType'];
 
       // start exceptions
 
-      // 1. String value cannot be selected for chart-type widgets.
-      const notPermitStrChartType = chartType === 'pie' || chartType === 'donut' || chartType === 'bar' || chartType === 'line' || chartType === 'boolean' || chartType === 'histogram' || chartType === 'scatter';
-      if (notPermitStrChartType && this.validation.chartAttribute === "STRING") {
-        this.$alert(this.$i18n.t('message.notSupportStringType'));
-        return;
+      // 1. Data value selection limitation based on chart type
+      const chartTypeRestrictions = {
+        donut: ['Integer', 'Double'],
+        bar: ['Integer', 'Double'],
+        pie: ['Integer', 'Double'],
+        line: ['Integer', 'Double'],
+        boolean: ['Boolean'],
+        histogram: ['Integer'],
+        scatter: ['Integer', 'Double']
+      };
+
+      const allowedTypes = chartTypeRestrictions[chartType];
+
+      if (!this.formData['chartAttribute']){
+        if (allowedTypes && !allowedTypes.includes(this.validation.chartAttribute)) {
+          const allowedTypesMessage = allowedTypes.join(', ');
+          this.$alert(`${this.$i18n.t('message.notSupportType')} ${chartType}: ${allowedTypesMessage}]`);
+          return;
+        }
       }
+
 
       // 2. Required verification of entity ID.
       if (!this.isEntityIdDisabled && this.display['entityId'] && this.entityId === null) {
@@ -1170,7 +1277,7 @@ export default {
       }
 
       // 3-1. Number value only can be selected for scatter widgets.
-      const isNumberType = (data) => (['INTEGER', 'DOUBLE', 'FLOAT', 'NUMBER'].indexOf(data.valueType) < 0);
+      const isNumberType = (data) => (['Integer', 'Double'].indexOf(data.valueType) < 0);
       if (chartType === 'scatter' && (isNumberType(this.attrs.x) || isNumberType(this.attrs.y))) {
         this.$alert(this.$i18n.t('message.onlySupportNumberType'));
         return;
@@ -1219,21 +1326,33 @@ export default {
       } else {
         this.formData.entityRetrieveVO = null;
       }
-      
-      // Code for limiting the number of entities
-      if (this.entityId.length > 0) {
-        const entityIdCount = this.entityId.join().split(',').length;
 
-        if (this.entityId.length > 1000) {
-          this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
+      let chartTypesNotToVerify = ['Image', 'text', 'custom_text', 'boolean', 'map_latest', 'histogram'];
+
+      if (!chartTypesNotToVerify.includes(chartType)) {
+        // Code for limiting the number of entities
+        if (this.entityId.length > 0) {
+          const entityIdCount = this.entityId.join().split(',').length;
+
+          if (this.entityId.length > 1000) {
+            this.$alert(this.$i18n.t('message.MaximumLengthOfEntities'));
+            return;
+          }
+          // For 'Text' type, don't join and calculate count.
+          if (chartType !== 'text' && entityIdCount > 10) {
+            this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
+            return;
+          }
+        }
+      }
+
+      // text 위젯의 경우 1개의 엔티티만 허용
+      if (chartType === 'text') {
+        if (JSON.stringify(this.entityId).length < 1000 && JSON.stringify(this.entityId).indexOf(',') !== -1) {
+          this.$alert(this.$i18n.t('message.OnlyOneEntityForTextType'));
           return;
         }
-
-        if (entityIdCount > 10) {
-          this.$alert(this.$i18n.t('message.MaximumNumberOfEntities'));
-          return;
-        }
-      }   
+      }
 
       // api updateInterval default 0 setting
       // (Error occurs when requesting deletion of widget websocket.)
@@ -1254,29 +1373,6 @@ export default {
         this.formData.extention2 = this.validation.chartAttribute;
       } else if (chartType === 'scatter') {
         this.formData.chartAttribute = `${this.attrs.x.id}, ${this.attrs.y.id}`;
-      }
-
-      // chartAttribute validation
-      if (chartType === 'histogram') {
-        if (this.validation.chartAttribute !== "INTEGER") {
-          this.$alert(this.$i18n.t('message.onlySupportIntegerType'));
-          return;
-        }
-      }
-
-      if (chartType === 'boolean') {
-        if (this.validation.chartAttribute !== "BOOLEAN") {
-          this.$alert(this.$i18n.t('message.notSupportType'));
-          return;
-        }
-      }
-
-      // TODO: 하드코딩 방식에서 벗어나기
-      const notSupportedAttrs = ['isVirtualData', 'location', 'name', 'waterType', 'pipeType', 'operationStatus', 'waterProcessType', 'deviceId'];
-      
-      if (notPermitStrChartType && notSupportedAttrs.includes(this.formData.entityRetrieveVO.attrs[0])) {
-        this.$alert(this.$i18n.t('message.notSupportType'));
-        return;
       }
 
       if (this.visibleTreeOption) {
@@ -1419,6 +1515,7 @@ export default {
         });
     },
     async onClose() {
+      this.valueData = [];
       this.isEditImage = false;
       this.dataModel = null;
       this.treeData = [];

@@ -12,7 +12,7 @@ const request = async (method, url, data) => {
       data,
     });
 
-    console.info("HTTP: " + response.status);
+    // console.info("HTTP: " + response.status);
     if (response.status >= 200 && response.status <= 299) {
       return response.data;
     } else {
@@ -98,6 +98,10 @@ export const widgetApi = {
 export const dataModelApi = {
   fetch() {
     return request('get', '/datamodelIds');
+  },
+  query({dataModelId, dataModelType}) {
+    const query = dataModelId ? `id=${dataModelId}` : `type=${dataModelType}`;
+    return request('get', `/datamodels?${query}`);
   },
   attributes({dataModelId, typeUri}) {
     const query = dataModelId ? `id=${dataModelId}` : `typeUri=${typeUri}`;
