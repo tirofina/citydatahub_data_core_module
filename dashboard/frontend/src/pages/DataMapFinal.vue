@@ -346,8 +346,6 @@ export default {
   // },
   data () {
     return {
-      modelSelected: false,
-      searchChecked: false,
       gridSize: 0,
       googleMap: null,
       lastShape: null,
@@ -573,6 +571,7 @@ export default {
       this.gridData = []; // init entity id list
       this.$refs.tuiGrid1.invoke('resetData', this.gridData);
     },
+
     setTypeParams(type) {
       const typeParams = [];
       this.dynamicTags.forEach(value => {
@@ -772,7 +771,6 @@ export default {
       this.attributeValue = displayAttr;
     },
     onShowPopup() {
-      console.error("HELLO?");
       // Selected data cannot be added.
       const result = this.dataModels.filter(s => this.dynamicTags.indexOf(s.value) > -1);
       result.forEach(s => s.disabled = true);
@@ -1018,7 +1016,6 @@ export default {
         operator: null,
         value: null
       });
-        console.error(this.addList);
     },
     goSubscriptions(isAlert) {
       this.$http.post('/subscriptions', this.subscribeList)
@@ -1118,34 +1115,17 @@ export default {
 
           // init marker info
           this.markers = [];
-          // 데이터를 담을 배열을 초기화
           const data = [];
-
-          // 주어진 객체(obj) 내에서 GeoProperty 타입을 가지는 첫번째 속성을 찾아 해당 속성을 기반으로 마커를 생성하는 함수
-          function createFirstMarkerFromGeoProperty(obj, resultItem) {
-            let marker = null;
-
-            Object.keys(obj).some(key => {
-              if (obj[key] && obj[key].type === 'GeoProperty') {
-                const { coordinates } = obj[key].value;
-                marker = {
-                  position: {
-                    lat: coordinates[1],
-                    lng: coordinates[0],
-                  },
-                  mapInfo: resultItem,
-                  displayValue: resultItem.displayValue,
-                  icon: resultItem.icon
-                };
-                return true;
-              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                marker = createFirstMarkerFromGeoProperty(obj[key], resultItem);
-                if (marker) {
-                  return true;
+          // marker info setting
+          items.map(item => {
+            item.commonEntityVOs.map(resultItem => {
+              iconData.map((item2, index) => {
+                if (item2.type === resultItem.type) {
+                  resultItem['icon'] = item2.icon
                 }
-              }
-              return false;
+              });
             });
+          });
 
           items.map(item => {
             item.commonEntityVOs.map(resultItem => {
