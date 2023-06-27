@@ -654,6 +654,7 @@ export default {
     handleTagClose(tag) {
       this.dataModels.forEach(item => {
         if (item.value === tag) {
+          this.modelSelected = false;
           return item.disabled = false;
         }
       });
@@ -714,6 +715,7 @@ export default {
       this.dynamicQuery = {};
       this.visible3 = false;
       this.displayAttribute[this.attributeValue] = null;
+      this.modelSelected = false;
       this.attributeValue = null;
     },
     searchRemove(id, index) {
@@ -769,6 +771,7 @@ export default {
       this.attributeValue = displayAttr;
     },
     onShowPopup() {
+      console.error("HELLO?");
       // Selected data cannot be added.
       const result = this.dataModels.filter(s => this.dynamicTags.indexOf(s.value) > -1);
       result.forEach(s => s.disabled = true);
@@ -779,6 +782,7 @@ export default {
       this.addList = [];
       this.dynamicQuery = {};
       this.searchChecked = false;
+      this.modelSelected = false;
     },
     handleInputConfirm(val) {
       this.onDataModelChange(val);
