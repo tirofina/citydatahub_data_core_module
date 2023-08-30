@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dh-datacore-ingest-interface
+    name: DH-DATACORE-INGEST-INTERFACE
 
 server:
   port: 8443
@@ -74,14 +74,15 @@ datacore:
 
 eureka:
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: false
+    hostname: my-external-ip-address-or-name
 
   client:
     enabled: false
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://133.186.162.81:8888/eureka, http://133.186.162.82:8888/eureka, http://133.186.162.83:8888/eureka
+      defaultZone: http://eureka-server-1.local:8888/eureka, http://eureka-server-2.local:8888/eureka, http://eureka-server-3.local:8888/eureka
 
 entity:
   default.context-uri: https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld

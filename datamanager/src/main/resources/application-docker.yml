@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dh-datacore-data-manager
+    name: DH-DATACORE-DATA-MANAGER
 
 server:
   port: 8080
@@ -62,14 +62,16 @@ datacore:
 # 유레카 설정
 eureka:
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: false
+    hostname: my-external-ip-address-or-name
+
 
   client:
     enabled: false
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://133.186.162.81:8888/eureka, http://133.186.162.82:8888/eureka, http://133.186.162.83:8888/eureka
+      defaultZone: http://eureka-server-1.local:8888/eureka, http://eureka-server-2.local:8888/eureka, http://eureka-server-3.local:8888/eureka
 
 http.pool:
   max.total: 200

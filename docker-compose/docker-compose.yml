@@ -93,6 +93,8 @@ services:
       TZ: Asia/Seoul
       KAFKA_SECURITY_YN: "N"
       EUREKA_CLIENT_ENABLED: false
+      EUREKA_INSTANCE_HOSTNAME: 172.31.30.143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.28.41:8888/eureka
       REST_PROXY_URL: http://rest-proxy:8082
       SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
@@ -116,6 +118,8 @@ services:
       TZ: Asia/Seoul
       KAFKA_SECURITY_YN: "N"
       EUREKA_CLIENT_ENABLED: false
+      EUREKA_INSTANCE_HOSTNAME: 172.31.30.143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.28.41:8888/eureka
       SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
     depends_on:
@@ -135,8 +139,12 @@ services:
       - ./logs/data-service-broker:/logs
     environment:
       TZ: Asia/Seoul
+      SERVER_TIMEZONE: "UTC"
       KAFKA_SECURITY_YN: "N"
       EUREKA_CLIENT_ENABLED: false
+      EUREKA_INSTANCE_HOSTNAME: 172.31.30.143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.28.41:8888/eureka
+      SPRING_SECURITY_ENABLED: false
       SECURITY_ACL_USEYN: "N"
       JVM_OPTS: -Xmx2048m -Xms2048m
     depends_on:
@@ -166,6 +174,8 @@ services:
       CITYHUB_CLIENT_LOGOUTURI: http://10.0.0.145:30000/security/logout
       CITYHUB_CLIENT_USERINFOURI: http://10.0.0.145:30000/security/users
       EUREKA_CLIENT_ENABLED: false
+      EUREKA_INSTANCE_HOSTNAME: 172.31.30.143
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.28.41:8888/eureka
       JVM_OPTS: -Xmx2048m -Xms2048m
     depends_on:
       broker:
@@ -184,7 +194,6 @@ services:
       - ./logs/datacore-usertool:/logs
     environment:
       TZ: Asia/Seoul
-      SPRING_SECURITY_ENABLED: false
       CITYHUB_CLIENT_CLIENTID: eTqXOEY5CgIWETk37hNY
       CITYHUB_CLIENT_CLIENTSECRET: DnUjgfZxDfuysw9qbLtHD2GQLKY45To8
       CITYHUB_CLIENT_REDIRECTURI: http://172.20.0.120:8084/accesstoken

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dh-datacore-push-agent
+    name: DH-DATACORE-PUSH-AGENT
 
   main:
     web-application-type: none
