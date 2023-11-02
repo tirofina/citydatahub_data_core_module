@@ -1,0 +1,13 @@
+{
+    "datasetId": "%s",
+    "historyStoreType": "all",
+    "enabled": true,
+    "targetTypes": [
+      {
+        "type": "dataServiceBroker",
+        "bigDataStorageTypes": [
+          "rdb"
+        ]
+      }
+    ]
+  }
